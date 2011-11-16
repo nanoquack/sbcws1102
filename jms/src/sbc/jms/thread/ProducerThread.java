@@ -1,5 +1,8 @@
 package sbc.jms.thread;
 
+import java.util.List;
+import java.util.Random;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -12,18 +15,19 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.dto.ComponentEnum;
 import sbc.dto.ProductComponent;
+import sbc.dto.ProductionOrder;
 
 public class ProducerThread implements Runnable {
 
-	private int amount;
+	private List<ProductionOrder> productionList;
 	private int errorRate;
 	private String workername;
 	private int productSequencer=1;
 
 
-	public ProducerThread(String workername, int amount, int errorRate){
+	public ProducerThread(String workername, List<ProductionOrder> productionList, int errorRate){
 		this.workername=workername;
-		this.amount=amount;
+		this.productionList=productionList;
 		this.errorRate=errorRate;
 	}
 
@@ -43,15 +47,20 @@ public class ProducerThread implements Runnable {
 			MessageProducer producer = session.createProducer(destination);
 			producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-			while(amount>0){
-				//TODO: 1-3 seconds production time
-				//TODO: add error rate by setting faulty
-				//TODO: produce more than just 1 CPU :-)
-				// Create a messages
-				ObjectMessage message=session.createObjectMessage(new ProductComponent(productSequencer++,workername,ComponentEnum.CPU));
-				// Tell the producer to send the message
-				producer.send(message);
-				amount--;
+			for(ProductionOrder order:productionList){
+				int amount=order.getAmount();
+				while(amount>0){
+					Random rand=new Random();
+					int randomTime=rand.nextInt(3)+1;
+					Thread.sleep(randomTime*1000);
+					double randomFaulty=rand.nextDouble();
+					boolean faulty=randomFaulty<=(errorRate/100.0);
+					// Create a messages
+					ObjectMessage message=session.createObjectMessage(new ProductComponent(productSequencer++,workername,order.getComponent(),faulty));
+					// Tell the producer to send the message
+					producer.send(message);
+					amount--;
+				}
 			}
 
 			// Clean up

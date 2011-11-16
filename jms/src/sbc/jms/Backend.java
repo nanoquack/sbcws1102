@@ -1,6 +1,9 @@
 package sbc.jms;
 
+import java.util.List;
+
 import sbc.IBackend;
+import sbc.dto.ProductionOrder;
 import sbc.jms.thread.ProducerThread;
 import sbc.jms.thread.StorageThread;
 
@@ -23,12 +26,9 @@ public class Backend implements IBackend {
 	 * Creates new Threads with the specified parameters
 	 */
 	@Override
-	public void createProducer(int amount, int errorRate) {
+	public void createProducer(List<ProductionOrder> productionList, int errorRate) {
 		String workername="worker"+workerSequencer++;
-		
-		//TODO: Produktion muss noch genauer spezifiziert werden
-		//Zum Beispiel: 3 CPU, 2 GPU, 10 RAM, 5 Mainboard ==>List<ProductComponent>
-		ProducerThread pt=new ProducerThread(workername,amount,errorRate);
+		ProducerThread pt=new ProducerThread(workername,productionList,errorRate);
 		Thread producerThread = new Thread(pt);
 		producerThread.start();
 	}
