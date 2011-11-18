@@ -14,8 +14,12 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.dto.ComponentEnum;
+import sbc.dto.CpuComponent;
+import sbc.dto.GpuComponent;
+import sbc.dto.MainboardComponent;
 import sbc.dto.ProductComponent;
 import sbc.dto.ProductionOrder;
+import sbc.dto.RamComponent;
 
 public class ProducerThread implements Runnable {
 
@@ -42,7 +46,7 @@ public class ProducerThread implements Runnable {
 			// Create a Session
 			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			// Create the destination
-			Destination destination = session.createQueue("SBC");
+			Destination destination = session.createQueue("SbcProducer");
 			// Create a MessageProducer from the Session to the Topic
 			MessageProducer producer = session.createProducer(destination);
 			producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
@@ -52,13 +56,32 @@ public class ProducerThread implements Runnable {
 				while(amount>0){
 					Random rand=new Random();
 					int randomTime=rand.nextInt(3)+1;
-					Thread.sleep(randomTime*1000);
+					Thread.sleep(randomTime*10);	//TODO: mal 1000 statt 10
 					double randomFaulty=rand.nextDouble();
 					boolean faulty=randomFaulty<=(errorRate/100.0);
+					ObjectMessage message=null;
 					// Create a messages
-					ObjectMessage message=session.createObjectMessage(new ProductComponent(productSequencer++,workername,order.getComponent(),faulty));
+					System.out.println(order.getComponent().toString());
+					switch(order.getComponent()){
+						case CPU:
+							message=session.createObjectMessage(new CpuComponent(productSequencer++,workername,faulty));
+							break;
+						case RAM:
+							message=session.createObjectMessage(new RamComponent(productSequencer++,workername,faulty));
+							break;
+						case MAINBOARD:
+							message=session.createObjectMessage(new MainboardComponent(productSequencer++,workername,faulty));
+							break;
+						case GPU:
+							message=session.createObjectMessage(new GpuComponent(productSequencer++,workername,faulty));
+							break;
+						default:
+							throw new RuntimeException();
+					}
+
 					// Tell the producer to send the message
 					producer.send(message);
+					System.out.println("Sending product of type "+message.getObject().getClass().toString());
 					amount--;
 				}
 			}
