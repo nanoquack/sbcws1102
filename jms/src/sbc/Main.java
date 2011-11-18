@@ -24,7 +24,7 @@ public class Main {
 			productionList.add(new ProductionOrder(ComponentEnum.RAM,6));
 			productionList.add(new ProductionOrder(ComponentEnum.GPU,1));
 			backend.createProducer(productionList,40);
-			Thread.sleep(1000);
+			Thread.sleep(10);
 
 			List<ProductionOrder> productionList2=new ArrayList<ProductionOrder>();
 			productionList2.add(new ProductionOrder(ComponentEnum.CPU,1));
@@ -33,7 +33,7 @@ public class Main {
 			productionList2.add(new ProductionOrder(ComponentEnum.GPU,1));
 			
 			backend.createProducer(productionList2,30);
-			Thread.sleep(30000);
+			Thread.sleep(5000);
 
 			backend.shutDownFactory();
 
