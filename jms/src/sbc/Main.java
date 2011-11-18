@@ -33,7 +33,7 @@ public class Main {
 			productionList2.add(new ProductionOrder(ComponentEnum.GPU,1));
 			
 			backend.createProducer(productionList2,30);
-			Thread.sleep(5000);
+			Thread.sleep(10000);
 
 			backend.shutDownFactory();
 

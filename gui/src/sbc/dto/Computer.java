@@ -1,5 +1,6 @@
 package sbc.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,6 +14,10 @@ public class Computer {
 	private List<RamComponent> ram;
 	private Boolean qualityCheckPassed;
 
+	public Computer(){
+		this.qualityCheckPassed=false;
+	}
+	
 	public Computer(CpuComponent cpu, MainboardComponent mainboard,
 			GpuComponent gpu, List<RamComponent> ram) {
 		super();
@@ -61,6 +66,13 @@ public class Computer {
 
 	public void setQualityCheckPassed(Boolean qualityCheckPassed) {
 		this.qualityCheckPassed = qualityCheckPassed;
+	}
+	
+	public void addRam(RamComponent comp){
+		if(ram==null){
+			ram=new ArrayList<RamComponent>();
+		}
+		ram.add(comp);
 	}
 
 }

@@ -4,12 +4,14 @@ import java.util.List;
 
 import sbc.IBackend;
 import sbc.dto.ProductionOrder;
+import sbc.jms.thread.ConstructionThread;
 import sbc.jms.thread.ProducerThread;
 import sbc.jms.thread.StorageThread;
 
 public class Backend implements IBackend {
 
 	private StorageThread st;
+	private ConstructionThread ct;
 	private int workerSequencer=1;
 	
 	/**
@@ -20,6 +22,9 @@ public class Backend implements IBackend {
 		st=new StorageThread();
 		Thread storageThread=new Thread(st);
 		storageThread.start();
+		ct=new ConstructionThread();
+		Thread constructionThread=new Thread(ct);
+		constructionThread.start();
 	}
 	
 	/**
@@ -35,7 +40,7 @@ public class Backend implements IBackend {
 	
 	public void shutDownFactory(){
 		st.stop();
-		
+		ct.stop();
 	}
 
 }

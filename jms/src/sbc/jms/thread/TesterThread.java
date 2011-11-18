@@ -43,9 +43,9 @@ public class TesterThread  implements Runnable, ExceptionListener {
 					if (m instanceof ObjectMessage) {
 						ObjectMessage message = (ObjectMessage) m;
 						//TODO: Fill code in here
+					} else {
+						System.out.println("Dropped message "+m.getJMSMessageID());
 					}
-				} else {
-					System.out.println("Dropped message "+m.getJMSMessageID());
 				}
 			}
 			consumer.close();
