@@ -1,14 +1,19 @@
 package sbc.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 
 import sbc.INotifyGui;
 import sbc.dto.StorageState;
@@ -16,8 +21,12 @@ import sbc.dto.StorageState;
 public class MainFrame extends JFrame implements INotifyGui {
 	protected JPanel menuPanel;
 	protected JPanel contentPanel;
+	protected JPanel managementPanel;
 	protected JEditorPane logPane;
 	protected JComboBox implChooser;
+	protected JButton createProducerButton;
+	protected JTextField producerProductCount;
+	protected JTextField producerErrorRate;
 
 	public MainFrame() {
 		initMainFrame();
@@ -47,13 +56,31 @@ public class MainFrame extends JFrame implements INotifyGui {
 	}
 
 	protected void initContentPanel() {
+		JScrollPane scrollPane = new JScrollPane();
 		contentPanel = new JPanel();
-		contentPanel.setLayout(new BorderLayout());
+		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+		managementPanel = new JPanel();
+		managementPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		managementPanel.setBorder(BorderFactory.createTitledBorder(Constants.LABEL_MANAGEMENT_PANEL));
+		JLabel producerProductCountLabel = new JLabel(Constants.LABEL_PRODUCER_PRODUCT_COUNT);
+		producerProductCount = new JTextField();
+		producerProductCount.setPreferredSize(new Dimension(Constants.PRODUCER_PRODUCT_COUNT_WIDTH, Constants.PRODUCER_PRODUCT_COUNT_HEIGHT));
+		JLabel producerErrorRateLabel = new JLabel(Constants.LABEL_PRODUCER_ERROR_RATE);
+		producerErrorRate = new JTextField();
+		producerErrorRate.setPreferredSize(new Dimension(Constants.PRODUCER_ERROR_RATE_WIDTH, Constants.PRODUCER_ERROR_RATE_HEIGHT));
+		createProducerButton = new JButton(Constants.LABEL_CREATE_PRODUCER_BUTTON);
+		managementPanel.add(producerProductCountLabel);
+		managementPanel.add(producerProductCount);
+		managementPanel.add(producerErrorRateLabel);
+		managementPanel.add(producerErrorRate);
+		managementPanel.add(createProducerButton);
 		logPane = new JEditorPane();
 		logPane.setBorder(BorderFactory.createTitledBorder(Constants.LABEL_LOG_PANE));
 		logPane.setEditable(false);
-		contentPanel.add(logPane, BorderLayout.CENTER);
-		add(contentPanel, BorderLayout.CENTER);
+		contentPanel.add(managementPanel);
+		contentPanel.add(logPane);
+		scrollPane.setViewportView(contentPanel);
+		add(scrollPane, BorderLayout.CENTER);
 	}
 
 	@Override
