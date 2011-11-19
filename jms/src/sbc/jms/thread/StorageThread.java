@@ -55,9 +55,9 @@ public class StorageThread implements Runnable, ExceptionListener {
 					if (m instanceof ObjectMessage) {
 						ObjectMessage message = (ObjectMessage) m;
 						ProductComponent component = (ProductComponent) message.getObject();
-						System.out.println("Worker "+component.getWorker() + 
-								" produced "+ component.getClass().toString()+" with Id "
-								+component.getId()+(component.isFaulty()?" (faulty!)":""));
+//						System.out.println("Worker "+component.getWorker() + 
+//								" produced "+ component.getClass().toString()+" with Id "
+//								+component.getId()+(component.isFaulty()?" (faulty!)":""));
 						storage.storeItem(component.getClass().getName(), component);
 						
 						ArrayList<ProductComponent> components=storage.getPcItemsIfAvailable();

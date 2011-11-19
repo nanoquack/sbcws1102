@@ -61,7 +61,6 @@ public class ProducerThread implements Runnable {
 					boolean faulty=randomFaulty<=(errorRate/100.0);
 					ObjectMessage message=null;
 					// Create a messages
-					System.out.println(order.getComponent().toString());
 					switch(order.getComponent()){
 						case CPU:
 							message=session.createObjectMessage(new CpuComponent(productSequencer++,workername,faulty));
@@ -81,7 +80,7 @@ public class ProducerThread implements Runnable {
 
 					// Tell the producer to send the message
 					producer.send(message);
-					System.out.println("Sending product of type "+message.getObject().getClass().toString());
+//					System.out.println("Sending product of type "+message.getObject().getClass().toString());
 					amount--;
 				}
 			}

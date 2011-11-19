@@ -14,7 +14,11 @@ import javax.jms.Session;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.dto.Computer;
+import sbc.dto.CpuComponent;
+import sbc.dto.GpuComponent;
+import sbc.dto.MainboardComponent;
 import sbc.dto.ProductComponent;
+import sbc.dto.RamComponent;
 
 public class ConstructionThread implements Runnable, ExceptionListener {
 
@@ -36,7 +40,7 @@ public class ConstructionThread implements Runnable, ExceptionListener {
 			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
 			// Create the destination (Topic or Queue)
-			Destination destination = session.createQueue("SbcProducer");
+			Destination destination = session.createQueue("SbcConstruction");
 
 			// Create a MessageConsumer from the Session to the Topic or Queue
 			MessageConsumer consumer = session.createConsumer(destination);
@@ -47,12 +51,25 @@ public class ConstructionThread implements Runnable, ExceptionListener {
 				if(m!=null){
 					if (m instanceof ObjectMessage) {
 						ObjectMessage message = (ObjectMessage) m;
-						List<ProductComponent> components=(List<ProductComponent>)message;
-//						Computer comp=new Computer();
+						List<ProductComponent> components=(List<ProductComponent>)message.getObject();
+						Computer computer=new Computer();
+						while(components.size()!=0){
+							ProductComponent comp=components.remove(0);
+							if(comp instanceof CpuComponent){
+								computer.setCpu((CpuComponent)comp);
+							}if(comp instanceof MainboardComponent){
+								computer.setMainboard((MainboardComponent)comp);
+							}if(comp instanceof GpuComponent){
+								computer.setGpu((GpuComponent)comp);
+							}if(comp instanceof RamComponent){
+								computer.addRam((RamComponent)comp);
+							}
+						}
+						System.out.println("Computer constructed");
+					}else {
+						System.out.println("Dropped message "+m.getJMSMessageID());
 					}
-				} else {
-					System.out.println("Dropped message "+m.getJMSMessageID());
-				}
+				} 
 			}
 			consumer.close();
 			session.close();
