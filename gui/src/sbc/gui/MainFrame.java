@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import sbc.INotifyGui;
@@ -22,6 +23,8 @@ public class MainFrame extends JFrame implements INotifyGui {
 	protected JPanel menuPanel;
 	protected JPanel contentPanel;
 	protected JPanel managementPanel;
+	protected JPanel partInfoPanel;
+	protected JTable partInfoTable;
 	protected JEditorPane logPane;
 	protected JComboBox implChooser;
 	protected JButton createProducerButton;
@@ -74,10 +77,20 @@ public class MainFrame extends JFrame implements INotifyGui {
 		managementPanel.add(producerErrorRateLabel);
 		managementPanel.add(producerErrorRate);
 		managementPanel.add(createProducerButton);
+		partInfoPanel = new JPanel();
+		partInfoPanel.setLayout(new BorderLayout());
+		partInfoPanel.setBorder(BorderFactory.createTitledBorder(Constants.LABEL_PART_INFO_TABLE));
+		partInfoTable = new JTable();
+		partInfoTable.setModel(new PartInfoTableModel());
+		JScrollPane partInfoTableScrollPane = new JScrollPane(partInfoTable);
+		partInfoTableScrollPane.setPreferredSize(new Dimension(Constants.PART_INFO_TABLE_WIDTH, Constants.PART_INFO_TABLE_HEIGHT));
+		partInfoTable.setFillsViewportHeight(true);
+		partInfoPanel.add(partInfoTableScrollPane, BorderLayout.CENTER);
 		logPane = new JEditorPane();
 		logPane.setBorder(BorderFactory.createTitledBorder(Constants.LABEL_LOG_PANE));
 		logPane.setEditable(false);
 		contentPanel.add(managementPanel);
+		contentPanel.add(partInfoPanel);
 		contentPanel.add(logPane);
 		scrollPane.setViewportView(contentPanel);
 		add(scrollPane, BorderLayout.CENTER);

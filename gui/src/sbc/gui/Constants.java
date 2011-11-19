@@ -8,6 +8,8 @@ public class Constants {
 	public static final int PRODUCER_PRODUCT_COUNT_HEIGHT = 20;
 	public static final int PRODUCER_ERROR_RATE_WIDTH = 50;
 	public static final int PRODUCER_ERROR_RATE_HEIGHT = 20;
+	public static final int PART_INFO_TABLE_WIDTH = 50;
+	public static final int PART_INFO_TABLE_HEIGHT = 100;
 	
 	//gui string constants
 	public static final String LABEL_IMPL_CHOOSER = "Implementation:";
@@ -18,4 +20,7 @@ public class Constants {
 	public static final String LABEL_CREATE_PRODUCER_BUTTON = "Create Producer";
 	public static final String LABEL_PRODUCER_PRODUCT_COUNT = "product count:";
 	public static final String LABEL_PRODUCER_ERROR_RATE = "error rate:";
+	public static final String LABEL_PART_INFO_TABLE = "parts";
+	public static final String LABEL_PART_INFO_TABLE_PART = "Part";
+	public static final String LABEL_PART_INFO_TABLE_COUNT = "Count";
 }
