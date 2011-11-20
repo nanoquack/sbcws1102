@@ -11,6 +11,8 @@ import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
+import sbc.dto.Computer;
+
 public class LogisticThread  implements Runnable, ExceptionListener {
 
 	boolean running=true;
@@ -31,7 +33,7 @@ public class LogisticThread  implements Runnable, ExceptionListener {
 			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
 			// Create the destination (Topic or Queue)
-			Destination destination = session.createQueue("SbcProducer");
+			Destination destination = session.createQueue("SbcLogistic");
 
 			// Create a MessageConsumer from the Session to the Topic or Queue
 			MessageConsumer consumer = session.createConsumer(destination);
@@ -42,7 +44,12 @@ public class LogisticThread  implements Runnable, ExceptionListener {
 				if(m!=null){
 					if (m instanceof ObjectMessage) {
 						ObjectMessage message = (ObjectMessage) m;
-						//TODO: Fill code in here
+						Computer computer=(Computer) message.getObject();
+						if(computer.getQualityCheckPassed()){
+							System.out.println("Computer delieverd for sale");
+						}else{
+							System.out.println("Computer stored in recycling storage");
+						}
 					} else {
 						System.out.println("Dropped message "+m.getJMSMessageID());
 					}

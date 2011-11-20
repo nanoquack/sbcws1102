@@ -1,12 +1,13 @@
 package sbc.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Encapsulates components and attributes of a computer
  */
-public class Computer {
+public class Computer implements Serializable{
 
 	private CpuComponent cpu;
 	private MainboardComponent mainboard;

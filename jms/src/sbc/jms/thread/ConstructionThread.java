@@ -1,13 +1,16 @@
 package sbc.jms.thread;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.jms.Connection;
+import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
@@ -22,7 +25,7 @@ import sbc.dto.RamComponent;
 
 public class ConstructionThread implements Runnable, ExceptionListener {
 
-	boolean running=true;
+	private boolean running=true;
 
 	public void run() {
 		try {
@@ -65,6 +68,7 @@ public class ConstructionThread implements Runnable, ExceptionListener {
 								computer.addRam((RamComponent)comp);
 							}
 						}
+						forwardPc(computer);
 						System.out.println("Computer constructed");
 					}else {
 						System.out.println("Dropped message "+m.getJMSMessageID());
@@ -80,13 +84,42 @@ public class ConstructionThread implements Runnable, ExceptionListener {
 		}
 	}
 
-	public synchronized void onException(JMSException ex) {
-		System.out.println("JMS Exception occured.  Shutting down client.");
-		stop();
+	private void forwardPc(Computer computer) throws JMSException{
+
+		// Create a ConnectionFactory
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+
+		// Create a Connection
+		Connection connection = connectionFactory.createConnection();
+		connection.start();
+
+		connection.setExceptionListener(this);
+
+		// Create a Session
+		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		// Create the destination
+		Destination destination = session.createQueue("SbcTesting");
+		// Create a MessageProducer from the Session to the Topic
+		MessageProducer producer = session.createProducer(destination);
+		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+
+		// Create a messages
+		ObjectMessage message=session.createObjectMessage(computer);
+		// Tell the producer to send the message
+		producer.send(message);
+		System.out.println("PC sent to testing");
+		producer.close();
+		session.close();
+		connection.close();
 	}
-	
-	public synchronized void stop(){
-		running=false;
-	}
+
+public synchronized void onException(JMSException ex) {
+	System.out.println("JMS Exception occured.  Shutting down client.");
+	stop();
+}
+
+public synchronized void stop(){
+	running=false;
+}
 
 }
