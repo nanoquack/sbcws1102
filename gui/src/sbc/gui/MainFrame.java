@@ -91,7 +91,6 @@ public class MainFrame extends JFrame implements INotifyGui {
 		logPane.setBorder(BorderFactory.createTitledBorder(Constants.LABEL_LOG_PANE));
 		logPane.setEditable(false);
 		configPanel = new JPanel();
-		configPanel.add(test);
 		contentPanel.add(managementPanel);
 		contentPanel.add(configPanel);
 		contentPanel.add(partInfoPanel);
