@@ -3,6 +3,7 @@ package sbc.jms;
 import java.util.List;
 
 import sbc.IBackend;
+import sbc.INotifyGui;
 import sbc.dto.ProductionOrder;
 import sbc.jms.thread.ConstructionThread;
 import sbc.jms.thread.LogisticThread;
@@ -22,8 +23,8 @@ public class Backend implements IBackend {
 	 * Start Construction, Test and Logistic part of the factory
 	 * Additionally initialize intermediate Storage for storing computer parts
 	 */
-	public void initializeFactory(){
-		st=new StorageThread();
+	public void initializeFactory(INotifyGui notifyGui){
+		st=new StorageThread(notifyGui);
 		Thread storageThread=new Thread(st);
 		storageThread.start();
 		ct=new ConstructionThread();

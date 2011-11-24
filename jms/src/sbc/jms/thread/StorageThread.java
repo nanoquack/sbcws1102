@@ -18,14 +18,20 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
+import sbc.INotifyGui;
 import sbc.dto.ComponentEnum;
 import sbc.dto.ProductComponent;
 import sbc.jms.storage.Storage;
 
 public class StorageThread implements Runnable, ExceptionListener {
 
-	boolean running=true;
-	Storage storage=new Storage();
+	private boolean running=true;
+	private Storage storage=new Storage();
+	private INotifyGui notifyGui;
+	
+	public StorageThread(INotifyGui notifyGui){
+		this.notifyGui=notifyGui;
+	}
 	
 	public void run() {
 		try {
@@ -55,15 +61,16 @@ public class StorageThread implements Runnable, ExceptionListener {
 					if (m instanceof ObjectMessage) {
 						ObjectMessage message = (ObjectMessage) m;
 						ProductComponent component = (ProductComponent) message.getObject();
-//						System.out.println("Worker "+component.getWorker() + 
-//								" produced "+ component.getClass().toString()+" with Id "
-//								+component.getId()+(component.isFaulty()?" (faulty!)":""));
+						System.out.println("Worker "+component.getWorker() + 
+								" produced "+ component.getClass().toString()+" with Id "
+								+component.getId()+(component.isFaulty()?" (faulty!)":""));
 						storage.storeItem(component.getClass().getName(), component);
 						
 						ArrayList<ProductComponent> components=storage.getPcItemsIfAvailable();
 						if(components!=null){
 							forwardPcParts(components);
 						}
+						notifyGui.updateStorage(storage.getStorageState());
 					} else {
 						System.out.println("Dropped message "+m.getJMSMessageID());
 					}

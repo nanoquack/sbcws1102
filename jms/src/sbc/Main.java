@@ -6,6 +6,7 @@ import java.util.List;
 import sbc.dto.ComponentEnum;
 import sbc.dto.ProductComponent;
 import sbc.dto.ProductionOrder;
+import sbc.gui.MainFrame;
 import sbc.jms.Backend;
 
 public class Main {
@@ -16,7 +17,9 @@ public class Main {
 			//Backend starten
 			Backend backend=new Backend();
 			//GUI starten
-			backend.initializeFactory();
+			MainFrame frame=new MainFrame();
+			frame.setVisible(true);
+			backend.initializeFactory(frame);
 			
 			List<ProductionOrder> productionList=new ArrayList<ProductionOrder>();
 			productionList.add(new ProductionOrder(ComponentEnum.CPU,2));

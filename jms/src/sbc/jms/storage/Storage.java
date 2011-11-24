@@ -12,6 +12,7 @@ import sbc.dto.GpuComponent;
 import sbc.dto.MainboardComponent;
 import sbc.dto.ProductComponent;
 import sbc.dto.RamComponent;
+import sbc.dto.StorageState;
 
 /**
  * Container class for the components stored
@@ -70,47 +71,27 @@ public class Storage {
 		return allPcUnits;
 		
 	}
-
 	
-	
-//	/**
-//	 * 
-//	 * @return Specified element or null, if storage is empty
-//	 */
-//	public synchronized ProductComponent getItem(ComponentEnum ce){
-//		LinkedList<ProductComponent> list=storage.get(ce.ordinal());
-//		return list.pollFirst();
-//	}
-//
-//	/**
-//	 * Tries to get an item of the specified type within the specified time
-//	 * @return Specified element or null, if time runs out and storage is still empty
-//	 */
-//	public synchronized ProductComponent getItem(ComponentEnum ce, long blockingTime) throws InterruptedException{
-//		LinkedList<ProductComponent> list=storage.get(ce.ordinal());
-//		if(!list.isEmpty()){ return list.pollFirst();}
-//		else{
-//			while(blockingTime>0){
-//				if(blockingTime>100){
-//					Thread.sleep(100);
-//					if(!list.isEmpty()){ return list.pollFirst();}
-//					blockingTime=blockingTime-100;
-//				}else{
-//					Thread.sleep(blockingTime);
-//					return list.pollFirst();
-//				}
-//			}
-//		}
-//		return null; //unreachable (only for compiler
-//	}
-//	
-//	/**
-//	 * Special method for obtaining RAM modules.
-//	 * @return List with 1,2 or 4 RAM modules, depending on the current storage (the maximum is chosen) 
-//	 */
-//	public synchronized List<ProductionComponent> getRamModules(){
-//		LinkedList<ProductComponent> list=storage.get(ComponentEnum.RAM);
-//		if(list.size()>=4){
-//	}
+	/**
+	 * Get the status of the storage for updating the GUI
+	 */
+	public StorageState getStorageState(){
+		StorageState state=new StorageState();
+		
+		LinkedList<ProductComponent> cpuList=storage.get(CpuComponent.class.getName());
+		if(cpuList==null || cpuList.isEmpty()){state.setCpu(0);}
+		else{state.setCpu(cpuList.size());}
+		LinkedList<ProductComponent> mainboardList=storage.get(MainboardComponent.class.getName());
+		if(mainboardList==null || mainboardList.isEmpty()){state.setMainboard(0);}
+		else{state.setMainboard(mainboardList.size());}
+		LinkedList<ProductComponent> ramList=storage.get(RamComponent.class.getName());
+		if(ramList==null || ramList.isEmpty()){state.setRam(0);}
+		else{state.setRam(ramList.size());}
+		LinkedList<ProductComponent> gpuList=storage.get(GpuComponent.class.getName());
+		if(gpuList==null || gpuList.isEmpty()){state.setGpu(0);}
+		else{state.setGpu(gpuList.size());}
+		
+		return state;
+	}
 
 }
