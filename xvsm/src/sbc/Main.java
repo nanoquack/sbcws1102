@@ -8,7 +8,10 @@ import org.mozartspaces.core.DefaultMzsCore;
 import org.mozartspaces.core.Entry;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
+import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 
 public class Main {
 
@@ -16,6 +19,18 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		try{
+		LoggerContext context = (LoggerContext) LoggerFactory
+				.getILoggerFactory();
+		JoranConfigurator configurator = new JoranConfigurator();
+		configurator.setContext(context);
+		context.reset();
+		configurator.doConfigure("logback.xml");
+		}
+		catch(Exception e){
+			System.out.println("error on configure logger");
+		}
+		
 		try {
 			MzsCore core = DefaultMzsCore.newInstance();
 			Capi capi = new Capi(core);
