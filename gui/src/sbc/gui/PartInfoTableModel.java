@@ -1,5 +1,7 @@
 package sbc.gui;
 
+import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
 
 import sbc.dto.StorageState;
@@ -7,6 +9,7 @@ import sbc.dto.StorageState;
 public class PartInfoTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = -3006673063717839407L;
 	protected StorageState state;
+	protected List<String> partNames;
 
 	/**
 	 * Updates the storage state information of the table model to the give
@@ -44,8 +47,44 @@ public class PartInfoTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		// TODO Auto-generated method stub
-		return null;
+		switch (columnIndex) {
+		case 0:
+			return getPartName(rowIndex);
+		case 1:
+			return getPartState(rowIndex);
+		default:
+			return "";
+		}
+	}
+
+	protected String getPartName(int partIndex) {
+		switch (partIndex) {
+		case 0:
+			return "cpu";
+		case 1:
+			return "ram";
+		case 2:
+			return "mainboard";
+		case 3:
+			return "gpu";
+		default:
+			return "";
+		}
+	}
+
+	protected int getPartState(int partIndex) {
+		switch (partIndex) {
+		case 0:
+			return state.getCpu();
+		case 1:
+			return state.getRam();
+		case 2:
+			return state.getMainboard();
+		case 3:
+			return state.getGpu();
+		default:
+			return 0;
+		}
 	}
 
 }
