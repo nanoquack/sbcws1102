@@ -56,4 +56,16 @@ public class Backend implements IBackend {
 		lt.stop();
 	}
 
+	@Override
+	public void startSystem() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void shutdownSystem() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

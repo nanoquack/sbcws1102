@@ -3,6 +3,8 @@ package sbc.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -16,10 +18,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import sbc.IBackend;
 import sbc.INotifyGui;
 import sbc.dto.StorageState;
 
-public class MainFrame extends JFrame implements INotifyGui {
+public class MainFrame extends JFrame implements INotifyGui, ItemListener {
+	protected IBackend backend;
 	protected JPanel menuPanel;
 	protected JPanel configPanel;
 	protected JPanel contentPanel;
@@ -54,6 +58,7 @@ public class MainFrame extends JFrame implements INotifyGui {
 		implChooser = new JComboBox();
 		implChooser.addItem(Constants.LABEL_JMS_IMPL);
 		implChooser.addItem(Constants.LABEL_XVSM_IMPL);
+		implChooser.addItemListener(this);
 		menuPanel.add(implChooserLabel);
 		menuPanel.add(implChooser);
 		add(menuPanel, BorderLayout.NORTH);
@@ -65,14 +70,22 @@ public class MainFrame extends JFrame implements INotifyGui {
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 		managementPanel = new JPanel();
 		managementPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		managementPanel.setBorder(BorderFactory.createTitledBorder(Constants.LABEL_MANAGEMENT_PANEL));
-		JLabel producerProductCountLabel = new JLabel(Constants.LABEL_PRODUCER_PRODUCT_COUNT);
+		managementPanel.setBorder(BorderFactory
+				.createTitledBorder(Constants.LABEL_MANAGEMENT_PANEL));
+		JLabel producerProductCountLabel = new JLabel(
+				Constants.LABEL_PRODUCER_PRODUCT_COUNT);
 		producerProductCount = new JTextField();
-		producerProductCount.setPreferredSize(new Dimension(Constants.PRODUCER_PRODUCT_COUNT_WIDTH, Constants.PRODUCER_PRODUCT_COUNT_HEIGHT));
-		JLabel producerErrorRateLabel = new JLabel(Constants.LABEL_PRODUCER_ERROR_RATE);
+		producerProductCount.setPreferredSize(new Dimension(
+				Constants.PRODUCER_PRODUCT_COUNT_WIDTH,
+				Constants.PRODUCER_PRODUCT_COUNT_HEIGHT));
+		JLabel producerErrorRateLabel = new JLabel(
+				Constants.LABEL_PRODUCER_ERROR_RATE);
 		producerErrorRate = new JTextField();
-		producerErrorRate.setPreferredSize(new Dimension(Constants.PRODUCER_ERROR_RATE_WIDTH, Constants.PRODUCER_ERROR_RATE_HEIGHT));
-		createProducerButton = new JButton(Constants.LABEL_CREATE_PRODUCER_BUTTON);
+		producerErrorRate.setPreferredSize(new Dimension(
+				Constants.PRODUCER_ERROR_RATE_WIDTH,
+				Constants.PRODUCER_ERROR_RATE_HEIGHT));
+		createProducerButton = new JButton(
+				Constants.LABEL_CREATE_PRODUCER_BUTTON);
 		managementPanel.add(producerProductCountLabel);
 		managementPanel.add(producerProductCount);
 		managementPanel.add(producerErrorRateLabel);
@@ -80,15 +93,19 @@ public class MainFrame extends JFrame implements INotifyGui {
 		managementPanel.add(createProducerButton);
 		partInfoPanel = new JPanel();
 		partInfoPanel.setLayout(new BorderLayout());
-		partInfoPanel.setBorder(BorderFactory.createTitledBorder(Constants.LABEL_PART_INFO_TABLE));
+		partInfoPanel.setBorder(BorderFactory
+				.createTitledBorder(Constants.LABEL_PART_INFO_TABLE));
 		partInfoTable = new JTable();
 		partInfoTable.setModel(new PartInfoTableModel());
 		JScrollPane partInfoTableScrollPane = new JScrollPane(partInfoTable);
-		partInfoTableScrollPane.setPreferredSize(new Dimension(Constants.PART_INFO_TABLE_WIDTH, Constants.PART_INFO_TABLE_HEIGHT));
+		partInfoTableScrollPane.setPreferredSize(new Dimension(
+				Constants.PART_INFO_TABLE_WIDTH,
+				Constants.PART_INFO_TABLE_HEIGHT));
 		partInfoTable.setFillsViewportHeight(true);
 		partInfoPanel.add(partInfoTableScrollPane, BorderLayout.CENTER);
 		logPane = new JEditorPane();
-		logPane.setBorder(BorderFactory.createTitledBorder(Constants.LABEL_LOG_PANE));
+		logPane.setBorder(BorderFactory
+				.createTitledBorder(Constants.LABEL_LOG_PANE));
 		logPane.setEditable(false);
 		configPanel = new JPanel();
 		contentPanel.add(managementPanel);
@@ -102,7 +119,8 @@ public class MainFrame extends JFrame implements INotifyGui {
 	@Override
 	public void updateStorage(StorageState state) {
 		// TODO Auto-generated method stub
-		PartInfoTableModel model = (PartInfoTableModel)partInfoTable.getModel();
+		PartInfoTableModel model = (PartInfoTableModel) partInfoTable
+				.getModel();
 		model.updateState(state);
 	}
 
@@ -110,6 +128,14 @@ public class MainFrame extends JFrame implements INotifyGui {
 	public void addLogMessage(String message) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent evt) {
+		if (backend != null) {
+			backend.shutdownSystem();
+		}
+		
 	}
 
 }

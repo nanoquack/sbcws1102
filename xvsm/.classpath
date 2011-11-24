@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/sebo/Desktop/Uni/SBMC/mozartspaces-dist-2.1-SNAPSHOT-r10972-all-with-dependencies.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/SBC-GUI"/>
+	<classpathentry kind="lib" path="D:/ws11/sbc/mozartspaces-dist-2.1-SNAPSHOT-r10972-all-with-dependencies.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

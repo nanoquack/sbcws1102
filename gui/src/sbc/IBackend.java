@@ -10,6 +10,16 @@ import sbc.dto.ProductionOrder;
 public interface IBackend {
 	
 	/**
+	 * Initializes and starts everything the backend service needs to function.  
+	 */
+	public void startSystem();
+	
+	/**
+	 * Shuts the system down correctly and releases all resources.  
+	 */
+	public void shutdownSystem();
+	
+	/**
 	 * 
 	 * @param list of production units to produce
 	 * @param errorRate of producers

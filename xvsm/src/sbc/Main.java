@@ -13,9 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import sbc.dto.ComponentEnum;
 import sbc.dto.ProductionOrder;
-import sbc.gui.MainFrame;
 import sbc.xvsm.Backend;
-
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
@@ -32,14 +30,11 @@ public class Main {
 			configurator.setContext(context);
 			context.reset();
 			configurator.doConfigure("logback.xml");
-			MzsCore core = DefaultMzsCore.newInstance();
-			Capi capi = new Capi(core);
-			ContainerReference container = capi.createContainer(SbcConstants.CONTAINER, null, MzsConstants.Container.UNBOUNDED, null, new FifoCoordinator());
-			Backend backend=new Backend(capi);
+			Backend backend=new Backend();
+			backend.startSystem();
 //			MainFrame frame=new MainFrame();
 //			frame.setVisible(true);
 //			backend.initializeFactory(frame);
-			backend.initializeFactory(null);
 			
 			List<ProductionOrder> productionList=new ArrayList<ProductionOrder>();
 			productionList.add(new ProductionOrder(ComponentEnum.CPU,2));
@@ -58,8 +53,7 @@ public class Main {
 			backend.createProducer(productionList2,10);
 			
 			Thread.sleep(10000);
-			capi.destroyContainer(container, null);
-			core.shutdown(true);
+			backend.shutdownSystem();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
