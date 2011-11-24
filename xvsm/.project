@@ -3,6 +3,7 @@
 	<name>SBC-XVSM</name>
 	<comment></comment>
 	<projects>
+		<project>SBC-GUI</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
