@@ -2,4 +2,6 @@ gui/.project
 gui/.classpath
 jms/.project
 jms/.classpath
+xvsm/.classpath
+xvsm/.project
 bin/
