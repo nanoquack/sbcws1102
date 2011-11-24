@@ -19,18 +19,17 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		try{
-		LoggerContext context = (LoggerContext) LoggerFactory
-				.getILoggerFactory();
-		JoranConfigurator configurator = new JoranConfigurator();
-		configurator.setContext(context);
-		context.reset();
-		configurator.doConfigure("logback.xml");
-		}
-		catch(Exception e){
+		try {
+			LoggerContext context = (LoggerContext) LoggerFactory
+					.getILoggerFactory();
+			JoranConfigurator configurator = new JoranConfigurator();
+			configurator.setContext(context);
+			context.reset();
+			configurator.doConfigure("logback.xml");
+		} catch (Exception e) {
 			System.out.println("error on configure logger");
 		}
-		
+
 		try {
 			MzsCore core = DefaultMzsCore.newInstance();
 			Capi capi = new Capi(core);
