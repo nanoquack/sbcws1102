@@ -57,14 +57,14 @@ public class Backend implements IBackend {
 	}
 
 	@Override
-	public void startSystem() {
-		// TODO Auto-generated method stub
+	public void startSystem(INotifyGui notifyGui) {
+		initializeFactory(notifyGui);
 		
 	}
 
 	@Override
 	public void shutdownSystem() {
-		// TODO Auto-generated method stub
+		shutDownFactory();
 		
 	}
 

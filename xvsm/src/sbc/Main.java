@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import sbc.dto.ComponentEnum;
 import sbc.dto.ProductionOrder;
+import sbc.mocking.NotifyGuiMock;
 import sbc.xvsm.Backend;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -31,7 +32,7 @@ public class Main {
 			context.reset();
 			configurator.doConfigure("logback.xml");
 			Backend backend=new Backend();
-			backend.startSystem();
+			backend.startSystem(new NotifyGuiMock());	//TODO: durch MainFrame ersetzen
 //			MainFrame frame=new MainFrame();
 //			frame.setVisible(true);
 //			backend.initializeFactory(frame);

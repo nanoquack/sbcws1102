@@ -89,14 +89,16 @@ public class Backend implements IBackend {
 	}
 
 	@Override
-	public void startSystem() {
+	public void startSystem(INotifyGui notifyGui) {
 		initXvsm();
-		initializeFactory(null);
+		initializeFactory(notifyGui);
 	}
 
 	@Override
 	public void shutdownSystem() {
+		shutDownFactory();
 		try{
+			Thread.sleep(1010);	//Capi erst abdrehen, wenn take(1000) abgelaufen ist
 			capi.destroyContainer(container, null);
 			core.shutdown(true);
 		}

@@ -10,6 +10,7 @@ import org.mozartspaces.capi3.QueryCoordinator.QuerySelector;
 import org.mozartspaces.capi3.Selector;
 import org.mozartspaces.core.Capi;
 import org.mozartspaces.core.ContainerReference;
+import org.mozartspaces.core.MzsTimeoutException;
 
 
 import sbc.INotifyGui;
@@ -41,7 +42,8 @@ public class StorageThread implements Runnable {
 				FifoSelector selector=FifoCoordinator.newSelector();
 				List<Selector> selectors=new ArrayList<Selector>();
 				selectors.add(selector);
-				ArrayList<ProductComponent> resultEntries = capi.take(container, selectors, 10000l, null);
+				try{
+				ArrayList<ProductComponent> resultEntries = capi.take(container, selectors, 1000, null);
 				if(resultEntries.size()!=0){
 					for(ProductComponent component:resultEntries){
 						System.out.println("Worker "+component.getWorker() + 
@@ -54,8 +56,12 @@ public class StorageThread implements Runnable {
 //							forwardPcParts(components);	//TODO
 						}
 //						notifyGui.updateStorage(storage.getStorageState());
-						//TODO: auskommentieren
+						//TODO: notify auskommentieren
 					}
+				}
+				}catch(MzsTimeoutException ex){
+					//Hier ist nichts zu machen. Generell ist es imo unnoetig, dass diese
+					//Exception ueberhaupt vom Framework geworfen wird.
 				}
 			}
 		} catch (Exception e) {
