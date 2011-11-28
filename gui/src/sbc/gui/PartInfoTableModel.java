@@ -11,6 +11,10 @@ public class PartInfoTableModel extends AbstractTableModel {
 	protected StorageState state;
 	protected List<String> partNames;
 
+	public PartInfoTableModel(){
+		state = new StorageState();
+	}
+	
 	/**
 	 * Updates the storage state information of the table model to the give
 	 * state.
