@@ -21,6 +21,7 @@ public class StorageMain {
 			MainFrame frame=new MainFrame();
 			frame.setVisible(true);
 			backend.initializeFactory(frame);
+			frame.setBackend(backend);
 			
 			List<ProductionOrder> productionList=new ArrayList<ProductionOrder>();
 			productionList.add(new ProductionOrder(ComponentEnum.CPU,2));
