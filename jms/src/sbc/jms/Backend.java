@@ -27,15 +27,6 @@ public class Backend implements IBackend {
 		st=new StorageThread(notifyGui);
 		Thread storageThread=new Thread(st);
 		storageThread.start();
-//		ct=new ConstructionWorker();
-//		Thread constructionThread=new Thread(ct);
-//		constructionThread.start();
-//		tt=new TesterThread();
-//		Thread testerThread=new Thread(tt);
-//		testerThread.start();
-//		lt=new LogisticWorker();
-//		Thread logisticThread=new Thread(lt);
-//		logisticThread.start();
 	}
 	
 	/**
@@ -51,15 +42,11 @@ public class Backend implements IBackend {
 	
 	public void shutDownFactory(){
 		st.stop();
-//		ct.stop();
-//		tt.stop();
-//		lt.stop();
 	}
 
 	@Override
 	public void startSystem(INotifyGui notifyGui) {
 		initializeFactory(notifyGui);
-		
 	}
 
 	@Override

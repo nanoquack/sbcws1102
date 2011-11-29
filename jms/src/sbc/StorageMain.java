@@ -8,6 +8,7 @@ import sbc.dto.ProductComponent;
 import sbc.dto.ProductionOrder;
 import sbc.gui.MainFrame;
 import sbc.jms.Backend;
+import sbc.mocking.NotifyGuiMock;
 
 public class StorageMain {
 

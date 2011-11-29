@@ -7,8 +7,11 @@ public class NotifyGuiMock implements INotifyGui {
 
 	@Override
 	public void updateStorage(StorageState state) {
-		System.out.println("State update erhalten, CPU-Anzahl "+state.getCpu());
-
+		System.out.println("State update erhalten, Anzahl" 
+				+ " CPU: " + state.getCpu()
+				+ " GPU: " + state.getGpu()
+				+ " MB: " + state.getMainboard() 
+				+ " RAM: " + state.getRam());
 	}
 
 	@Override

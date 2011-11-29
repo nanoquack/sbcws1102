@@ -22,14 +22,14 @@ public class PartInfoTableModel extends AbstractTableModel {
 	 * @param state
 	 *            the new state information
 	 */
-	public void updateState(StorageState state) {
-		this.state = state;
+	public void updateState(StorageState update) {
+		state = update;
 		this.fireTableDataChanged();
 	}
 
 	@Override
 	public int getRowCount() {
-		return 3;
+		return 4;
 	}
 
 	@Override
@@ -66,11 +66,11 @@ public class PartInfoTableModel extends AbstractTableModel {
 		case 0:
 			return "cpu";
 		case 1:
-			return "ram";
+			return "gpu";
 		case 2:
 			return "mainboard";
 		case 3:
-			return "gpu";
+			return "ram";
 		default:
 			return "";
 		}
@@ -81,11 +81,11 @@ public class PartInfoTableModel extends AbstractTableModel {
 		case 0:
 			return state.getCpu();
 		case 1:
-			return state.getRam();
+			return state.getGpu();
 		case 2:
 			return state.getMainboard();
 		case 3:
-			return state.getGpu();
+			return state.getRam();
 		default:
 			return 0;
 		}
