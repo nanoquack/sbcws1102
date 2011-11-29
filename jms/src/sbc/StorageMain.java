@@ -9,7 +9,7 @@ import sbc.dto.ProductionOrder;
 import sbc.gui.MainFrame;
 import sbc.jms.Backend;
 
-public class Main {
+public class StorageMain {
 
 	public static void main(String args[]){
 

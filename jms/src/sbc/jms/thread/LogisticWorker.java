@@ -13,9 +13,16 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.dto.Computer;
 
-public class LogisticThread  implements Runnable, ExceptionListener {
+public class LogisticWorker  implements Runnable, ExceptionListener {
 
 	boolean running=true;
+	
+	public static void main(String[] args){
+		LogisticWorker logistics = new LogisticWorker();
+		Thread t = new Thread(logistics);
+		t.start();
+		System.out.println("Logistic worker started");
+	}
 
 	public void run() {
 		try {

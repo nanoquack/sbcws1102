@@ -5,18 +5,18 @@ import java.util.List;
 import sbc.IBackend;
 import sbc.INotifyGui;
 import sbc.dto.ProductionOrder;
-import sbc.jms.thread.ConstructionThread;
-import sbc.jms.thread.LogisticThread;
+import sbc.jms.thread.ConstructionWorker;
+import sbc.jms.thread.LogisticWorker;
 import sbc.jms.thread.ProducerThread;
 import sbc.jms.thread.StorageThread;
-import sbc.jms.thread.TesterThread;
+import sbc.jms.thread.TesterWorker;
 
 public class Backend implements IBackend {
 
 	private StorageThread st;
-	private ConstructionThread ct;
-	private TesterThread tt;
-	private LogisticThread lt;
+	private ConstructionWorker ct;
+	private TesterWorker tt;
+	private LogisticWorker lt;
 	private int workerSequencer=1;
 	
 	/**
@@ -27,15 +27,15 @@ public class Backend implements IBackend {
 		st=new StorageThread(notifyGui);
 		Thread storageThread=new Thread(st);
 		storageThread.start();
-		ct=new ConstructionThread();
-		Thread constructionThread=new Thread(ct);
-		constructionThread.start();
-		tt=new TesterThread();
-		Thread testerThread=new Thread(tt);
-		testerThread.start();
-		lt=new LogisticThread();
-		Thread logisticThread=new Thread(lt);
-		logisticThread.start();
+//		ct=new ConstructionWorker();
+//		Thread constructionThread=new Thread(ct);
+//		constructionThread.start();
+//		tt=new TesterThread();
+//		Thread testerThread=new Thread(tt);
+//		testerThread.start();
+//		lt=new LogisticWorker();
+//		Thread logisticThread=new Thread(lt);
+//		logisticThread.start();
 	}
 	
 	/**
@@ -51,9 +51,9 @@ public class Backend implements IBackend {
 	
 	public void shutDownFactory(){
 		st.stop();
-		ct.stop();
-		tt.stop();
-		lt.stop();
+//		ct.stop();
+//		tt.stop();
+//		lt.stop();
 	}
 
 	@Override

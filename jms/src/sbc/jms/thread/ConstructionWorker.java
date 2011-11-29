@@ -1,6 +1,5 @@
 package sbc.jms.thread;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.jms.Connection;
@@ -23,10 +22,17 @@ import sbc.dto.MainboardComponent;
 import sbc.dto.ProductComponent;
 import sbc.dto.RamComponent;
 
-public class ConstructionThread implements Runnable, ExceptionListener {
+public class ConstructionWorker implements Runnable, ExceptionListener {
 
 	private boolean running=true;
 
+	public static void main(String[] args){
+		ConstructionWorker constructor = new ConstructionWorker();
+		Thread t = new Thread(constructor);
+		t.start();
+		System.out.println("Construction worker started");
+	}
+	
 	public void run() {
 		try {
 

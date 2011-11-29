@@ -1,8 +1,6 @@
 package sbc.jms.thread;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -14,12 +12,10 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
-import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.INotifyGui;
-import sbc.dto.ComponentEnum;
 import sbc.dto.ProductComponent;
 import sbc.jms.storage.Storage;
 

@@ -16,9 +16,16 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import sbc.dto.Computer;
 import sbc.dto.RamComponent;
 
-public class TesterThread  implements Runnable, ExceptionListener {
+public class TesterWorker  implements Runnable, ExceptionListener {
 
 	boolean running=true;
+	
+	public static void main(String[] args){
+		TesterWorker tester = new TesterWorker();
+		Thread t = new Thread(tester);
+		t.start();
+		System.out.println("Test worker started");
+	}
 
 	public void run() {
 		try {
