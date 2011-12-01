@@ -1,1 +1,6 @@
--Mitarbeiter sollen eigene Prozesse sein
+-JMS: Complete Test
+-XVSM: eigene prozesse für worker
+-XVSM: ConstructionWorker
+-XVSM: TesterWorker
+-XVSM: LogisticsWorker
+-GUI: create producer per gui aufrufen
