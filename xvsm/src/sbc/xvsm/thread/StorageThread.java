@@ -1,5 +1,6 @@
 package sbc.xvsm.thread;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,8 @@ import org.mozartspaces.capi3.QueryCoordinator.QuerySelector;
 import org.mozartspaces.capi3.Selector;
 import org.mozartspaces.core.Capi;
 import org.mozartspaces.core.ContainerReference;
+import org.mozartspaces.core.DefaultMzsCore;
+import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsTimeoutException;
 
 
@@ -25,17 +28,20 @@ public class StorageThread implements Runnable {
 	private Storage storage=new Storage();
 	private INotifyGui notifyGui;
 	private Capi capi;
+	private MzsCore core;
 	private ContainerReference container;
 	
 	public StorageThread(INotifyGui notifyGui, Capi capi){
 		this.notifyGui=notifyGui;
-		this.capi=capi;
+//		this.capi=capi;
 	}
 	
 	public void run() {
 		try {
 
-			this.container=capi.lookupContainer(SbcConstants.CONTAINER);
+			core = DefaultMzsCore.newInstance(0);
+			capi = new Capi(core);
+			this.container=capi.lookupContainer(SbcConstants.CONTAINER, new URI("xvsm://localhost:12345"), 1000l, null);
 
 			while(running){
 				// Wait for entries
