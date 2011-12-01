@@ -18,6 +18,7 @@ public class Constants {
 	public static final String LABEL_MANAGEMENT_PANEL = "Management";
 	public static final String LABEL_LOG_PANE = "Log";
 	public static final String LABEL_CREATE_PRODUCER_BUTTON = "Create Producer";
+	public static final String LABEL_PRODUCER_PRODUCT_TYPE = "product type:";
 	public static final String LABEL_PRODUCER_PRODUCT_COUNT = "product count:";
 	public static final String LABEL_PRODUCER_ERROR_RATE = "error rate:";
 	public static final String LABEL_PART_INFO_TABLE = "parts";

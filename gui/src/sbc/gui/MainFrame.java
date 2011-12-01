@@ -9,6 +9,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -29,10 +30,12 @@ import javax.swing.text.StyleContext;
 import sbc.BackendFactory;
 import sbc.IBackend;
 import sbc.INotifyGui;
+import sbc.dto.ComponentEnum;
 import sbc.dto.ProductionOrder;
 import sbc.dto.StorageState;
 
-public class MainFrame extends JFrame implements INotifyGui, ItemListener, ActionListener {
+public class MainFrame extends JFrame implements INotifyGui, ItemListener,
+		ActionListener {
 	protected IBackend backend;
 	protected JPanel menuPanel;
 	protected JPanel configPanel;
@@ -56,11 +59,11 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener, Actio
 	protected void initMainFrame() {
 		setSize(Constants.MAIN_FRAME_WIDTH, Constants.MAIN_FRAME_HEIGHT);
 		setLayout(new BorderLayout());
-	    addWindowListener(new WindowAdapter() {
-	        public void windowClosing(WindowEvent e) {
-	        	MainFrame.this.shutdown();
-	        }
-	      });
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				MainFrame.this.shutdown();
+			}
+		});
 	}
 
 	protected void initComponents() {
@@ -89,10 +92,12 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener, Actio
 		managementPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		managementPanel.setBorder(BorderFactory
 				.createTitledBorder(Constants.LABEL_MANAGEMENT_PANEL));
+		JLabel producerProductTypeLabel = new JLabel(
+				Constants.LABEL_PRODUCER_PRODUCT_TYPE);
+		producerProductType = new JComboBox();
+		fillProducerProductType();
 		JLabel producerProductCountLabel = new JLabel(
 				Constants.LABEL_PRODUCER_PRODUCT_COUNT);
-		producerProductType = new JComboBox();
-		
 		producerProductCount = new JTextField();
 		producerProductCount.setPreferredSize(new Dimension(
 				Constants.PRODUCER_PRODUCT_COUNT_WIDTH,
@@ -106,8 +111,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener, Actio
 		createProducerButton = new JButton(
 				Constants.LABEL_CREATE_PRODUCER_BUTTON);
 		createProducerButton.addActionListener(this);
-		managementPanel.add(producerProductCountLabel);
+		managementPanel.add(producerProductTypeLabel);
 		managementPanel.add(producerProductType);
+		managementPanel.add(producerProductCountLabel);
 		managementPanel.add(producerProductCount);
 		managementPanel.add(producerErrorRateLabel);
 		managementPanel.add(producerErrorRate);
@@ -124,8 +130,8 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener, Actio
 				Constants.PART_INFO_TABLE_HEIGHT));
 		partInfoTable.setFillsViewportHeight(true);
 		partInfoPanel.add(partInfoTableScrollPane, BorderLayout.CENTER);
-	    StyleContext sc = new StyleContext();
-	    logText = new DefaultStyledDocument(sc);
+		StyleContext sc = new StyleContext();
+		logText = new DefaultStyledDocument(sc);
 		logPane = new JTextPane(logText);
 		logPane.setBorder(BorderFactory
 				.createTitledBorder(Constants.LABEL_LOG_PANE));
@@ -139,6 +145,12 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener, Actio
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
+	private void fillProducerProductType() {
+		for (ComponentEnum val : ComponentEnum.values()) {
+			producerProductType.addItem(val.toString());
+		}
+	}
+
 	@Override
 	public void updateStorage(StorageState state) {
 		// TODO Auto-generated method stub
@@ -149,10 +161,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener, Actio
 
 	@Override
 	public void addLogMessage(String message) {
-		try{
-			logText.insertString(0, message+"\n", null);
-		}
-		catch(BadLocationException e){
+		try {
+			logText.insertString(0, message + "\n", null);
+		} catch (BadLocationException e) {
 			System.err.println("Could not write into log panel!");
 		}
 	}
@@ -181,9 +192,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener, Actio
 	public void setBackend(IBackend backend) {
 		this.backend = backend;
 	}
-	
-	public void shutdown(){
-		if(backend != null){
+
+	public void shutdown() {
+		if (backend != null) {
 			backend.shutdownSystem();
 		}
 		System.exit(0);
@@ -191,9 +202,20 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener, Actio
 
 	@Override
 	public void actionPerformed(ActionEvent evt) {
-		if(evt.getSource()==createProducerButton){
-//			backend.createProducer(List<ProductionOrder> productionList, int errorRate);
+		if (evt.getSource() == createProducerButton) {
+			ComponentEnum productType = ComponentEnum.valueOf(producerProductType.getSelectedItem().toString());
+			int productCount = Integer.parseInt(producerProductCount.getText());
+			int errorRate = Integer.parseInt(producerErrorRate.getText());
+			createNewProducer(productType, productCount, errorRate);
 		}
+	}
+
+	private void createNewProducer(ComponentEnum productType, int productCount,
+			int errorRate) {
+		List<ProductionOrder> orderList = new ArrayList<ProductionOrder>();
+		ProductionOrder order1 = new ProductionOrder(productType, productCount);
+		orderList.add(order1);
+		backend.createProducer(orderList, errorRate);
 	}
 
 }

@@ -4,4 +4,7 @@ jms/.project
 jms/.classpath
 xvsm/.classpath
 xvsm/.project
+gui/bin
+jms/bin
+xvsm/bin
 bin/
