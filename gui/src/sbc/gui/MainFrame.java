@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -49,6 +51,11 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener {
 	protected void initMainFrame() {
 		setSize(Constants.MAIN_FRAME_WIDTH, Constants.MAIN_FRAME_HEIGHT);
 		setLayout(new BorderLayout());
+	    addWindowListener(new WindowAdapter() {
+	        public void windowClosing(WindowEvent e) {
+	        	MainFrame.this.shutdown();
+	        }
+	      });
 	}
 
 	protected void initComponents() {
@@ -164,6 +171,13 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener {
 
 	public void setBackend(IBackend backend) {
 		this.backend = backend;
+	}
+	
+	public void shutdown(){
+		if(backend != null){
+			backend.shutdownSystem();
+		}
+		System.exit(0);
 	}
 
 }
