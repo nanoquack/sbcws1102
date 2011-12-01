@@ -163,7 +163,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	@Override
 	public void addLogMessage(String message) {
 		try {
-			logText.insertString(0, message + "\n", null);
+			logText.insertString(logText.getLength(), message + "\n", null);
 		} catch (BadLocationException e) {
 			System.err.println("Could not write into log panel!");
 		}
