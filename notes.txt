@@ -1,6 +1,8 @@
--JMS: Complete Test
--XVSM: eigene prozesse für worker
--XVSM: ConstructionWorker
--XVSM: TesterWorker
--XVSM: LogisticsWorker
--GUI: create producer per gui aufrufen
+-JMS: Complete Test (rudi, sebi)
+-JMS: Log Messages (rudi)
+-XVSM: Storage Thread -> verschicken (rudi)
+-XVSM: eigene prozesse für worker (rudi)
+-XVSM: ConstructionWorker (rudi)
+-XVSM: TesterWorker (sebi)
+-XVSM: LogisticsWorker (rudi)
++GUI: create producer per gui aufrufen (rudi)
