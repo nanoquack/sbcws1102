@@ -48,6 +48,7 @@ public class StorageThread implements Runnable {
 				List<Selector> selectors=new ArrayList<Selector>();
 				selectors.add(selector);
 				try{
+					//TODO: MaxEntries auf hoeheren Wert setzen
 				ArrayList<ProductComponent> resultEntries = capi.take(container, selectors, 1000, null);
 				if(resultEntries.size()!=0){
 					for(ProductComponent component:resultEntries){

@@ -18,13 +18,33 @@ import sbc.dto.RamComponent;
 
 public class TesterWorker  implements Runnable, ExceptionListener {
 
-	boolean running=true;
-	
+	private String queueName;
+	private boolean running=true;
+
+	/**
+	 * Main method of the testers.
+	 * If args[0] contains "1" ==> Start Tester that controlls pc parts completeness
+	 * If args[0] contains "2" ==> Start Tester that checks faultiness of pc parts
+	 */
 	public static void main(String[] args){
-		TesterWorker tester = new TesterWorker();
+		TesterWorker tester=null;
+		if(args[0].equals("1")){
+			tester = new TesterWorker("SbcTesting");
+		}
+		if(args[0].equals("2")){
+			tester = new TesterWorker("SbcTesting2");
+		}
+		System.out.println(args[0]);
+		if((!args[0].equals("1")) && (!args[0].equals("2"))){
+			throw new RuntimeException("Usage: TesterWorker <1>/<2>");
+		}
 		Thread t = new Thread(tester);
 		t.start();
 		System.out.println("Test worker started");
+	}
+
+	public TesterWorker(String queueName){
+		this.queueName=queueName;
 	}
 
 	public void run() {
@@ -43,7 +63,7 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
 			// Create the destination (Topic or Queue)
-			Destination destination = session.createQueue("SbcTesting");
+			Destination destination = session.createQueue(queueName);
 
 			// Create a MessageConsumer from the Session to the Topic or Queue
 			MessageConsumer consumer = session.createConsumer(destination);
@@ -53,22 +73,44 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 				Message m = consumer.receive(1000);
 				if(m!=null){
 					if (m instanceof ObjectMessage) {
+
 						ObjectMessage message = (ObjectMessage) m;
 						Computer computer=(Computer)message.getObject();
-						computer.setQualityCheckPassed(true);
-						if(computer.getCpu()==null || computer.getCpu().isFaulty()==true){
+						
+						//If completness check has not yet been made, do it
+						//Else: check if parts are faulty
+						if(computer.getIsComplete()==null){
+							computer.setIsComplete(true);
+							if(computer.getCpu()==null){
+								computer.setIsComplete(false);
+							}if(computer.getRam()==null){
+								computer.setIsComplete(false);
+							}if(computer.getRam().size()==0){
+								computer.setIsComplete(false);
+							}
+							if(computer.getMainboard()==null){
+								computer.setIsComplete(false);
+							}
+							forwardPcToSecondTester(computer);
+						}else if(computer.getIsComplete()==false){
 							computer.setQualityCheckPassed(false);
-						}if(computer.getMainboard()==null || computer.getMainboard().isFaulty()==true){
-							computer.setQualityCheckPassed(false);
-						}if(computer.getGpu()!=null && computer.getGpu().isFaulty()==true){
-							computer.setQualityCheckPassed(false);
-						}if(computer.getRam()==null){
-							computer.setQualityCheckPassed(false);
-						}for(RamComponent ram:computer.getRam()){
-							if(ram.isFaulty()){computer.setQualityCheckPassed(false);}
+						}else{
+
+							computer.setQualityCheckPassed(true);
+							if(computer.getCpu()==null || computer.getCpu().isFaulty()==true){
+								computer.setQualityCheckPassed(false);
+							}if(computer.getMainboard()==null || computer.getMainboard().isFaulty()==true){
+								computer.setQualityCheckPassed(false);
+							}if(computer.getGpu()!=null && computer.getGpu().isFaulty()==true){
+								computer.setQualityCheckPassed(false);
+							}if(computer.getRam()==null){
+								computer.setQualityCheckPassed(false);
+							}for(RamComponent ram:computer.getRam()){
+								if(ram.isFaulty()){computer.setQualityCheckPassed(false);}
+							}
+							System.out.println(computer.getQualityCheckPassed()?"Computer ok":"Computer faulty");
+							forwardPcToLogistic(computer);
 						}
-						System.out.println(computer.getQualityCheckPassed()?"Computer ok":"Computer faulty");
-						forwardPc(computer);
 					} else {
 						System.out.println("Dropped message "+m.getJMSMessageID());
 					}
@@ -82,8 +124,38 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 			e.printStackTrace();
 		}
 	}
+
+	private void forwardPcToSecondTester(Computer computer) throws JMSException{
+
+		// Create a ConnectionFactory
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+
+		// Create a Connection
+		Connection connection = connectionFactory.createConnection();
+		connection.start();
+
+		connection.setExceptionListener(this);
+
+		// Create a Session
+		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		// Create the destination
+		Destination destination = session.createQueue("SbcTesting2");
+		// Create a MessageProducer from the Session to the Topic
+		MessageProducer producer = session.createProducer(destination);
+		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+
+		// Create a messages
+		ObjectMessage message=session.createObjectMessage(computer);
+		// Tell the producer to send the message
+		producer.send(message);
+		System.out.println("PC sent to second tester");
+		producer.close();
+		session.close();
+		connection.close();
+	}
+
 	
-	private void forwardPc(Computer computer) throws JMSException{
+	private void forwardPcToLogistic(Computer computer) throws JMSException{
 
 		// Create a ConnectionFactory
 		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
@@ -116,7 +188,7 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 		System.out.println("JMS Exception occured.  Shutting down client.");
 		stop();
 	}
-	
+
 	public synchronized void stop(){
 		running=false;
 	}

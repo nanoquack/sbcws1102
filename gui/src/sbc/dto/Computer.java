@@ -13,6 +13,7 @@ public class Computer implements Serializable{
 	private MainboardComponent mainboard;
 	private GpuComponent gpu;
 	private List<RamComponent> ram;
+	private Boolean isComplete;
 	private Boolean qualityCheckPassed;
 
 	public Computer(){
@@ -26,7 +27,8 @@ public class Computer implements Serializable{
 		this.mainboard = mainboard;
 		this.gpu = gpu;
 		this.ram = ram;
-		qualityCheckPassed=false;
+		qualityCheckPassed=null;
+		isComplete=null;
 	}
 
 	public CpuComponent getCpu() {
@@ -69,6 +71,14 @@ public class Computer implements Serializable{
 		this.qualityCheckPassed = qualityCheckPassed;
 	}
 	
+	public Boolean getIsComplete() {
+		return isComplete;
+	}
+
+	public void setIsComplete(Boolean isComplete) {
+		this.isComplete = isComplete;
+	}
+
 	public void addRam(RamComponent comp){
 		if(ram==null){
 			ram=new ArrayList<RamComponent>();
