@@ -38,11 +38,12 @@ public class Backend implements IBackend {
 	 */
 	protected void initXvsm() {
 		try{
-			core = DefaultMzsCore.newInstance();
+			core = DefaultMzsCore.newInstance(12345);
 			capi = new Capi(core);
 			container = capi.createContainer(
 					SbcConstants.CONTAINER, null, MzsConstants.Container.UNBOUNDED,
 					null, new FifoCoordinator());
+			System.out.println(container.getSpace());
 		}
 		catch(Exception e){
 			throw new RuntimeException("Could not initialize xvsm", e);
@@ -99,6 +100,7 @@ public class Backend implements IBackend {
 		shutDownFactory();
 		try{
 			Thread.sleep(1010);	//Capi erst abdrehen, wenn take(1000) abgelaufen ist
+			System.out.println("SHUTTING DOWN!!!!!!!!!!!!!!!!!!!!!!!!!");
 			capi.destroyContainer(container, null);
 			core.shutdown(true);
 		}
