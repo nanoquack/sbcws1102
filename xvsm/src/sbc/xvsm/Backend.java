@@ -55,7 +55,7 @@ public class Backend implements IBackend {
 	 * initialize intermediate Storage for storing computer parts
 	 */
 	public void initializeFactory(INotifyGui notifyGui) {
-		st = new StorageThread(notifyGui, capi);
+		st = new StorageThread(notifyGui);
 		Thread storageThread = new Thread(st);
 		storageThread.start();
 		// ct=new ConstructionThread();

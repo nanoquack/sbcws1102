@@ -31,9 +31,8 @@ public class StorageThread implements Runnable {
 	private MzsCore core;
 	private ContainerReference container;
 	
-	public StorageThread(INotifyGui notifyGui, Capi capi){
+	public StorageThread(INotifyGui notifyGui){
 		this.notifyGui=notifyGui;
-//		this.capi=capi;
 	}
 	
 	public void run() {
