@@ -3,10 +3,13 @@ package sbc.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -26,9 +29,10 @@ import javax.swing.text.StyleContext;
 import sbc.BackendFactory;
 import sbc.IBackend;
 import sbc.INotifyGui;
+import sbc.dto.ProductionOrder;
 import sbc.dto.StorageState;
 
-public class MainFrame extends JFrame implements INotifyGui, ItemListener {
+public class MainFrame extends JFrame implements INotifyGui, ItemListener, ActionListener {
 	protected IBackend backend;
 	protected JPanel menuPanel;
 	protected JPanel configPanel;
@@ -40,6 +44,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener {
 	protected DefaultStyledDocument logText;
 	protected JComboBox implChooser;
 	protected JButton createProducerButton;
+	protected JComboBox producerProductType;
 	protected JTextField producerProductCount;
 	protected JTextField producerErrorRate;
 
@@ -86,6 +91,8 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener {
 				.createTitledBorder(Constants.LABEL_MANAGEMENT_PANEL));
 		JLabel producerProductCountLabel = new JLabel(
 				Constants.LABEL_PRODUCER_PRODUCT_COUNT);
+		producerProductType = new JComboBox();
+		
 		producerProductCount = new JTextField();
 		producerProductCount.setPreferredSize(new Dimension(
 				Constants.PRODUCER_PRODUCT_COUNT_WIDTH,
@@ -98,7 +105,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener {
 				Constants.PRODUCER_ERROR_RATE_HEIGHT));
 		createProducerButton = new JButton(
 				Constants.LABEL_CREATE_PRODUCER_BUTTON);
+		createProducerButton.addActionListener(this);
 		managementPanel.add(producerProductCountLabel);
+		managementPanel.add(producerProductType);
 		managementPanel.add(producerProductCount);
 		managementPanel.add(producerErrorRateLabel);
 		managementPanel.add(producerErrorRate);
@@ -178,6 +187,13 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener {
 			backend.shutdownSystem();
 		}
 		System.exit(0);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent evt) {
+		if(evt.getSource()==createProducerButton){
+//			backend.createProducer(List<ProductionOrder> productionList, int errorRate);
+		}
 	}
 
 }
