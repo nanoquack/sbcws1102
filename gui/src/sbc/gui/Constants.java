@@ -13,6 +13,7 @@ public class Constants {
 	
 	//gui string constants
 	public static final String LABEL_IMPL_CHOOSER = "Implementation:";
+	public static final String LABEL_NULL_IMPL = "NULL Impl";
 	public static final String LABEL_JMS_IMPL = "JMS Impl";
 	public static final String LABEL_XVSM_IMPL = "XVSM Impl";
 	public static final String LABEL_MANAGEMENT_PANEL = "Management";

@@ -76,6 +76,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		menuPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		JLabel implChooserLabel = new JLabel(Constants.LABEL_IMPL_CHOOSER);
 		implChooser = new JComboBox();
+		implChooser.addItem(Constants.LABEL_NULL_IMPL);
 		implChooser.addItem(Constants.LABEL_JMS_IMPL);
 		implChooser.addItem(Constants.LABEL_XVSM_IMPL);
 		implChooser.addItemListener(this);
