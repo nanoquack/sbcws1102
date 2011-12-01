@@ -40,8 +40,11 @@ public class Backend implements IBackend {
 		try{
 			core = DefaultMzsCore.newInstance(12345);
 			capi = new Capi(core);
+			capi.createContainer(	//Container for notifications to the GUI
+					SbcConstants.NOTIFICATIONCONTAINER, null, MzsConstants.Container.UNBOUNDED,
+					null, new FifoCoordinator());
 			container = capi.createContainer(
-					SbcConstants.CONTAINER, null, MzsConstants.Container.UNBOUNDED,
+					SbcConstants.PRODUCERCONTAINER, null, MzsConstants.Container.UNBOUNDED,
 					null, new FifoCoordinator());
 			System.out.println(container.getSpace());
 		}

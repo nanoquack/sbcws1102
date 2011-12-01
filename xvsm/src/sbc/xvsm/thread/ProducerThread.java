@@ -36,7 +36,7 @@ public class ProducerThread implements Runnable {
 	@Override
 	public void run() {
 		try{
-			this.container=capi.lookupContainer(SbcConstants.CONTAINER);
+			this.container=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER);
 			
 			for(ProductionOrder order:productionList){
 				int amount=order.getAmount();

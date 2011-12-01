@@ -38,9 +38,9 @@ public class StorageThread implements Runnable {
 	public void run() {
 		try {
 
-			core = DefaultMzsCore.newInstance(0);
+			core = DefaultMzsCore.newInstance(SbcConstants.STORAGEPORT);
 			capi = new Capi(core);
-			this.container=capi.lookupContainer(SbcConstants.CONTAINER, new URI("xvsm://localhost:12345"), 1000l, null);
+			this.container=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER, new URI(SbcConstants.ProducerUrl), 1000l, null);
 
 			while(running){
 				// Wait for entries
