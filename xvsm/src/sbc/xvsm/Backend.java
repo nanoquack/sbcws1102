@@ -38,7 +38,7 @@ public class Backend implements IBackend {
 	 */
 	protected void initXvsm() {
 		try{
-			core = DefaultMzsCore.newInstance(12345);
+			core = DefaultMzsCore.newInstance(SbcConstants.PRODUCERPORT);
 			capi = new Capi(core);
 			capi.createContainer(	//Container for notifications to the GUI
 					SbcConstants.NOTIFICATIONCONTAINER, null, MzsConstants.Container.UNBOUNDED,
@@ -58,7 +58,7 @@ public class Backend implements IBackend {
 	 * initialize intermediate Storage for storing computer parts
 	 */
 	public void initializeFactory(INotifyGui notifyGui) {
-		st = new StorageThread(notifyGui);
+		st = new StorageThread();
 		Thread storageThread = new Thread(st);
 		storageThread.start();
 		// ct=new ConstructionThread();

@@ -19,6 +19,7 @@ import org.mozartspaces.core.DefaultMzsCore;
 import org.mozartspaces.core.Entry;
 import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
+import org.mozartspaces.core.MzsCoreRuntimeException;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
@@ -33,7 +34,6 @@ import sbc.dto.RamComponent;
 public class TesterWorker implements Runnable {
 
 	private boolean running=true;
-	private INotifyGui notifyGui;
 	private Capi capi;
 	private MzsCore core;
 	private ContainerReference testContainer;
@@ -61,39 +61,48 @@ public class TesterWorker implements Runnable {
 			context.reset();
 			configurator.doConfigure("logback.xml");
 
-			core = DefaultMzsCore.newInstance(SbcConstants.TESTERPORT);
-			capi = new Capi(core);
-			
-			logisticContainer = capi.createContainer(
-					SbcConstants.LOGISTICCONTAINER, null, MzsConstants.Container.UNBOUNDED,
-					null, new FifoCoordinator());
+			try{
+				core = DefaultMzsCore.newInstance(SbcConstants.TESTERPORT);
+				capi = new Capi(core);
 
-			this.notficationContainer=capi.lookupContainer(SbcConstants.NOTIFICATIONCONTAINER, new URI(SbcConstants.NotificationUrl), 1000l, null);
-			this.testContainer=capi.lookupContainer(SbcConstants.TESTERCONTAINER, new URI(SbcConstants.TESTERCONTAINER), 1000l, null);
+				logisticContainer = capi.createContainer(
+						SbcConstants.LOGISTICCONTAINER, null, MzsConstants.Container.UNBOUNDED,
+						null, new FifoCoordinator());
+			}catch(MzsCoreRuntimeException ex){
+				//There exits yet another tester, logisticContainer is already created
+				core = DefaultMzsCore.newInstance(0);
+				capi = new Capi(core);
+				this.logisticContainer=capi.lookupContainer(SbcConstants.LOGISTICCONTAINER, new URI(SbcConstants.LogisticContainerUrl), MzsConstants.RequestTimeout.INFINITE, null);
+			}
+
+			this.notficationContainer=capi.lookupContainer(SbcConstants.NOTIFICATIONCONTAINER, new URI(SbcConstants.NotificationUrl), MzsConstants.RequestTimeout.INFINITE, null);
+			this.testContainer=capi.lookupContainer(SbcConstants.TESTERCONTAINER, new URI(SbcConstants.TesterContainerUrl), MzsConstants.RequestTimeout.INFINITE, null);
 			//<Testdaten>
-//			this.testContainer = capi.createContainer(null, null,
-//					MzsConstants.Container.UNBOUNDED,
-//					Arrays.asList(new QueryCoordinator()), null, null);
-//			Computer computer1=new Computer();
-//			computer1.setCompletenessTester("abc");
-//			Entry entry1=new Entry(computer1);
-//			capi.write(testContainer, entry1);
-//			Computer computer2=new Computer();
-//			computer2.setCompletenessTester(workername);
-//			Entry entry2=new Entry(computer2);
-//			capi.write(testContainer, entry2);
-//			Computer computer3=new Computer();
-//			Entry entry3=new Entry(computer3);
-//			capi.write(testContainer, entry3);
-//			System.out.println(computer1.getCompletenessTester());
-//			System.out.println(computer2.getCompletenessTester());
-//			System.out.println(computer3.getCompletenessTester());
-//			System.out.println("--------------------");
+			//			this.testContainer = capi.createContainer(null, null,
+			//					MzsConstants.Container.UNBOUNDED,
+			//					Arrays.asList(new QueryCoordinator()), null, null);
+			//			Computer computer1=new Computer();
+			//			computer1.setCompletenessTester("abc");
+			//			Entry entry1=new Entry(computer1);
+			//			capi.write(testContainer, entry1);
+			//			Computer computer2=new Computer();
+			//			computer2.setCompletenessTester(workername);
+			//			Entry entry2=new Entry(computer2);
+			//			capi.write(testContainer, entry2);
+			//			Computer computer3=new Computer();
+			//			Entry entry3=new Entry(computer3);
+			//			capi.write(testContainer, entry3);
+			//			System.out.println(computer1.getCompletenessTester());
+			//			System.out.println(computer2.getCompletenessTester());
+			//			System.out.println(computer3.getCompletenessTester());
+			//			System.out.println("--------------------");
 			//</Testdaten>
-			
+
 
 			Property title = Property.forName("*", "completenessTester");
 			Query query = new Query().filter(title.notEqualTo(workername));
+
+			System.out.println("Setup complete");
 
 			while(running){
 				//Take a computer for testing, that has not been tested yet by this tester
@@ -116,7 +125,7 @@ public class TesterWorker implements Runnable {
 						if(computer.getMainboard()==null){
 							computer.setIsComplete(false);
 						}
-						
+
 						computer.setCompletenessTester(workername);
 						//If the computer is complete==>put it back into testing container
 						if(computer.getIsComplete()){
