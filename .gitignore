@@ -8,3 +8,4 @@ gui/bin/
 jms/bin/
 xvsm/bin
 bin/
+build/

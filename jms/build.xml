@@ -1,0 +1,69 @@
+<project name="SBC-JMS">
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="build" />
+	<property name="lib.dir" value="lib" />
+	<property name="xvsm.lib.dir" value="../xvsm/lib" />
+	<property name="gui.src.dir" value="../gui/src" />
+	<property name="activemq.lib" value="activemq-all-5.4.2.jar" />
+	<property name="xvsm.lib" value="mozartspaces-dist-2.1-SNAPSHOT-r10972-all-with-dependencies.jar" />
+
+	<path id="master-src">
+		<pathelement path="${src.dir}" />
+		<pathelement path="${gui.src.dir}" />
+	</path>
+
+	<path id="master-classpath">
+		<pathelement path="${build.dir}" />
+		<fileset dir="${lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${xvsm.lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="compile">
+		<mkdir dir="${build.dir}" />
+		<javac destdir="${build.dir}">
+			<src refid="master-src" />
+			<classpath refid="master-classpath" />
+		</javac>
+	</target>
+
+	<target name="run-gui">
+		<java classname="sbc.JmsMain" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+
+	<target name="run-construction">
+		<java classname="sbc.jms.thread.ConstructionWorker" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+
+	<target name="run-tester-1">
+		<java classname="sbc.jms.thread.TesterWorker" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+			<arg value="1"/>
+		</java>
+	</target>
+	
+	<target name="run-tester-2">
+		<java classname="sbc.jms.thread.TesterWorker" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+			<arg value="2"/>
+		</java>
+	</target>
+
+	<target name="run-logistics">
+		<java classname="sbc.jms.thread.LogisticWorker" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+</project>
