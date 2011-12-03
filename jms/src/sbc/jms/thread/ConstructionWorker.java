@@ -21,6 +21,7 @@ import sbc.dto.GpuComponent;
 import sbc.dto.MainboardComponent;
 import sbc.dto.ProductComponent;
 import sbc.dto.RamComponent;
+import sbc.jms.JmsLogging;
 
 public class ConstructionWorker implements Runnable, ExceptionListener {
 
@@ -30,7 +31,7 @@ public class ConstructionWorker implements Runnable, ExceptionListener {
 		ConstructionWorker constructor = new ConstructionWorker();
 		Thread t = new Thread(constructor);
 		t.start();
-		System.out.println("Construction worker started");
+		JmsLogging.getInstance().log("Construction worker started");
 	}
 	
 	public void run() {
@@ -75,9 +76,9 @@ public class ConstructionWorker implements Runnable, ExceptionListener {
 							}
 						}
 						forwardPc(computer);
-						System.out.println("Computer constructed");
+						JmsLogging.getInstance().log("Computer constructed");
 					}else {
-						System.out.println("Dropped message "+m.getJMSMessageID());
+						JmsLogging.getInstance().log("Dropped message "+m.getJMSMessageID());
 					}
 				} 
 			}
@@ -85,7 +86,7 @@ public class ConstructionWorker implements Runnable, ExceptionListener {
 			session.close();
 			connection.close();
 		} catch (Exception e) {
-			System.out.println("Caught: " + e);
+			JmsLogging.getInstance().log("Caught: " + e);
 			e.printStackTrace();
 		}
 	}
@@ -113,14 +114,14 @@ public class ConstructionWorker implements Runnable, ExceptionListener {
 		ObjectMessage message=session.createObjectMessage(computer);
 		// Tell the producer to send the message
 		producer.send(message);
-		System.out.println("PC sent to testing");
+		JmsLogging.getInstance().log("PC sent to testing");
 		producer.close();
 		session.close();
 		connection.close();
 	}
 
 public synchronized void onException(JMSException ex) {
-	System.out.println("JMS Exception occured.  Shutting down client.");
+	JmsLogging.getInstance().log("JMS Exception occured.  Shutting down client.");
 	stop();
 }
 

@@ -6,6 +6,7 @@ import sbc.IBackend;
 import sbc.INotifyGui;
 import sbc.dto.ProductionOrder;
 import sbc.jms.thread.ConstructionWorker;
+import sbc.jms.thread.LogThread;
 import sbc.jms.thread.LogisticWorker;
 import sbc.jms.thread.ProducerThread;
 import sbc.jms.thread.StorageThread;
@@ -14,33 +15,42 @@ import sbc.jms.thread.TesterWorker;
 public class Backend implements IBackend {
 
 	private StorageThread st;
+	private Thread logThread;
 	private ConstructionWorker ct;
 	private TesterWorker tt;
 	private LogisticWorker lt;
-	private int workerSequencer=1;
-	
+	private int workerSequencer = 1;
+
 	/**
-	 * Start Construction, Test and Logistic part of the factory
-	 * Additionally initialize intermediate Storage for storing computer parts
+	 * Start Construction, Test and Logistic part of the factory Additionally
+	 * initialize intermediate Storage for storing computer parts
 	 */
-	public void initializeFactory(INotifyGui notifyGui){
-		st=new StorageThread(notifyGui);
-		Thread storageThread=new Thread(st);
+	public void initializeFactory(INotifyGui notifyGui) {
+		st = new StorageThread(notifyGui);
+		Thread storageThread = new Thread(st);
 		storageThread.start();
+		logThread = new Thread(new LogThread(notifyGui));
+		// set log thread as daemon thread, so process will be terminated if
+		// backend thread is stopped
+		logThread.setDaemon(true);
+		logThread.start();
+		JmsLogging.getInstance().log("Backend: LogThread started!");
 	}
-	
+
 	/**
 	 * Creates new Threads with the specified parameters
 	 */
 	@Override
-	public void createProducer(List<ProductionOrder> productionList, int errorRate) {
-		String workername="worker"+workerSequencer++;
-		ProducerThread pt=new ProducerThread(workername,productionList,errorRate);
+	public void createProducer(List<ProductionOrder> productionList,
+			int errorRate) {
+		String workername = "worker" + workerSequencer++;
+		ProducerThread pt = new ProducerThread(workername, productionList,
+				errorRate);
 		Thread producerThread = new Thread(pt);
 		producerThread.start();
 	}
-	
-	public void shutDownFactory(){
+
+	public void shutDownFactory() {
 		st.stop();
 	}
 
@@ -52,7 +62,7 @@ public class Backend implements IBackend {
 	@Override
 	public void shutdownSystem() {
 		shutDownFactory();
-		
+
 	}
 
 }

@@ -76,6 +76,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		menuPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		JLabel implChooserLabel = new JLabel(Constants.LABEL_IMPL_CHOOSER);
 		implChooser = new JComboBox();
+		implChooser.addItem(Constants.LABEL_NULL_IMPL);
 		implChooser.addItem(Constants.LABEL_JMS_IMPL);
 		implChooser.addItem(Constants.LABEL_XVSM_IMPL);
 		implChooser.addItemListener(this);
@@ -162,7 +163,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	@Override
 	public void addLogMessage(String message) {
 		try {
-			logText.insertString(0, message + "\n", null);
+			logText.insertString(logText.getLength(), message + "\n", null);
 		} catch (BadLocationException e) {
 			System.err.println("Could not write into log panel!");
 		}
