@@ -12,6 +12,7 @@ import javax.jms.Session;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.dto.Computer;
+import sbc.jms.JmsLogging;
 
 public class LogisticWorker  implements Runnable, ExceptionListener {
 
@@ -21,7 +22,7 @@ public class LogisticWorker  implements Runnable, ExceptionListener {
 		LogisticWorker logistics = new LogisticWorker();
 		Thread t = new Thread(logistics);
 		t.start();
-		System.out.println("Logistic worker started");
+		JmsLogging.getInstance().log("Logistic worker started");
 	}
 
 	public void run() {
@@ -53,12 +54,12 @@ public class LogisticWorker  implements Runnable, ExceptionListener {
 						ObjectMessage message = (ObjectMessage) m;
 						Computer computer=(Computer) message.getObject();
 						if(computer.getQualityCheckPassed()){
-							System.out.println("Computer delieverd for sale");
+							JmsLogging.getInstance().log("Computer delieverd for sale");
 						}else{
-							System.out.println("Computer stored in recycling storage");
+							JmsLogging.getInstance().log("Computer stored in recycling storage");
 						}
 					} else {
-						System.out.println("Dropped message "+m.getJMSMessageID());
+						JmsLogging.getInstance().log("Dropped message "+m.getJMSMessageID());
 					}
 				}
 			}
@@ -66,7 +67,7 @@ public class LogisticWorker  implements Runnable, ExceptionListener {
 			session.close();
 			connection.close();
 		} catch (Exception e) {
-			System.out.println("Caught: " + e);
+			JmsLogging.getInstance().log("Caught: " + e);
 			e.printStackTrace();
 		}
 	}

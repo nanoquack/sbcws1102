@@ -13,6 +13,7 @@ import sbc.dto.MainboardComponent;
 import sbc.dto.ProductComponent;
 import sbc.dto.RamComponent;
 import sbc.dto.StorageState;
+import sbc.jms.JmsLogging;
 
 /**
  * Container class for the components stored
@@ -64,7 +65,7 @@ public class Storage {
 			allPcUnits.add(gpuList.pollFirst());
 		}
 		
-		System.out.println("Produced Pc, storage now:" +
+		JmsLogging.getInstance().log("Produced Pc, storage now:" +
 				"cpu "+cpuList.size()+", ram "+ramList.size()+" "
 				+"mainboard "+mainboardList.size());
 		

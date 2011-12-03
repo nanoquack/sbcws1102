@@ -17,6 +17,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.INotifyGui;
 import sbc.dto.ProductComponent;
+import sbc.jms.JmsLogging;
 import sbc.jms.storage.Storage;
 
 public class StorageThread implements Runnable, ExceptionListener {
@@ -57,7 +58,7 @@ public class StorageThread implements Runnable, ExceptionListener {
 					if (m instanceof ObjectMessage) {
 						ObjectMessage message = (ObjectMessage) m;
 						ProductComponent component = (ProductComponent) message.getObject();
-						System.out.println("Worker "+component.getWorker() + 
+						JmsLogging.getInstance().log("Worker "+component.getWorker() + 
 								" produced "+ component.getClass().toString()+" with Id "
 								+component.getId()+(component.isFaulty()?" (faulty!)":""));
 						storage.storeItem(component.getClass().getName(), component);
@@ -68,7 +69,7 @@ public class StorageThread implements Runnable, ExceptionListener {
 						}
 						notifyGui.updateStorage(storage.getStorageState());
 					} else {
-						System.out.println("Dropped message "+m.getJMSMessageID());
+						JmsLogging.getInstance().log("Dropped message "+m.getJMSMessageID());
 					}
 				}
 			}
@@ -77,7 +78,7 @@ public class StorageThread implements Runnable, ExceptionListener {
 			session.close();
 			connection.close();
 		} catch (Exception e) {
-			System.out.println("Caught: " + e);
+			JmsLogging.getInstance().log("Caught: " + e);
 			e.printStackTrace();
 		}
 	}
@@ -104,7 +105,7 @@ public class StorageThread implements Runnable, ExceptionListener {
 		ObjectMessage message=session.createObjectMessage(components);
 		// Tell the producer to send the message
 		producer.send(message);
-		System.out.println("PC items sent to construction");
+		JmsLogging.getInstance().log("PC items sent to construction");
 		producer.close();
 		session.close();
 		connection.close();

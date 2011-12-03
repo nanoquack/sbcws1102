@@ -15,6 +15,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.dto.Computer;
 import sbc.dto.RamComponent;
+import sbc.jms.JmsLogging;
 
 public class TesterWorker  implements Runnable, ExceptionListener {
 
@@ -34,13 +35,13 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 		if(args[0].equals("2")){
 			tester = new TesterWorker("SbcTesting2");
 		}
-		System.out.println(args[0]);
+		JmsLogging.getInstance().log(args[0]);
 		if((!args[0].equals("1")) && (!args[0].equals("2"))){
 			throw new RuntimeException("Usage: TesterWorker <1>/<2>");
 		}
 		Thread t = new Thread(tester);
 		t.start();
-		System.out.println("Test worker started");
+		JmsLogging.getInstance().log("Test worker started");
 	}
 
 	public TesterWorker(String queueName){
@@ -108,11 +109,11 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 							}for(RamComponent ram:computer.getRam()){
 								if(ram.isFaulty()){computer.setQualityCheckPassed(false);}
 							}
-							System.out.println(computer.getQualityCheckPassed()?"Computer ok":"Computer faulty");
+							JmsLogging.getInstance().log(computer.getQualityCheckPassed()?"Computer ok":"Computer faulty");
 							forwardPcToLogistic(computer);
 						}
 					} else {
-						System.out.println("Dropped message "+m.getJMSMessageID());
+						JmsLogging.getInstance().log("Dropped message "+m.getJMSMessageID());
 					}
 				}
 			}
@@ -120,7 +121,7 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 			session.close();
 			connection.close();
 		} catch (Exception e) {
-			System.out.println("Caught: " + e);
+			JmsLogging.getInstance().log("Caught: " + e);
 			e.printStackTrace();
 		}
 	}
@@ -148,7 +149,7 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 		ObjectMessage message=session.createObjectMessage(computer);
 		// Tell the producer to send the message
 		producer.send(message);
-		System.out.println("PC sent to second tester");
+		JmsLogging.getInstance().log("PC sent to second tester");
 		producer.close();
 		session.close();
 		connection.close();
@@ -178,14 +179,14 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 		ObjectMessage message=session.createObjectMessage(computer);
 		// Tell the producer to send the message
 		producer.send(message);
-		System.out.println("PC sent to logistic");
+		JmsLogging.getInstance().log("PC sent to logistic");
 		producer.close();
 		session.close();
 		connection.close();
 	}
 
 	public synchronized void onException(JMSException ex) {
-		System.out.println("JMS Exception occured.  Shutting down client.");
+		JmsLogging.getInstance().log("JMS Exception occured.  Shutting down client.");
 		stop();
 	}
 
