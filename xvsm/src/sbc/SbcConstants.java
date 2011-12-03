@@ -25,4 +25,5 @@ public class SbcConstants {
 	public static final int CONSTRUCTIONPORT=12347;
 	public static final int TESTERPORT=12348;
 	public static final int LOGISTICPORT=12349;
+	public static final int LOGGERPORT=12350;
 }

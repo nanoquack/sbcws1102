@@ -21,7 +21,6 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
 public class LogisticsWorker implements Runnable {
-	private INotifyGui notifyGui;
 	private Capi capi;
 	private MzsCore core;
 	private ContainerReference logisticContainer;
@@ -53,12 +52,16 @@ public class LogisticsWorker implements Runnable {
 					if (computer != null) {
 						if (computer.getQualityCheckPassed()) {
 							capi.write(salesContainer, new Entry(computer));
-							System.out
-									.println("Computer has passed quality check, goes to sales");
+							capi.write(
+									notficationContainer,
+									new Entry(
+											"Computer has passed quality check, goes to sales"));
 						} else {
 							capi.write(recyclingContainer, new Entry(computer));
-							System.out
-									.println("Computer has NOT passed quality check, goes to recycling");
+							capi.write(
+									notficationContainer,
+									new Entry(
+											"Computer has NOT passed quality check, goes to recycling"));
 						}
 					}
 				}

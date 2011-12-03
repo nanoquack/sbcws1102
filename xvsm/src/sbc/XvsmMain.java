@@ -3,17 +3,11 @@ package sbc;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mozartspaces.capi3.FifoCoordinator;
-import org.mozartspaces.core.Capi;
-import org.mozartspaces.core.ContainerReference;
-import org.mozartspaces.core.DefaultMzsCore;
-import org.mozartspaces.core.MzsConstants;
-import org.mozartspaces.core.MzsCore;
 import org.slf4j.LoggerFactory;
 
 import sbc.dto.ComponentEnum;
 import sbc.dto.ProductionOrder;
-import sbc.mocking.NotifyGuiMock;
+import sbc.gui.MainFrame;
 import sbc.xvsm.Backend;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -32,10 +26,9 @@ public class XvsmMain {
 			context.reset();
 			configurator.doConfigure("logback.xml");
 			Backend backend=new Backend();
-			backend.startSystem(new NotifyGuiMock());	//TODO: durch MainFrame ersetzen
-//			MainFrame frame=new MainFrame();
-//			frame.setVisible(true);
-//			backend.initializeFactory(frame);
+			MainFrame frame = new MainFrame();
+			backend.startSystem(frame);	//TODO: durch MainFrame ersetzen
+			frame.setVisible(true);
 			
 			List<ProductionOrder> productionList=new ArrayList<ProductionOrder>();
 			productionList.add(new ProductionOrder(ComponentEnum.CPU,2));

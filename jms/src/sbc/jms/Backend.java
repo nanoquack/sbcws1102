@@ -34,7 +34,6 @@ public class Backend implements IBackend {
 		// backend thread is stopped
 		logThread.setDaemon(true);
 		logThread.start();
-		JmsLogging.getInstance().log("Backend: LogThread started!");
 	}
 
 	/**

@@ -13,6 +13,7 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.INotifyGui;
+import sbc.jms.JmsLogging;
 
 /**
  * LogThread listens on the logger topic and
@@ -61,6 +62,7 @@ public class LogThread implements Runnable, MessageListener, ExceptionListener {
 			MessageConsumer consumer = session.createConsumer(destination);
 			consumer.setMessageListener(this);
 			connection.start();
+			JmsLogging.getInstance().log("Jms LogThread started!");
 		} catch (JMSException e) {
 			notify.addLogMessage("LogThread: Could not initialize JMS, cause: "
 					+ e.getStackTrace().toString());

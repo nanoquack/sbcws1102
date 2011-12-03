@@ -13,12 +13,14 @@ import sbc.IBackend;
 import sbc.INotifyGui;
 import sbc.SbcConstants;
 import sbc.dto.ProductionOrder;
+import sbc.xvsm.thread.LogThread;
 import sbc.xvsm.thread.ProducerThread;
 import sbc.xvsm.thread.StorageThread;
 
 public class Backend implements IBackend {
 
 	private StorageThread st;
+	private Thread logThread;
 	// private ConstructionThread ct;
 	// private TesterThread tt;
 	// private LogisticThread lt;
@@ -61,15 +63,8 @@ public class Backend implements IBackend {
 		st = new StorageThread();
 		Thread storageThread = new Thread(st);
 		storageThread.start();
-		// ct=new ConstructionThread();
-		// Thread constructionThread=new Thread(ct);
-		// constructionThread.start();
-		// tt=new TesterThread();
-		// Thread testerThread=new Thread(tt);
-		// testerThread.start();
-		// lt=new LogisticThread();
-		// Thread logisticThread=new Thread(lt);
-		// logisticThread.start();
+		logThread = new Thread(new LogThread(notifyGui));
+		logThread.start();
 	}
 
 	/**
