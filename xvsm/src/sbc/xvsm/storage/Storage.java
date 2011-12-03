@@ -64,7 +64,7 @@ public class Storage {
 			allPcUnits.add(gpuList.pollFirst());
 		}
 		
-		System.out.println("Produced Pc, storage now:" +
+		System.out.println("Parts for pc taken, storage now:" +
 				"cpu "+cpuList.size()+", ram "+ramList.size()+" "
 				+"mainboard "+mainboardList.size());
 		

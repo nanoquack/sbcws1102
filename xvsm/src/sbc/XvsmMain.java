@@ -53,8 +53,8 @@ public class XvsmMain {
 			
 			backend.createProducer(productionList2,10);
 			
-			Thread.sleep(10000);
-			backend.shutdownSystem();
+//			Thread.sleep(10000);
+//			backend.shutdownSystem();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

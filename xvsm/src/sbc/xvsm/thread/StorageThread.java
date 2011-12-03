@@ -12,8 +12,10 @@ import org.mozartspaces.capi3.Selector;
 import org.mozartspaces.core.Capi;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.DefaultMzsCore;
+import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsTimeoutException;
+import org.mozartspaces.core.Entry;
 
 
 import sbc.INotifyGui;
@@ -26,21 +28,22 @@ public class StorageThread implements Runnable {
 
 	private boolean running=true;
 	private Storage storage=new Storage();
-	private INotifyGui notifyGui;
 	private Capi capi;
 	private MzsCore core;
-	private ContainerReference container;
-	
-	public StorageThread(INotifyGui notifyGui){
-		this.notifyGui=notifyGui;
-	}
-	
+	private ContainerReference producerContainer;
+	private ContainerReference storageContainer;
+	private ContainerReference notificationContainer;
+
 	public void run() {
 		try {
 
 			core = DefaultMzsCore.newInstance(SbcConstants.STORAGEPORT);
 			capi = new Capi(core);
-			this.container=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER, new URI(SbcConstants.ProducerUrl), 1000l, null);
+			this.producerContainer=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER, new URI(SbcConstants.ProducerUrl), 1000l, null);
+			this.notificationContainer=capi.lookupContainer(SbcConstants.NOTIFICATIONCONTAINER, new URI(SbcConstants.NotificationUrl), 1000l, null);
+			this.storageContainer=capi.createContainer(
+					SbcConstants.STORAGECONTAINER, null, MzsConstants.Container.UNBOUNDED,
+					null, new FifoCoordinator());
 
 			while(running){
 				// Wait for entries
@@ -49,25 +52,23 @@ public class StorageThread implements Runnable {
 				selectors.add(selector);
 				try{
 					//TODO: MaxEntries auf hoeheren Wert setzen
-				ArrayList<ProductComponent> resultEntries = capi.take(container, selectors, 1000, null);
-				if(resultEntries.size()!=0){
+					ArrayList<ProductComponent> resultEntries = capi.take(producerContainer, selectors, 1000, null);
 					for(ProductComponent component:resultEntries){
 						System.out.println("Worker "+component.getWorker() + 
 								" produced "+ component.getClass().toString()+" with Id "
 								+component.getId()+(component.isFaulty()?" (faulty!)":""));
 						storage.storeItem(component.getClass().getName(), component);
-						
+
 						ArrayList<ProductComponent> components=storage.getPcItemsIfAvailable();
 						if(components!=null){
-//							forwardPcParts(components);	//TODO
+							Entry e=new Entry(components);
+						    capi.write(storageContainer, e);
+						    capi.write(notificationContainer, new Entry("Computer components sent to construction"));
 						}
-//						notifyGui.updateStorage(storage.getStorageState());
-						//TODO: notify auskommentieren
 					}
-				}
 				}catch(MzsTimeoutException ex){
-					//Hier ist nichts zu machen. Generell ist es imo unnoetig, dass diese
-					//Exception ueberhaupt vom Framework geworfen wird.
+					//Hier ist nichts zu machen. Timeout.Infinite nicht moeglich, sonst
+					//stoppt dieser Thread nicht mehr.
 				}
 			}
 		} catch (Exception e) {
@@ -75,37 +76,7 @@ public class StorageThread implements Runnable {
 			e.printStackTrace();
 		}
 	}
-	
-//	private void forwardPcParts(ArrayList<ProductComponent> components) throws JMSException{
-//		// Create a ConnectionFactory
-//		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-//
-//		// Create a Connection
-//		Connection connection = connectionFactory.createConnection();
-//		connection.start();
-//
-//		connection.setExceptionListener(this);
-//
-//		// Create a Session
-//		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-//		// Create the destination
-//		Destination destination = session.createQueue("SbcConstruction");
-//		// Create a MessageProducer from the Session to the Topic
-//		MessageProducer producer = session.createProducer(destination);
-//		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-//		
-//		// Create a messages
-//		ObjectMessage message=session.createObjectMessage(components);
-//		// Tell the producer to send the message
-//		producer.send(message);
-//		System.out.println("PC items sent to construction");
-//		producer.close();
-//		session.close();
-//		connection.close();
-//	}
-//
 
-	
 	public synchronized void stop(){
 		running=false;
 	}

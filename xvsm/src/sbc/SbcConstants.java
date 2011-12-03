@@ -12,9 +12,9 @@ public class SbcConstants {
 	public static final String ProducerUrl="xvsm://localhost:12345";
 	public static final String NotificationUrl="xvsm://localhost:12345";
 	public static final String StorageContainerUrl="xvsm://localhost:12346";
-	public static final String ConstructionContainerUrl="xvsm://localhost:12347";
-	public static final String TesterContainerUrl="xvsm://localhost:12348";
-	public static final String LogisticContainerUrl="xvsm://localhost:12349";
+//	public static final String ConstructionContainerUrl="xvsm://localhost:12347";
+	public static final String TesterContainerUrl="xvsm://localhost:12347";
+	public static final String LogisticContainerUrl="xvsm://localhost:12348";
 	
 	public static final int PRODUCERPORT=12345;
 	public static final int STORAGEPORT=12346;

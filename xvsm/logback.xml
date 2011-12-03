@@ -36,7 +36,7 @@
 	<!-- for further appenders see http://logback.qos.ch/manual/appenders.html -->
 	
 	
-	<root level="INFO">
+	<root level="WARN">
 		<appender-ref ref="stdout"/>
 		<!-- appender-ref ref="file"/ -->		
 	</root>
