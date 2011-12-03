@@ -69,7 +69,6 @@ public class StorageThread implements Runnable {
 							Entry e=new Entry(components);
 						    capi.write(storageContainer, e);
 						    capi.write(notificationContainer, new Entry("Computer components sent to construction"));
-						    notifyGui.updateStorage(storage.getStorageState());
 						}
 					}
 				}catch(MzsTimeoutException ex){

@@ -95,7 +95,7 @@ public class Backend implements IBackend {
 		shutDownFactory();
 		try{
 			Thread.sleep(1010);	//Capi erst abdrehen, wenn take(1000) abgelaufen ist
-			System.out.println("SHUTTING DOWN!!!!!!!!!!!!!!!!!!!!!!!!!");
+			System.out.println("Shutting down Xvsm...");
 			capi.destroyContainer(container, null);
 			core.shutdown(true);
 		}
