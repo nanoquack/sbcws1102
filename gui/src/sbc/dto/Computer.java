@@ -4,9 +4,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mozartspaces.capi3.Index;
+import org.mozartspaces.capi3.Queryable;
+
 /**
  * Encapsulates components and attributes of a computer
  */
+@Queryable
 public class Computer implements Serializable{
 
 	private CpuComponent cpu;
@@ -14,6 +18,8 @@ public class Computer implements Serializable{
 	private GpuComponent gpu;
 	private List<RamComponent> ram;
 	private Boolean isComplete;
+	@Index  //If computer is complete, the name of the tester is written into this field
+	private String completenessTester;	
 	private Boolean qualityCheckPassed;
 
 	public Computer(){
@@ -27,8 +33,9 @@ public class Computer implements Serializable{
 		this.mainboard = mainboard;
 		this.gpu = gpu;
 		this.ram = ram;
-		qualityCheckPassed=null;
 		isComplete=null;
+		completenessTester=null;
+		qualityCheckPassed=null;
 	}
 
 	public CpuComponent getCpu() {
@@ -70,13 +77,21 @@ public class Computer implements Serializable{
 	public void setQualityCheckPassed(Boolean qualityCheckPassed) {
 		this.qualityCheckPassed = qualityCheckPassed;
 	}
-	
+
 	public Boolean getIsComplete() {
 		return isComplete;
 	}
 
 	public void setIsComplete(Boolean isComplete) {
 		this.isComplete = isComplete;
+	}
+
+	public String getCompletenessTester() {
+		return completenessTester;
+	}
+
+	public void setCompletenessTester(String completenessTester) {
+		this.completenessTester = completenessTester;
 	}
 
 	public void addRam(RamComponent comp){
