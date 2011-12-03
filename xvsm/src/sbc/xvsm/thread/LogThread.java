@@ -49,7 +49,7 @@ public class LogThread implements Runnable {
 				}
 			}
 			catch(Exception e){
-				notifyGui.addLogMessage("LogThread: Could not get log entry from notification container");
+				e.printStackTrace();
 			}
 		}
 	}
@@ -66,15 +66,20 @@ public class LogThread implements Runnable {
 			try {
 				core = DefaultMzsCore.newInstance(SbcConstants.LOGGERPORT);
 				capi = new Capi(core);
-				notificationContainer = capi.lookupContainer(
-						SbcConstants.NOTIFICATIONCONTAINER, new URI(
-								SbcConstants.NotificationUrl),
-						MzsConstants.RequestTimeout.INFINITE, null);
+//				notificationContainer = capi.lookupContainer(
+//						SbcConstants.NOTIFICATIONCONTAINER, new URI(
+//								SbcConstants.NotificationUrl),
+//						MzsConstants.RequestTimeout.INFINITE, null);
+				notificationContainer = capi.createContainer(
+						SbcConstants.NOTIFICATIONCONTAINER, null, MzsConstants.Container.UNBOUNDED,
+						null, new FifoCoordinator());
 			} catch (MzsCoreRuntimeException e) {
 				System.err.println("A LogThread is already running on port "+SbcConstants.LOGGERPORT);
+				e.printStackTrace();
 			}
 		} catch (Exception e) {
 			System.err.println("Could not inintialize Xvsm");
+			e.printStackTrace();
 		}
 	}
 }

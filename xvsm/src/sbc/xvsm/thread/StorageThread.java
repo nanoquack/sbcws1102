@@ -28,12 +28,17 @@ public class StorageThread implements Runnable {
 
 	private boolean running=true;
 	private Storage storage=new Storage();
+	private INotifyGui notifyGui;
 	private Capi capi;
 	private MzsCore core;
 	private ContainerReference producerContainer;
 	private ContainerReference storageContainer;
 	private ContainerReference notificationContainer;
 
+	public StorageThread(INotifyGui notifyGui){
+		this.notifyGui = notifyGui;
+	}
+	
 	public void run() {
 		try {
 
@@ -64,6 +69,7 @@ public class StorageThread implements Runnable {
 							Entry e=new Entry(components);
 						    capi.write(storageContainer, e);
 						    capi.write(notificationContainer, new Entry("Computer components sent to construction"));
+						    notifyGui.updateStorage(storage.getStorageState());
 						}
 					}
 				}catch(MzsTimeoutException ex){

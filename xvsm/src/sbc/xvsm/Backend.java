@@ -42,9 +42,6 @@ public class Backend implements IBackend {
 		try{
 			core = DefaultMzsCore.newInstance(SbcConstants.PRODUCERPORT);
 			capi = new Capi(core);
-			capi.createContainer(	//Container for notifications to the GUI
-					SbcConstants.NOTIFICATIONCONTAINER, null, MzsConstants.Container.UNBOUNDED,
-					null, new FifoCoordinator());
 			container = capi.createContainer(
 					SbcConstants.PRODUCERCONTAINER, null, MzsConstants.Container.UNBOUNDED,
 					null, new FifoCoordinator());
@@ -60,11 +57,11 @@ public class Backend implements IBackend {
 	 * initialize intermediate Storage for storing computer parts
 	 */
 	public void initializeFactory(INotifyGui notifyGui) {
-		st = new StorageThread();
-		Thread storageThread = new Thread(st);
-		storageThread.start();
 		logThread = new Thread(new LogThread(notifyGui));
 		logThread.start();
+		st = new StorageThread(notifyGui);
+		Thread storageThread = new Thread(st);
+		storageThread.start();
 	}
 
 	/**
