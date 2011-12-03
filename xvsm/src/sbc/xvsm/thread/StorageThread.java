@@ -33,7 +33,6 @@ public class StorageThread implements Runnable {
 	private MzsCore core;
 	private ContainerReference producerContainer;
 	private ContainerReference storageContainer;
-	private ContainerReference notificationContainer;
 
 	public StorageThread(INotifyGui notifyGui){
 		this.notifyGui = notifyGui;
@@ -45,7 +44,6 @@ public class StorageThread implements Runnable {
 			core = DefaultMzsCore.newInstance(SbcConstants.STORAGEPORT);
 			capi = new Capi(core);
 			this.producerContainer=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER, new URI(SbcConstants.ProducerUrl), 1000l, null);
-			this.notificationContainer=capi.lookupContainer(SbcConstants.NOTIFICATIONCONTAINER, new URI(SbcConstants.NotificationUrl), 1000l, null);
 			this.storageContainer=capi.createContainer(
 					SbcConstants.STORAGECONTAINER, null, MzsConstants.Container.UNBOUNDED,
 					null, new FifoCoordinator());
@@ -57,18 +55,18 @@ public class StorageThread implements Runnable {
 				selectors.add(selector);
 				try{
 					//TODO: MaxEntries auf hoeheren Wert setzen
-					ArrayList<ProductComponent> resultEntries = capi.take(producerContainer, selectors, 1000, null);
+					ArrayList<ProductComponent> resultEntries = capi.take(producerContainer, selectors, 1, null);
 					for(ProductComponent component:resultEntries){
 						System.out.println("Worker "+component.getWorker() + 
 								" produced "+ component.getClass().toString()+" with Id "
 								+component.getId()+(component.isFaulty()?" (faulty!)":""));
 						storage.storeItem(component.getClass().getName(), component);
-
+						notifyGui.updateStorage(storage.getStorageState());
 						ArrayList<ProductComponent> components=storage.getPcItemsIfAvailable();
 						if(components!=null){
 							Entry e=new Entry(components);
 						    capi.write(storageContainer, e);
-						    capi.write(notificationContainer, new Entry("Computer components sent to construction"));
+						    notifyGui.addLogMessage("Computer components sent to construction");
 						}
 					}
 				}catch(MzsTimeoutException ex){

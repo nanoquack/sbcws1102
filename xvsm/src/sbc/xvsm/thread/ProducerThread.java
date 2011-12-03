@@ -1,5 +1,6 @@
 package sbc.xvsm.thread;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Random;
 
@@ -67,6 +68,7 @@ public class ProducerThread implements Runnable {
 
 					// Put entry with compoent into the container
 					capi.write(container, entry);
+					
 					amount--;
 				}
 			}
