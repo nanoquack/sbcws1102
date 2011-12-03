@@ -52,6 +52,13 @@ public class LogThread implements Runnable {
 				e.printStackTrace();
 			}
 		}
+//		try{
+//			capi.destroyContainer(notificationContainer, null);
+//		}
+//		catch(Exception e){
+//			System.err.println("Could not destroy notification container");
+//			e.printStackTrace();
+//		}
 	}
 
 	private void initXvsm() {
@@ -66,20 +73,25 @@ public class LogThread implements Runnable {
 			try {
 				core = DefaultMzsCore.newInstance(SbcConstants.LOGGERPORT);
 				capi = new Capi(core);
-//				notificationContainer = capi.lookupContainer(
-//						SbcConstants.NOTIFICATIONCONTAINER, new URI(
-//								SbcConstants.NotificationUrl),
-//						MzsConstants.RequestTimeout.INFINITE, null);
 				notificationContainer = capi.createContainer(
 						SbcConstants.NOTIFICATIONCONTAINER, null, MzsConstants.Container.UNBOUNDED,
 						null, new FifoCoordinator());
 			} catch (MzsCoreRuntimeException e) {
-				System.err.println("A LogThread is already running on port "+SbcConstants.LOGGERPORT);
-				e.printStackTrace();
+				System.out.println("A LogThread is already running on port "+SbcConstants.LOGGERPORT);
+				core = DefaultMzsCore.newInstance(0);
+				capi = new Capi(core);
+				notificationContainer = capi.lookupContainer(
+						SbcConstants.NOTIFICATIONCONTAINER, new URI(
+								SbcConstants.NotificationUrl),
+						MzsConstants.RequestTimeout.INFINITE, null);
 			}
 		} catch (Exception e) {
 			System.err.println("Could not inintialize Xvsm");
 			e.printStackTrace();
 		}
+	}
+	
+	public synchronized void stop(){
+		this.running = false;
 	}
 }

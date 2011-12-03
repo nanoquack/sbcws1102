@@ -20,7 +20,7 @@ import sbc.xvsm.thread.StorageThread;
 public class Backend implements IBackend {
 
 	private StorageThread st;
-	private Thread logThread;
+	private LogThread logThread;
 	// private ConstructionThread ct;
 	// private TesterThread tt;
 	// private LogisticThread lt;
@@ -57,10 +57,12 @@ public class Backend implements IBackend {
 	 * initialize intermediate Storage for storing computer parts
 	 */
 	public void initializeFactory(INotifyGui notifyGui) {
-		logThread = new Thread(new LogThread(notifyGui));
-		logThread.start();
+		logThread = new LogThread(notifyGui);
+		Thread lt = new Thread(logThread);
+		lt.start();
 		st = new StorageThread(notifyGui);
 		Thread storageThread = new Thread(st);
+		storageThread.setDaemon(true);
 		storageThread.start();
 	}
 
@@ -79,6 +81,7 @@ public class Backend implements IBackend {
 
 	public void shutDownFactory() {
 		st.stop();
+		logThread.stop();
 		// ct.stop();
 		// tt.stop();
 		// lt.stop();
@@ -96,8 +99,9 @@ public class Backend implements IBackend {
 		try{
 			Thread.sleep(1010);	//Capi erst abdrehen, wenn take(1000) abgelaufen ist
 			System.out.println("Shutting down Xvsm...");
-			capi.destroyContainer(container, null);
+//			capi.destroyContainer(container, null);
 			core.shutdown(true);
+			System.out.println("Xvsm shutted down");
 		}
 		catch(Exception e){
 			throw new RuntimeException("Could not shutdown xvsm", e);
