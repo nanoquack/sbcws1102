@@ -100,5 +100,21 @@ public class Computer implements Serializable{
 		}
 		ram.add(comp);
 	}
-
+	
+	@Override
+	public String toString(){
+		String s = "--COMPUTER--";
+		s = s + "Quality check passed: " + getQualityCheckPassed().toString();
+		s = s + "\n Mainboard: \n" + getMainboard().toString();
+		s = s + "\n Cpu: \n" + getCpu().toString();
+		for(RamComponent r: ram){
+			s = s + "\n RamComponent: \n" + r.toString();
+		}
+		if(getGpu()!=null){
+			s = s + "\nGpu: \n" + getGpu().toString();
+		}
+		s = s + "\n------------";
+		
+		return s;
+	}
 }

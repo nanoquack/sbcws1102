@@ -7,5 +7,4 @@ public class MainboardComponent extends ProductComponent {
 	public MainboardComponent(int id, String worker, boolean faulty){
 		super(id,worker,faulty);
 	}
-	
 }

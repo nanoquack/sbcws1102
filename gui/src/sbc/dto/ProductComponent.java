@@ -35,4 +35,11 @@ public abstract class ProductComponent implements Serializable {
 	}
 	
 	
+	@Override
+	public String toString(){
+		String s = "worker: " + getWorker();
+		s = s + "\nfaulty: " + Boolean.toString(faulty);
+		
+		return s;
+	}
 }
