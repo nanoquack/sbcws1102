@@ -35,33 +35,33 @@
 		</javac>
 	</target>
 
-	<target name="run-gui">
+	<target name="run-gui" depends="compile">
 		<java classname="sbc.JmsMain" dir="${build.dir}" fork="true">
 			<classpath refid="master-classpath" />
 		</java>
 	</target>
 
-	<target name="run-construction">
+	<target name="run-construction" depends="compile">
 		<java classname="sbc.jms.thread.ConstructionWorker" dir="${build.dir}" fork="true">
 			<classpath refid="master-classpath" />
 		</java>
 	</target>
 
-	<target name="run-tester-1">
+	<target name="run-tester-1" depends="compile">
 		<java classname="sbc.jms.thread.TesterWorker" dir="${build.dir}" fork="true">
 			<classpath refid="master-classpath" />
 			<arg value="1"/>
 		</java>
 	</target>
 	
-	<target name="run-tester-2">
+	<target name="run-tester-2" depends="compile">
 		<java classname="sbc.jms.thread.TesterWorker" dir="${build.dir}" fork="true">
 			<classpath refid="master-classpath" />
 			<arg value="2"/>
 		</java>
 	</target>
 
-	<target name="run-logistics">
+	<target name="run-logistics" depends="compile">
 		<java classname="sbc.jms.thread.LogisticWorker" dir="${build.dir}" fork="true">
 			<classpath refid="master-classpath" />
 		</java>

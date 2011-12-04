@@ -1,0 +1,106 @@
+<project name="SBC-ALL">
+	<property name="build.dir" value="build" />
+	<property name="lib.dir" value="lib" />
+	<property name="gui.src.dir" value="src" />
+	<property name="jms.src.dir" value="../jms/src" />
+	<property name="xvsm.src.dir" value="../xvsm/src" />
+	<property name="jms.lib.dir" value="../jms/lib" />
+	<property name="xvsm.lib.dir" value="../xvsm/lib" />
+
+	<path id="master-src">
+		<pathelement path="${gui.src.dir}" />
+		<pathelement path="${jms.src.dir}" />
+		<pathelement path="${xvsm.src.dir}" />
+	</path>
+
+	<path id="master-classpath">
+		<pathelement path="${build.dir}" />
+		<fileset dir="${jms.lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${xvsm.lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="compile">
+		<mkdir dir="${build.dir}" />
+		<javac destdir="${build.dir}">
+			<src refid="master-src" />
+			<classpath refid="master-classpath" />
+		</javac>
+		<copy file="logback.xml" todir="${build.dir}" />		
+	</target>
+
+	<target name="gui-run-gui" depends="compile">
+		<java classname="sbc.gui.Main" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+
+	<target name="jms-run-gui" depends="compile">
+		<java classname="sbc.jms.JmsMain" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+	
+	<target name="jms-run-construction" depends="compile">
+		<java classname="sbc.jms.thread.ConstructionWorker" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+
+	<target name="jms-run-tester-1" depends="compile">
+		<java classname="sbc.jms.thread.TesterWorker" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+			<arg value="1" />
+		</java>
+	</target>
+
+	<target name="jms-run-tester-2" depends="compile">
+		<java classname="sbc.jms.thread.TesterWorker" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+			<arg value="2" />
+		</java>
+	</target>
+
+	<target name="jms-run-logistics" depends="compile">
+		<java classname="sbc.jms.thread.LogisticWorker" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+	
+	<target name="xvsm-run-gui" depends="compile">
+		<java classname="sbc.XvsmMain" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+
+	<target name="xvsm-run-construction" depends="compile">
+		<java classname="sbc.xvsm.thread.ConstructionWorker" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+
+	<target name="xvsm-run-tester-1" depends="compile">
+		<java classname="sbc.xvsm.thread.TesterWorker" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+	
+	<target name="xvsm-run-tester-2" depends="compile">
+		<java classname="sbc.xvsm.thread.TesterWorker" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+
+	<target name="xvsm-run-logistics" depends="compile">
+		<java classname="sbc.xvsm.thread.LogisticWorker" dir="${build.dir}" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+</project>

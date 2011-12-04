@@ -32,31 +32,31 @@
 		<copy file="logback.xml" todir="${build.dir}" />
 	</target>
 
-	<target name="run-gui">
+	<target name="run-gui" depends="compile">
 		<java classname="sbc.XvsmMain" dir="${build.dir}" fork="true">
 			<classpath refid="master-classpath" />
 		</java>
 	</target>
 
-	<target name="run-construction">
+	<target name="run-construction" depends="compile">
 		<java classname="sbc.xvsm.thread.ConstructionWorker" dir="${build.dir}" fork="true">
 			<classpath refid="master-classpath" />
 		</java>
 	</target>
 
-	<target name="run-tester-1">
+	<target name="run-tester-1" depends="compile">
 		<java classname="sbc.xvsm.thread.TesterWorker" dir="${build.dir}" fork="true">
 			<classpath refid="master-classpath" />
 		</java>
 	</target>
 	
-	<target name="run-tester-2">
+	<target name="run-tester-2" depends="compile">
 		<java classname="sbc.xvsm.thread.TesterWorker" dir="${build.dir}" fork="true">
 			<classpath refid="master-classpath" />
 		</java>
 	</target>
 
-	<target name="run-logistics">
+	<target name="run-logistics" depends="compile">
 		<java classname="sbc.xvsm.thread.LogisticWorker" dir="${build.dir}" fork="true">
 			<classpath refid="master-classpath" />
 		</java>
