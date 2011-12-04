@@ -46,6 +46,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	protected JTextPane logPane;
 	protected DefaultStyledDocument logText;
 	protected JComboBox implChooser;
+	protected JButton clearLogBtn;
 	protected JButton createProducerButton;
 	protected JComboBox producerProductType;
 	protected JTextField producerProductCount;
@@ -80,8 +81,11 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		implChooser.addItem(Constants.LABEL_JMS_IMPL);
 		implChooser.addItem(Constants.LABEL_XVSM_IMPL);
 		implChooser.addItemListener(this);
+		clearLogBtn = new JButton(Constants.LABEL_CLEAR_LOG_BUTTON);
+		clearLogBtn.addActionListener(this);
 		menuPanel.add(implChooserLabel);
 		menuPanel.add(implChooser);
+		menuPanel.add(clearLogBtn);
 		add(menuPanel, BorderLayout.NORTH);
 	}
 
@@ -136,12 +140,21 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		logPane = new JTextPane(logText);
 		logPane.setBorder(BorderFactory
 				.createTitledBorder(Constants.LABEL_LOG_PANE));
+		logPane.setPreferredSize(new Dimension(200, 200));
 		logPane.setEditable(false);
+		JScrollPane logScrollPane = new JScrollPane(logPane);
+		logScrollPane.setBorder(BorderFactory
+				.createTitledBorder(Constants.LABEL_LOG_PANE));
+		logScrollPane.setPreferredSize(new Dimension(200, 200));
+		logScrollPane.setVerticalScrollBarPolicy(
+		                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		logScrollPane.setPreferredSize(new Dimension(250, 250));
+		logScrollPane.setMinimumSize(new Dimension(10, 10));
 		configPanel = new JPanel();
 		contentPanel.add(managementPanel);
 		contentPanel.add(configPanel);
 		contentPanel.add(partInfoPanel);
-		contentPanel.add(logPane);
+		contentPanel.add(logScrollPane);
 		scrollPane.setViewportView(contentPanel);
 		add(scrollPane, BorderLayout.CENTER);
 	}
@@ -208,6 +221,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 			int productCount = Integer.parseInt(producerProductCount.getText());
 			int errorRate = Integer.parseInt(producerErrorRate.getText());
 			createNewProducer(productType, productCount, errorRate);
+		}
+		if(evt.getSource()== clearLogBtn){
+			logPane.setStyledDocument(new DefaultStyledDocument());
 		}
 	}
 
