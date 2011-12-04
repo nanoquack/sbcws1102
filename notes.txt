@@ -7,7 +7,6 @@
 +XVSM: LogisticsWorker (rudi)
 +GUI: create producer per gui aufrufen (rudi)
 -JMS, XVSM: every worker should have an unique id which can be used to identify it. (rudi)
--XVSM: Tester 1 und Tester 2 per argument konfigurierbar
 +GUI: Log panel soll scrollen
 +GUI: Clear log messages button
 -GUI: Execute Workers from within the GUI
