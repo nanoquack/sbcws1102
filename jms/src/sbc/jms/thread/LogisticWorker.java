@@ -54,10 +54,10 @@ public class LogisticWorker  implements Runnable, ExceptionListener {
 						ObjectMessage message = (ObjectMessage) m;
 						Computer computer=(Computer) message.getObject();
 						if(computer.getQualityCheckPassed()){
-							String logMsg = "Computer delieverd for sale: " + computer.toString();
+							String logMsg = "Computer delieverd for sale: \n" + computer.toString();
 							JmsLogging.getInstance().log(logMsg);
 						}else{
-							String logMsg = "Computer stored in recycling storage: " + computer.toString();
+							String logMsg = "Computer stored in recycling storage: \n" + computer.toString();
 							JmsLogging.getInstance().log(logMsg);
 						}
 					} else {

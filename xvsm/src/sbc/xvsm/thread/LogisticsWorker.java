@@ -52,14 +52,14 @@ public class LogisticsWorker implements Runnable {
 					if (computer != null) {
 						if (computer.getQualityCheckPassed()) {
 							capi.write(salesContainer, new Entry(computer));
-							String logMsg = logMsg = "Computer has passed quality check, goes to sales: " + computer.toString();
+							String logMsg = logMsg = "Computer has passed quality check, goes to sales: \n" + computer.toString();
 							capi.write(
 									notficationContainer,
 									new Entry(
 											logMsg));
 						} else {
 							capi.write(recyclingContainer, new Entry(computer));
-							String logMsg = logMsg = "Computer has NOT passed quality check, goes to recycling: " + computer.toString();
+							String logMsg = logMsg = "Computer has NOT passed quality check, goes to recycling: \n" + computer.toString();
 							capi.write(
 									notficationContainer,
 									new Entry(

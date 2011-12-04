@@ -104,11 +104,11 @@ public class Computer implements Serializable{
 	@Override
 	public String toString(){
 		String s = "--COMPUTER--";
-		s = s + "Quality check passed: " + getQualityCheckPassed().toString();
-		s = s + "\n Mainboard: \n" + getMainboard().toString();
-		s = s + "\n Cpu: \n" + getCpu().toString();
+		s = s + "\nQuality check passed: " + getQualityCheckPassed().toString();
+		s = s + "\nMainboard: \n" + getMainboard().toString();
+		s = s + "\nCpu: \n" + getCpu().toString();
 		for(RamComponent r: ram){
-			s = s + "\n RamComponent: \n" + r.toString();
+			s = s + "\nRamComponent: \n" + r.toString();
 		}
 		if(getGpu()!=null){
 			s = s + "\nGpu: \n" + getGpu().toString();

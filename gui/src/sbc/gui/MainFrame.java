@@ -1,6 +1,7 @@
 package sbc.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -20,6 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -148,13 +150,17 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		logScrollPane.setPreferredSize(new Dimension(200, 200));
 		logScrollPane.setVerticalScrollBarPolicy(
 		                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		logScrollPane.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		logScrollPane.setPreferredSize(new Dimension(250, 250));
 		logScrollPane.setMinimumSize(new Dimension(10, 10));
+		JSplitPane infoSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, partInfoPanel, logScrollPane);
+		infoSplitPane.setMinimumSize(new Dimension(800, 400));
+		infoSplitPane.setAlignmentX(Component.CENTER_ALIGNMENT);
 		configPanel = new JPanel();
 		contentPanel.add(managementPanel);
 		contentPanel.add(configPanel);
-		contentPanel.add(partInfoPanel);
-		contentPanel.add(logScrollPane);
+		contentPanel.add(infoSplitPane);
 		scrollPane.setViewportView(contentPanel);
 		add(scrollPane, BorderLayout.CENTER);
 	}
