@@ -74,6 +74,8 @@ public class StorageThread implements Runnable {
 					//stoppt dieser Thread nicht mehr.
 				}
 			}
+			
+			core.shutdown(true);
 		} catch (Exception e) {
 			System.out.println("Caught: " + e);
 			e.printStackTrace();
