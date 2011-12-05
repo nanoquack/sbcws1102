@@ -44,7 +44,7 @@ public class ProducerThread implements Runnable {
 				while(amount>0){
 					Random rand=new Random();
 					int randomTime=rand.nextInt(3)+1;
-					Thread.sleep(randomTime*10);	//TODO: mal 1000 statt 10
+					Thread.sleep(randomTime*1000);
 					double randomFaulty=rand.nextDouble();
 					boolean faulty=randomFaulty<=(errorRate/100.0);
 					Entry entry=null;
