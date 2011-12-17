@@ -3,6 +3,7 @@ package sbc.xvsm;
 import java.util.List;
 
 import org.mozartspaces.capi3.FifoCoordinator;
+import org.mozartspaces.capi3.LindaCoordinator;
 import org.mozartspaces.core.Capi;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.DefaultMzsCore;
@@ -44,7 +45,7 @@ public class Backend implements IBackend {
 			capi = new Capi(core);
 			container = capi.createContainer(
 					SbcConstants.PRODUCERCONTAINER, null, MzsConstants.Container.UNBOUNDED,
-					null, new FifoCoordinator());
+					null, new LindaCoordinator(), new FifoCoordinator());
 			System.out.println(container.getSpace());
 		}
 		catch(Exception e){

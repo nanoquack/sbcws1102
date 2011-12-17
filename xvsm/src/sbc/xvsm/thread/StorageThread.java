@@ -26,7 +26,7 @@ import sbc.xvsm.storage.Storage;
 
 public class StorageThread implements Runnable {
 
-	private boolean running=true;
+	private boolean running=false;    //Running=false, storage thread is deactivated
 	private Storage storage=new Storage();
 	private INotifyGui notifyGui;
 	private Capi capi;

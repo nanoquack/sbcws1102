@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mozartspaces.capi3.FifoCoordinator;
+import org.mozartspaces.capi3.FifoCoordinator.FifoSelector;
+import org.mozartspaces.capi3.LindaCoordinator;
 import org.mozartspaces.capi3.QueryCoordinator;
 import org.mozartspaces.capi3.Selector;
 import org.mozartspaces.core.Capi;
@@ -14,6 +16,7 @@ import org.mozartspaces.core.Entry;
 import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreRuntimeException;
+import org.mozartspaces.core.TransactionReference;
 import org.slf4j.LoggerFactory;
 
 import sbc.SbcConstants;
@@ -31,10 +34,10 @@ public class ConstructionWorker implements Runnable {
 	private boolean running=true;
 	private Capi capi;
 	private MzsCore core;
-	private ContainerReference storageContainer;
+	private ContainerReference productionContainer;
 	private ContainerReference testContainer;
 	private ContainerReference notficationContainer;
-//	private String workername;
+	//	private String workername;
 
 	public static void main(String[] args){
 		ConstructionWorker constructor=new ConstructionWorker();
@@ -45,7 +48,7 @@ public class ConstructionWorker implements Runnable {
 
 	public void run() {
 
-//		workername="tester"+new SecureRandom().nextLong();
+		//		workername="tester"+new SecureRandom().nextLong();
 
 		try{
 			//Set up local mozart space
@@ -57,12 +60,12 @@ public class ConstructionWorker implements Runnable {
 			configurator.doConfigure("logback.xml");
 
 			try{
-			core = DefaultMzsCore.newInstance(SbcConstants.CONSTRUCTIONPORT);
-			capi = new Capi(core);
-			
-			testContainer = capi.createContainer(
-					SbcConstants.TESTERCONTAINER, null, MzsConstants.Container.UNBOUNDED,
-					null, new QueryCoordinator());
+				core = DefaultMzsCore.newInstance(SbcConstants.CONSTRUCTIONPORT);
+				capi = new Capi(core);
+
+				testContainer = capi.createContainer(
+						SbcConstants.TESTERCONTAINER, null, MzsConstants.Container.UNBOUNDED,
+						null, new QueryCoordinator());
 			}catch(MzsCoreRuntimeException ex){
 				//There exits yet another tester, logisticContainer is already created
 				core = DefaultMzsCore.newInstance(0);
@@ -70,40 +73,108 @@ public class ConstructionWorker implements Runnable {
 				this.testContainer=capi.lookupContainer(SbcConstants.TESTERCONTAINER, new URI(SbcConstants.TesterContainerUrl), MzsConstants.RequestTimeout.INFINITE, null);
 			}
 			this.notficationContainer=capi.lookupContainer(SbcConstants.NOTIFICATIONCONTAINER, new URI(SbcConstants.NotificationUrl), MzsConstants.RequestTimeout.INFINITE, null);
-			this.storageContainer=capi.lookupContainer(SbcConstants.STORAGECONTAINER, new URI(SbcConstants.StorageContainerUrl), MzsConstants.RequestTimeout.INFINITE, null);			
+			this.productionContainer=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER, new URI(SbcConstants.ProducerUrl), MzsConstants.RequestTimeout.INFINITE, null);			
 
-			List<Selector> selectors=new ArrayList<Selector>();
-			selectors.add(FifoCoordinator.newSelector());
+			//			FifoSelector fifoSelect=FifoCoordinator.newSelector();
+
+			List<Selector> cpuSelectors=new ArrayList<Selector>();
+			cpuSelectors.add(LindaCoordinator.newSelector(new CpuComponent(null,null,null)));
+			cpuSelectors.add(FifoCoordinator.newSelector());
+
+			List<Selector> mainboardSelectors=new ArrayList<Selector>();
+			mainboardSelectors.add(LindaCoordinator.newSelector(new MainboardComponent(null,null,null)));
+			mainboardSelectors.add(FifoCoordinator.newSelector());
+
+			List<Selector> ramSelectors=new ArrayList<Selector>();
+			ramSelectors.add(LindaCoordinator.newSelector(new RamComponent(null,null,null)));
+			ramSelectors.add(FifoCoordinator.newSelector());
+
+			List<Selector> ramSelectorsGetTwoRams=new ArrayList<Selector>();
+			ramSelectorsGetTwoRams.add(LindaCoordinator.newSelector(new RamComponent(null,null,null),2));
+			ramSelectorsGetTwoRams.add(FifoCoordinator.newSelector(2));
+
+			List<Selector> gpuSelectors=new ArrayList<Selector>();
+			gpuSelectors.add(LindaCoordinator.newSelector(new GpuComponent(null,null,null)));
+			gpuSelectors.add(FifoCoordinator.newSelector());
 
 			System.out.println("Setup complete");
 			while(running){
-				//Take a computer for testing, that has not been tested yet by this tester
-				ArrayList<ArrayList<ProductComponent>> resultEntries = capi.take(storageContainer, selectors, MzsConstants.RequestTimeout.INFINITE, null);
 
-				// Wait for a message
-				for(List<ProductComponent> components:resultEntries){
-					Computer computer=new Computer();
-					while(components.size()!=0){
-						ProductComponent comp=components.remove(0);
-						if(comp instanceof CpuComponent){
-							computer.setCpu((CpuComponent)comp);
-						}if(comp instanceof MainboardComponent){
-							computer.setMainboard((MainboardComponent)comp);
-						}if(comp instanceof GpuComponent){
-							computer.setGpu((GpuComponent)comp);
-						}if(comp instanceof RamComponent){
-							computer.addRam((RamComponent)comp);
-						}
-					}
-					Entry e=new Entry(computer);
-					capi.write(testContainer, e);
-					capi.write(notficationContainer, new Entry("New computer constructed"));
-					System.out.println("New computer constructed");
-				} 
+				CpuComponent cpuComponent=null;
+				MainboardComponent mainboardComponent=null;
+				ArrayList<RamComponent> ramComponents=new ArrayList<RamComponent>();
+				GpuComponent gpuComponent=null;
+
+				TransactionReference tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
+				try{
+					//First: Obtain obligatory parts (1 GPU, 1 Mainboard, 1 RAM)
+					ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.INFINITE, null);
+					ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.INFINITE, null);
+					ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.INFINITE, null);
+					cpuComponent=cpuResultEntries.get(0);
+					mainboardComponent=mainboardResultEntries.get(0);
+					ramComponents.add(ramResultEntries.get(0));
+					capi.commitTransaction(tx);
+					System.out.print("transaction committed");
+				}catch(Exception ex){
+					capi.rollbackTransaction(tx);
+					System.out.println("Transaction rolled back");
+					continue;	//restart loop
+				}
+
+				System.out.println("Got all obligatory components");
+
+				tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
+				try{	
+					//Try to obtain optional part: GPU
+					ArrayList<GpuComponent> gpuResultEntries = capi.take(productionContainer, gpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+					gpuComponent=gpuResultEntries.get(0);
+					capi.commitTransaction(tx);
+				}catch(Exception ex){
+					capi.rollbackTransaction(tx);
+					System.out.println("GPU-Transaction rolled back");
+				}
+				tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
+				try{	
+					//Try to obtain optional part: second RAM
+					ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+					ramComponents.add(ramResultEntries.get(0));
+					capi.commitTransaction(tx);
+				}catch(Exception ex){
+					capi.rollbackTransaction(tx);
+					System.out.println("RAM-Transaction rolled back");
+				}
+				tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
+				try{	
+					//Try to obtain optional part: 2 more RAM modules
+					ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectorsGetTwoRams, MzsConstants.RequestTimeout.TRY_ONCE, null);
+					ramComponents.add(ramResultEntries.get(0));
+					ramComponents.add(ramResultEntries.get(1));
+					capi.commitTransaction(tx);
+				}catch(Exception ex){
+					capi.rollbackTransaction(tx);
+					System.out.println("2-RAM-Transaction rolled back");
+				}
+
+//				System.out.println(cpuComponent.getClass());
+//				System.out.println(mainboardComponent.getClass());
+//				System.out.println(ramComponents.get(0).getClass() +" "+ ramComponents.size());
+//				if(gpuComponent!=null){
+//					System.out.println(gpuComponent.getClass());
+//				}
+
+				Computer computer=new Computer(cpuComponent, mainboardComponent,gpuComponent,ramComponents);
+				Entry e=new Entry(computer);
+				capi.write(testContainer, e);
+				capi.write(notficationContainer, new Entry("New computer constructed"));
+				System.out.println("New computer constructed");
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+
 	}
 }
 
