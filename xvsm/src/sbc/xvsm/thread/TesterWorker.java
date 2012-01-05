@@ -232,23 +232,25 @@ public class TesterWorker implements Runnable {
 		if (!computer.getCpu().isFaulty()) {
 			capi.write(productionContainer, new Entry(computer.getCpu()));
 			capi.write(notficationContainer,
-					new Entry("Functioning Cpu added to production"));
+					new Entry("Functioning Cpu added to production, id: " + computer.getCpu().getId()));
 		}
 		if ((computer.getGpu() != null) && (!computer.getGpu().isFaulty())) {
 			capi.write(productionContainer, new Entry(computer.getGpu()));
 			capi.write(notficationContainer,
-					new Entry("Functioning Gpu added to production"));
+					new Entry("Functioning Gpu added to production, id: " + computer.getGpu().getId()));
 		}
 		if (!computer.getMainboard().isFaulty()) {
 			capi.write(productionContainer, new Entry(computer.getMainboard()));
 			capi.write(notficationContainer,
-					new Entry("Functioning Mainboard added to production"));
+					new Entry("Functioning Mainboard added to production, id: " + computer.getMainboard().getId()));
 		}
 
 		for (ProductComponent ram : computer.getRam()) {
-			capi.write(productionContainer, new Entry(ram));
-			capi.write(notficationContainer,
-					new Entry("Functioning Ram added to production"));
+			if(!ram.isFaulty()){
+				capi.write(productionContainer, new Entry(ram));
+				capi.write(notficationContainer,
+						new Entry("Functioning Ram added to production, id: " + ram.getId()));
+			}
 		}
 	}
 }
