@@ -41,6 +41,8 @@ public class LogThread implements Runnable, NotificationListener {
 		initXvsm();
 		try{
 			capi.write(notificationContainer, new Entry("Xvsm LogThread started"));
+			while(running){
+			}
 		}
 		catch(Exception e){
 			notifyGui.addLogMessage("Could not start Xvsm LogThread");
@@ -62,8 +64,6 @@ public class LogThread implements Runnable, NotificationListener {
 				notificationContainer = capi.createContainer(
 						SbcConstants.NOTIFICATIONCONTAINER, null, MzsConstants.Container.UNBOUNDED,
 						null, new FifoCoordinator());
-				NotificationManager notifManager = new NotificationManager(core);
-				notifManager.createNotification(notificationContainer, this, Operation.WRITE);
 			} catch (MzsCoreRuntimeException e) {
 				System.out.println("A LogThread is already running on port "+SbcConstants.LOGGERPORT);
 				core = DefaultMzsCore.newInstance(0);
@@ -71,8 +71,10 @@ public class LogThread implements Runnable, NotificationListener {
 				notificationContainer = capi.lookupContainer(
 						SbcConstants.NOTIFICATIONCONTAINER, new URI(
 								SbcConstants.NotificationUrl),
-						MzsConstants.RequestTimeout.INFINITE, null);
+						MzsConstants.RequestTimeout.INFINITE, null);				
 			}
+			NotificationManager notifManager = new NotificationManager(core);
+			notifManager.createNotification(notificationContainer, this, Operation.WRITE);
 		} catch (Exception e) {
 			System.err.println("Could not inintialize Xvsm");
 			e.printStackTrace();

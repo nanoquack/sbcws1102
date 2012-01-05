@@ -7,6 +7,7 @@ import java.util.Random;
 import org.mozartspaces.core.Capi;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.Entry;
+import org.mozartspaces.core.MzsConstants;
 
 import sbc.SbcConstants;
 import sbc.dto.ComponentEnum;
@@ -25,6 +26,7 @@ public class ProducerThread implements Runnable {
 	private int productSequencer=1;
 	private Capi capi;
 	private ContainerReference container;
+	private ContainerReference notificationContainer;
 
 	public ProducerThread(String workername, List<ProductionOrder> productionList, 
 			int errorRate, Capi capi){
@@ -38,8 +40,12 @@ public class ProducerThread implements Runnable {
 	public void run() {
 		try{
 			this.container=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER);
+			this.notificationContainer = capi.lookupContainer(
+					SbcConstants.NOTIFICATIONCONTAINER, new URI(
+							SbcConstants.NotificationUrl),
+					MzsConstants.RequestTimeout.INFINITE, null);	
 			
-			for(ProductionOrder order:productionList){
+			for (ProductionOrder order : productionList){
 				int amount=order.getAmount();
 				while(amount>0){
 					Random rand=new Random();
@@ -68,6 +74,8 @@ public class ProducerThread implements Runnable {
 
 					// Put entry with compoent into the container
 					capi.write(container, entry);
+					ProductComponent component = (ProductComponent)entry.getValue();
+					capi.write(notificationContainer, new Entry("produced new component: "+component.getClass().getCanonicalName() + ", id: " + component.getId()));
 					
 					amount--;
 				}
