@@ -227,18 +227,28 @@ public class TesterWorker implements Runnable {
 	 */
 	private void disassemble(Computer computer) throws MzsCoreException {
 		ProductComponent component = null;
+		capi.write(notficationContainer,
+				new Entry("Disassembling Computer"));
 		if (!computer.getCpu().isFaulty()) {
 			capi.write(productionContainer, new Entry(computer.getCpu()));
+			capi.write(notficationContainer,
+					new Entry("Functioning Cpu added to production"));
 		}
 		if ((computer.getGpu() != null) && (!computer.getGpu().isFaulty())) {
 			capi.write(productionContainer, new Entry(computer.getGpu()));
+			capi.write(notficationContainer,
+					new Entry("Functioning Gpu added to production"));
 		}
 		if (!computer.getMainboard().isFaulty()) {
 			capi.write(productionContainer, new Entry(computer.getMainboard()));
+			capi.write(notficationContainer,
+					new Entry("Functioning Mainboard added to production"));
 		}
 
 		for (ProductComponent ram : computer.getRam()) {
 			capi.write(productionContainer, new Entry(ram));
+			capi.write(notficationContainer,
+					new Entry("Functioning Ram added to production"));
 		}
 	}
 }
