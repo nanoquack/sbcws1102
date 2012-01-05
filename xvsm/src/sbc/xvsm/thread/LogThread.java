@@ -1,5 +1,6 @@
 package sbc.xvsm.thread;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +13,10 @@ import org.mozartspaces.core.Entry;
 import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreRuntimeException;
+import org.mozartspaces.notifications.Notification;
+import org.mozartspaces.notifications.NotificationListener;
+import org.mozartspaces.notifications.NotificationManager;
+import org.mozartspaces.notifications.Operation;
 import org.slf4j.LoggerFactory;
 
 import sbc.INotifyGui;
@@ -19,7 +24,7 @@ import sbc.SbcConstants;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
-public class LogThread implements Runnable {
+public class LogThread implements Runnable, NotificationListener {
 	private INotifyGui notifyGui;
 	private boolean running;
 	private Capi capi;
@@ -40,25 +45,6 @@ public class LogThread implements Runnable {
 		catch(Exception e){
 			notifyGui.addLogMessage("Could not start Xvsm LogThread");
 		}
-		
-		while(running){
-			try{
-				List<String> logEntries = capi.take(notificationContainer, Arrays.asList(FifoCoordinator.newSelector()), MzsConstants.RequestTimeout.INFINITE, null);
-				for(String logEntry: logEntries){
-					notifyGui.addLogMessage(logEntry);
-				}
-			}
-			catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-//		try{
-//			capi.destroyContainer(notificationContainer, null);
-//		}
-//		catch(Exception e){
-//			System.err.println("Could not destroy notification container");
-//			e.printStackTrace();
-//		}
 	}
 
 	private void initXvsm() {
@@ -76,6 +62,8 @@ public class LogThread implements Runnable {
 				notificationContainer = capi.createContainer(
 						SbcConstants.NOTIFICATIONCONTAINER, null, MzsConstants.Container.UNBOUNDED,
 						null, new FifoCoordinator());
+				NotificationManager notifManager = new NotificationManager(core);
+				notifManager.createNotification(notificationContainer, this, Operation.WRITE);
 			} catch (MzsCoreRuntimeException e) {
 				System.out.println("A LogThread is already running on port "+SbcConstants.LOGGERPORT);
 				core = DefaultMzsCore.newInstance(0);
@@ -93,5 +81,18 @@ public class LogThread implements Runnable {
 	
 	public synchronized void stop(){
 		this.running = false;
+	}
+
+	@Override
+	public void entryOperationFinished(Notification source, Operation operation,
+			List<? extends Serializable> entries) {
+		for(Serializable logEntry: entries){
+			if(logEntry instanceof Entry){
+				Object value = ((Entry)logEntry).getValue();
+				if(value instanceof String){
+					notifyGui.addLogMessage((String)value);
+				}
+			}
+		}
 	}
 }
