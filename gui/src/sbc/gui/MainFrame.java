@@ -53,6 +53,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	protected JComboBox producerProductType;
 	protected JTextField producerProductCount;
 	protected JTextField producerErrorRate;
+	protected String factoryInfo;
 
 	public MainFrame() {
 		initMainFrame();
@@ -196,7 +197,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 			}
 			try {
 				backend = BackendFactory.getBackend(evt.getItem().toString());
-				backend.startSystem(this);
+				backend.startSystem(this, factoryInfo);
 			} catch (RuntimeException e) {
 				System.err
 						.println("BackendFactory does not know backend implementation '"
@@ -241,4 +242,13 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		backend.createProducer(orderList, errorRate);
 	}
 
+	public String getFactoryInfo() {
+		return factoryInfo;
+	}
+
+	public void setFactoryInfo(String factoryInfo) {
+		this.factoryInfo = factoryInfo;
+	}
+
+	
 }

@@ -54,7 +54,9 @@ public class Backend implements IBackend {
 	}
 
 	@Override
-	public void startSystem(INotifyGui notifyGui) {
+	public void startSystem(INotifyGui notifyGui, String factoryInfo) {
+		//TODO: Use Factory Info to make Queues unique
+		//sbc-queue ==> sbc-queue12345
 		initializeFactory(notifyGui);
 	}
 

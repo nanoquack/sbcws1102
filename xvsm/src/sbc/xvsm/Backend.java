@@ -41,7 +41,8 @@ public class Backend implements IBackend {
 	 */
 	protected void initXvsm() {
 		try{
-			core = DefaultMzsCore.newInstance(SbcConstants.PRODUCERPORT);
+			core = DefaultMzsCore.newInstance(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET);
+			System.out.println("construction "+core.getConfig().getSpaceUri());
 			capi = new Capi(core);
 			container = capi.createContainer(
 					SbcConstants.PRODUCERCONTAINER, null, MzsConstants.Container.UNBOUNDED,
@@ -89,9 +90,15 @@ public class Backend implements IBackend {
 	}
 
 	@Override
-	public void startSystem(INotifyGui notifyGui) {
-		initXvsm();
-		initializeFactory(notifyGui);
+	public void startSystem(INotifyGui notifyGui, String mainPort) {
+		try{
+			SbcConstants.MAINPORT=Integer.parseInt(mainPort);
+			initXvsm();
+			initializeFactory(notifyGui);
+		}catch(NumberFormatException ex){
+			System.err.println("Given port argument is no number! XVSM not started!");
+			ex.printStackTrace();
+		}
 	}
 
 	@Override

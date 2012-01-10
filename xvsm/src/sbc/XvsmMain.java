@@ -17,8 +17,16 @@ public class XvsmMain {
 	/**
 	 * @param args
 	 */
+	@Deprecated
 	public static void main(String[] args) {
 		try {
+			System.out.println("Main Port:" +args.length);
+			if(args.length!=1){
+				System.err.println("Main Port has to be specified");
+				System.exit(1);
+			}
+			SbcConstants.MAINPORT=Integer.parseInt(args[0]);
+			
 			LoggerContext context = (LoggerContext) LoggerFactory
 					.getILoggerFactory();
 			JoranConfigurator configurator = new JoranConfigurator();
@@ -27,7 +35,7 @@ public class XvsmMain {
 			configurator.doConfigure("logback.xml");
 			Backend backend=new Backend();
 			MainFrame frame = new MainFrame();
-			backend.startSystem(frame);	//TODO: durch MainFrame ersetzen
+			backend.startSystem(frame, args[0]);
 			frame.setBackend(backend);
 			frame.setVisible(true);
 			

@@ -40,6 +40,12 @@ public class ConstructionWorker implements Runnable {
 	//	private String workername;
 
 	public static void main(String[] args){
+		if(args.length!=1){
+			System.err.println("Main Port has to be specified");
+			System.exit(1);
+		}
+		SbcConstants.MAINPORT=Integer.parseInt(args[0]);
+		
 		ConstructionWorker constructor=new ConstructionWorker();
 		Thread t = new Thread(constructor);
 		t.start();
@@ -60,7 +66,8 @@ public class ConstructionWorker implements Runnable {
 			configurator.doConfigure("logback.xml");
 
 			try{
-				core = DefaultMzsCore.newInstance(SbcConstants.CONSTRUCTIONPORT);
+				core = DefaultMzsCore.newInstance(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET);
+				System.out.println(core.getConfig().getSpaceUri());
 				capi = new Capi(core);
 
 				testContainer = capi.createContainer(
@@ -70,10 +77,11 @@ public class ConstructionWorker implements Runnable {
 				//There exits yet another tester, logisticContainer is already created
 				core = DefaultMzsCore.newInstance(0);
 				capi = new Capi(core);
-				this.testContainer=capi.lookupContainer(SbcConstants.TESTERCONTAINER, new URI(SbcConstants.TesterContainerUrl), MzsConstants.RequestTimeout.INFINITE, null);
+				this.testContainer=capi.lookupContainer(SbcConstants.TESTERCONTAINER, new URI("xvsm://localhost:+"+(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
 			}
-			this.notficationContainer=capi.lookupContainer(SbcConstants.NOTIFICATIONCONTAINER, new URI(SbcConstants.NotificationUrl), MzsConstants.RequestTimeout.INFINITE, null);
-			this.productionContainer=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER, new URI(SbcConstants.ProducerUrl), MzsConstants.RequestTimeout.INFINITE, null);			
+			System.out.println("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET));
+			this.notficationContainer=capi.lookupContainer(SbcConstants.NOTIFICATIONCONTAINER, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
+			this.productionContainer=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);			
 
 			//			FifoSelector fifoSelect=FifoCoordinator.newSelector();
 

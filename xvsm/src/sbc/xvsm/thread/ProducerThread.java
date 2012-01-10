@@ -39,10 +39,13 @@ public class ProducerThread implements Runnable {
 	@Override
 	public void run() {
 		try{
-			this.container=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER);
+			this.container=capi.lookupContainer(
+					SbcConstants.PRODUCERCONTAINER, new URI(
+							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)),
+					MzsConstants.RequestTimeout.INFINITE, null);	
 			this.notificationContainer = capi.lookupContainer(
 					SbcConstants.NOTIFICATIONCONTAINER, new URI(
-							SbcConstants.NotificationUrl),
+							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)),
 					MzsConstants.RequestTimeout.INFINITE, null);	
 			
 			for (ProductionOrder order : productionList){

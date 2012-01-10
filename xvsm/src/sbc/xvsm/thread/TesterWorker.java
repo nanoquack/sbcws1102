@@ -38,6 +38,12 @@ public class TesterWorker implements Runnable {
 	private String workername;
 
 	public static void main(String[] args) {
+		if(args.length!=1){
+			System.err.println("Main Port has to be specified");
+			System.exit(1);
+		}
+		SbcConstants.MAINPORT=Integer.parseInt(args[0]);
+		
 		TesterWorker tester = new TesterWorker();
 		Thread t = new Thread(tester);
 		t.start();
@@ -58,7 +64,8 @@ public class TesterWorker implements Runnable {
 			configurator.doConfigure("logback.xml");
 
 			try {
-				core = DefaultMzsCore.newInstance(SbcConstants.TESTERPORT);
+				core = DefaultMzsCore.newInstance(SbcConstants.MAINPORT+SbcConstants.TESTERPORTOFFSET);
+				System.out.println("construction "+core.getConfig().getSpaceUri());
 				capi = new Capi(core);
 
 				logisticContainer = capi.createContainer(
@@ -78,15 +85,15 @@ public class TesterWorker implements Runnable {
 
 			this.notficationContainer = capi.lookupContainer(
 					SbcConstants.NOTIFICATIONCONTAINER, new URI(
-							SbcConstants.NotificationUrl),
+							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)),
 					MzsConstants.RequestTimeout.INFINITE, null);
 			this.testContainer = capi.lookupContainer(
 					SbcConstants.TESTERCONTAINER, new URI(
-							SbcConstants.TesterContainerUrl),
+							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET)),
 					MzsConstants.RequestTimeout.INFINITE, null);
 			this.productionContainer = capi.lookupContainer(
 					SbcConstants.PRODUCERCONTAINER, new URI(
-							SbcConstants.ProducerUrl),
+							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)),
 					MzsConstants.RequestTimeout.INFINITE, null);
 			// <Testdaten>
 			// this.testContainer = capi.createContainer(null, null,

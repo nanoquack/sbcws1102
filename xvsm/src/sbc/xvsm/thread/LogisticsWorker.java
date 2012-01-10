@@ -30,6 +30,12 @@ public class LogisticsWorker implements Runnable {
 	private boolean running;
 
 	public static void main(String[] args) {
+		if(args.length!=1){
+			System.err.println("Main Port has to be specified");
+			System.exit(1);
+		}
+		SbcConstants.MAINPORT=Integer.parseInt(args[0]);
+		
 		LogisticsWorker logistics = new LogisticsWorker();
 		Thread t = new Thread(logistics);
 		t.start();
@@ -83,7 +89,7 @@ public class LogisticsWorker implements Runnable {
 			configurator.doConfigure("logback.xml");
 
 			try {
-				core = DefaultMzsCore.newInstance(SbcConstants.LOGISTICPORT);
+				core = DefaultMzsCore.newInstance(SbcConstants.MAINPORT+SbcConstants.LOGISTICPORTOFFSET);
 				capi = new Capi(core);
 				salesContainer = capi.createContainer(
 						SbcConstants.SALESCONTAINER, null,
@@ -100,20 +106,20 @@ public class LogisticsWorker implements Runnable {
 				capi = new Capi(core);
 				salesContainer = capi.lookupContainer(
 						SbcConstants.SALESCONTAINER, new URI(
-								SbcConstants.SalesContainerUrl),
+								"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGISTICPORTOFFSET)),
 						MzsConstants.RequestTimeout.INFINITE, null);
 				recyclingContainer = capi.lookupContainer(
 						SbcConstants.RECYCLINGCONTAINER, new URI(
-								SbcConstants.RecyclingContainerUrl),
+								"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGISTICPORTOFFSET)),
 						MzsConstants.RequestTimeout.INFINITE, null);
 			}
 			logisticContainer = capi.lookupContainer(
 					SbcConstants.LOGISTICCONTAINER, new URI(
-							SbcConstants.LogisticContainerUrl),
+							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.TESTERPORTOFFSET)),
 					MzsConstants.RequestTimeout.INFINITE, null);
 			notficationContainer = capi.lookupContainer(
 					SbcConstants.NOTIFICATIONCONTAINER, new URI(
-							SbcConstants.NotificationUrl),
+							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)),
 					MzsConstants.RequestTimeout.INFINITE, null);
 		} catch (Exception e) {
 			System.err.println("Could not inintialize Xvsm");

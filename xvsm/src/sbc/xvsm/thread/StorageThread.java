@@ -41,7 +41,7 @@ public class StorageThread implements Runnable {
 	public void run() {
 		try {
 
-			core = DefaultMzsCore.newInstance(SbcConstants.STORAGEPORT);
+			core = DefaultMzsCore.newInstance(SbcConstants.MAINPORT+SbcConstants.STORAGEPORTOFFSET);
 			capi = new Capi(core);
 			this.producerContainer=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER, new URI(SbcConstants.ProducerUrl), 1000l, null);
 			this.storageContainer=capi.createContainer(

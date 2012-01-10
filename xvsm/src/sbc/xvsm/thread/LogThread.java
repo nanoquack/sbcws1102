@@ -59,18 +59,18 @@ public class LogThread implements Runnable, NotificationListener {
 			configurator.doConfigure("logback.xml");
 
 			try {
-				core = DefaultMzsCore.newInstance(SbcConstants.LOGGERPORT);
+				core = DefaultMzsCore.newInstance(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET);
 				capi = new Capi(core);
 				notificationContainer = capi.createContainer(
 						SbcConstants.NOTIFICATIONCONTAINER, null, MzsConstants.Container.UNBOUNDED,
 						null, new FifoCoordinator());
 			} catch (MzsCoreRuntimeException e) {
-				System.out.println("A LogThread is already running on port "+SbcConstants.LOGGERPORT);
+				System.out.println("A LogThread is already running on port "+SbcConstants.LOGGERPORTOFFSET);
 				core = DefaultMzsCore.newInstance(0);
 				capi = new Capi(core);
 				notificationContainer = capi.lookupContainer(
 						SbcConstants.NOTIFICATIONCONTAINER, new URI(
-								SbcConstants.NotificationUrl),
+								"xvsm://localhost:+"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)),
 						MzsConstants.RequestTimeout.INFINITE, null);				
 			}
 			NotificationManager notifManager = new NotificationManager(core);

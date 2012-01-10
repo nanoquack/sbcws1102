@@ -18,6 +18,7 @@ import sbc.dto.StorageState;
  * Container class for the components stored
  * Offers different methods to obtain items
  */
+@Deprecated
 public class Storage {
 
 	private HashMap<String,LinkedList<ProductComponent>> storage=new HashMap<String,LinkedList<ProductComponent>>();
