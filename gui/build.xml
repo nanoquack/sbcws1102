@@ -7,6 +7,7 @@
 	<property name="jms.lib.dir" value="../jms/lib" />
 	<property name="xvsm.lib.dir" value="../xvsm/lib" />
 	<property name="fork.java" value="true" />
+	<property name="factory.port" value="3000" />
 
 	<path id="master-src">
 		<pathelement path="${gui.src.dir}" />
@@ -40,6 +41,7 @@
 	<target name="gui-run-gui" depends="compile">
 		<java classname="sbc.gui.Main" dir="${build.dir}" fork="${fork.java}">
 			<classpath refid="master-classpath" />
+			<arg value="${factory.path}"/>
 		</java>
 	</target>
 
