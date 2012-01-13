@@ -44,7 +44,7 @@
 	</target>
 
 	<target name="jms-run-gui" depends="compile">
-		<java classname="sbc.jms.JmsMain" dir="${build.dir}" fork="${fork.java}">
+		<java classname="sbc.JmsMain" dir="${build.dir}" fork="${fork.java}">
 			<classpath refid="master-classpath" />
 		</java>
 	</target>
