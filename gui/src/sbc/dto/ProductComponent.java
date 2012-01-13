@@ -40,7 +40,9 @@ public abstract class ProductComponent implements Serializable {
 	
 	@Override
 	public String toString(){
-		String s = "worker: " + getWorker();
+		String s = "class: " + getClass().getCanonicalName();
+		s = s + "\n id: " + getId();
+		s = s + "\n worker: " + getWorker();
 		s = s + "\nfaulty: " + Boolean.toString(faulty);
 		
 		return s;

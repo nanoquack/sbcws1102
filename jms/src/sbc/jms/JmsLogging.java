@@ -51,11 +51,6 @@ public class JmsLogging {
 
 	public void log(String msg) {
 		try {
-			// StackTraceElement[] stackTraceElements =
-			// Thread.currentThread().getStackTrace();
-			// String logMsg =
-			// stackTraceElements[stackTraceElements.length-1].toString();
-			// + ": '" + msg + "'";
 			TextMessage jmsMsg = session.createTextMessage(msg);
 			producer.send(jmsMsg);
 		} catch (JMSException e) {

@@ -22,19 +22,20 @@ import sbc.jms.storage.Storage;
 
 public class StorageThread implements Runnable, ExceptionListener {
 
-	private boolean running=true;
-	private Storage storage=new Storage();
+	private boolean running = true;
+	private Storage storage = new Storage();
 	private INotifyGui notifyGui;
-	
-	public StorageThread(INotifyGui notifyGui){
-		this.notifyGui=notifyGui;
+
+	public StorageThread(INotifyGui notifyGui) {
+		this.notifyGui = notifyGui;
 	}
-	
+
 	public void run() {
 		try {
 
 			// Create a ConnectionFactory
-			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+			ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
+					"tcp://localhost:61616");
 
 			// Create a Connection
 			Connection connection = connectionFactory.createConnection();
@@ -43,7 +44,8 @@ public class StorageThread implements Runnable, ExceptionListener {
 			connection.setExceptionListener(this);
 
 			// Create a Session
-			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			Session session = connection.createSession(false,
+					Session.AUTO_ACKNOWLEDGE);
 
 			// Create the destination (Topic or Queue)
 			Destination destination = session.createQueue("SbcProducer");
@@ -51,25 +53,35 @@ public class StorageThread implements Runnable, ExceptionListener {
 			// Create a MessageConsumer from the Session to the Topic or Queue
 			MessageConsumer consumer = session.createConsumer(destination);
 
-			while(running){
+			while (running) {
 				// Wait for a message
 				Message m = consumer.receive(1000);
-				if(m!=null){
+				if (m != null) {
 					if (m instanceof ObjectMessage) {
 						ObjectMessage message = (ObjectMessage) m;
-						ProductComponent component = (ProductComponent) message.getObject();
-						JmsLogging.getInstance().log("Worker "+component.getWorker() + 
-								" produced "+ component.getClass().toString()+" with Id "
-								+component.getId()+(component.isFaulty()?" (faulty!)":""));
-						storage.storeItem(component.getClass().getName(), component);
-						
-						ArrayList<ProductComponent> components=storage.getPcItemsIfAvailable();
-						if(components!=null){
+						ProductComponent component = (ProductComponent) message
+								.getObject();
+						// JmsLogging.getInstance().log("Worker "+component.getWorker()
+						// +
+						// " produced "+
+						// component.getClass().toString()+" with Id "
+						// +component.getId()+(component.isFaulty()?" (faulty!)":""));
+						// storage.storeItem(component.getClass().getName(),
+						// component);
+						JmsLogging.getInstance().log(
+								"Component Produced " + component.toString());
+						storage.storeItem(component.getClass().getName(),
+								component);
+
+						ArrayList<ProductComponent> components = storage
+								.getPcItemsIfAvailable();
+						if (components != null) {
 							forwardPcParts(components);
 						}
 						notifyGui.updateStorage(storage.getStorageState());
 					} else {
-						JmsLogging.getInstance().log("Dropped message "+m.getJMSMessageID());
+						JmsLogging.getInstance().log(
+								"Dropped message " + m.getJMSMessageID());
 					}
 				}
 			}
@@ -82,10 +94,12 @@ public class StorageThread implements Runnable, ExceptionListener {
 			e.printStackTrace();
 		}
 	}
-	
-	private void forwardPcParts(ArrayList<ProductComponent> components) throws JMSException{
+
+	private void forwardPcParts(ArrayList<ProductComponent> components)
+			throws JMSException {
 		// Create a ConnectionFactory
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
+				"tcp://localhost:61616");
 
 		// Create a Connection
 		Connection connection = connectionFactory.createConnection();
@@ -94,15 +108,16 @@ public class StorageThread implements Runnable, ExceptionListener {
 		connection.setExceptionListener(this);
 
 		// Create a Session
-		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		Session session = connection.createSession(false,
+				Session.AUTO_ACKNOWLEDGE);
 		// Create the destination
 		Destination destination = session.createQueue("SbcConstruction");
 		// Create a MessageProducer from the Session to the Topic
 		MessageProducer producer = session.createProducer(destination);
 		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-		
+
 		// Create a messages
-		ObjectMessage message=session.createObjectMessage(components);
+		ObjectMessage message = session.createObjectMessage(components);
 		// Tell the producer to send the message
 		producer.send(message);
 		JmsLogging.getInstance().log("PC items sent to construction");
@@ -115,10 +130,9 @@ public class StorageThread implements Runnable, ExceptionListener {
 		System.out.println("JMS Exception occured.  Shutting down client.");
 		stop();
 	}
-	
-	public synchronized void stop(){
-		running=false;
-	}
 
+	public synchronized void stop() {
+		running = false;
+	}
 
 }
