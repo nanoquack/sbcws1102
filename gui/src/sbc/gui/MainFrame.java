@@ -43,8 +43,10 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	protected JPanel configPanel;
 	protected JPanel contentPanel;
 	protected JPanel managementPanel;
+	protected JPanel jobPanel;
 	protected JPanel partInfoPanel;
 	protected JTable partInfoTable;
+	protected JSplitPane infoSplitPane;
 	protected JTextPane logPane;
 	protected DefaultStyledDocument logText;
 	protected JComboBox implChooser;
@@ -96,10 +98,25 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		JScrollPane scrollPane = new JScrollPane();
 		contentPanel = new JPanel();
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+		initManagementPanel();
+		initPartInfoPanel();
+		initLogPanel();
+		initJobPanel();
+		configPanel = new JPanel();
+		contentPanel.add(managementPanel);
+		contentPanel.add(jobPanel);
+		contentPanel.add(configPanel);
+		contentPanel.add(infoSplitPane);
+		scrollPane.setViewportView(contentPanel);
+		add(scrollPane, BorderLayout.CENTER);
+		initJobPanel();
+	}
+	
+	protected void initManagementPanel(){
 		managementPanel = new JPanel();
 		managementPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		managementPanel.setBorder(BorderFactory
-				.createTitledBorder(Constants.LABEL_MANAGEMENT_PANEL));
+				.createTitledBorder(Constants.LABEL_PRODUCTION_PANEL));
 		JLabel producerProductTypeLabel = new JLabel(
 				Constants.LABEL_PRODUCER_PRODUCT_TYPE);
 		producerProductType = new JComboBox();
@@ -126,6 +143,16 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		managementPanel.add(producerErrorRateLabel);
 		managementPanel.add(producerErrorRate);
 		managementPanel.add(createProducerButton);
+	}
+	
+	protected void initJobPanel(){
+		jobPanel = new JPanel();
+		jobPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		jobPanel.setBorder(BorderFactory
+				.createTitledBorder(Constants.LABEL_JOB_PANEL));		
+	}
+	
+	protected void initPartInfoPanel(){
 		partInfoPanel = new JPanel();
 		partInfoPanel.setLayout(new BorderLayout());
 		partInfoPanel.setBorder(BorderFactory
@@ -138,6 +165,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 				Constants.PART_INFO_TABLE_HEIGHT));
 		partInfoTable.setFillsViewportHeight(true);
 		partInfoPanel.add(partInfoTableScrollPane, BorderLayout.CENTER);
+	}
+	
+	protected void initLogPanel(){
 		StyleContext sc = new StyleContext();
 		logText = new DefaultStyledDocument(sc);
 		logPane = new JTextPane(logText);
@@ -155,15 +185,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		logScrollPane.setPreferredSize(new Dimension(250, 250));
 		logScrollPane.setMinimumSize(new Dimension(10, 10));
-		JSplitPane infoSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, partInfoPanel, logScrollPane);
+		infoSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, partInfoPanel, logScrollPane);
 		infoSplitPane.setMinimumSize(new Dimension(800, 400));
 		infoSplitPane.setAlignmentX(Component.CENTER_ALIGNMENT);
-		configPanel = new JPanel();
-		contentPanel.add(managementPanel);
-		contentPanel.add(configPanel);
-		contentPanel.add(infoSplitPane);
-		scrollPane.setViewportView(contentPanel);
-		add(scrollPane, BorderLayout.CENTER);
 	}
 
 	private void fillProducerProductType() {

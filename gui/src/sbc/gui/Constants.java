@@ -17,7 +17,8 @@ public class Constants {
 	public static final String LABEL_JMS_IMPL = "JMS Impl";
 	public static final String LABEL_XVSM_IMPL = "XVSM Impl";
 	public static final String LABEL_CLEAR_LOG_BUTTON = "Clear Log";
-	public static final String LABEL_MANAGEMENT_PANEL = "Management";
+	public static final String LABEL_PRODUCTION_PANEL = "Production Management";
+	public static final String LABEL_JOB_PANEL = "Job Management";
 	public static final String LABEL_LOG_PANE = "Log";
 	public static final String LABEL_CREATE_PRODUCER_BUTTON = "Create Producer";
 	public static final String LABEL_PRODUCER_PRODUCT_TYPE = "product type:";
