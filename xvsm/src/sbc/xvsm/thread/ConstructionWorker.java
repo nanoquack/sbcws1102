@@ -44,12 +44,16 @@ public class ConstructionWorker implements Runnable {
 			System.err.println("Main Port has to be specified");
 			System.exit(1);
 		}
-		SbcConstants.MAINPORT=Integer.parseInt(args[0]);
-		
-		ConstructionWorker constructor=new ConstructionWorker();
-		Thread t = new Thread(constructor);
-		t.start();
-		System.out.println("Construction worker started");
+		try{
+			SbcConstants.MAINPORT=Integer.parseInt(args[0]);
+			ConstructionWorker constructor=new ConstructionWorker();
+			Thread t = new Thread(constructor);
+			t.start();
+			System.out.println("Construction worker started");
+		}catch(NumberFormatException ex){
+			System.err.println("Given port argument is no number! XVSM not started!");
+			ex.printStackTrace();
+		}
 	}
 
 	public void run() {
@@ -164,12 +168,12 @@ public class ConstructionWorker implements Runnable {
 					System.out.println("2-RAM-Transaction rolled back");
 				}
 
-//				System.out.println(cpuComponent.getClass());
-//				System.out.println(mainboardComponent.getClass());
-//				System.out.println(ramComponents.get(0).getClass() +" "+ ramComponents.size());
-//				if(gpuComponent!=null){
-//					System.out.println(gpuComponent.getClass());
-//				}
+				//				System.out.println(cpuComponent.getClass());
+				//				System.out.println(mainboardComponent.getClass());
+				//				System.out.println(ramComponents.get(0).getClass() +" "+ ramComponents.size());
+				//				if(gpuComponent!=null){
+				//					System.out.println(gpuComponent.getClass());
+				//				}
 
 				Computer computer=new Computer(cpuComponent, mainboardComponent,gpuComponent,ramComponents);
 				Entry e=new Entry(computer);

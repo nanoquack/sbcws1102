@@ -34,12 +34,16 @@ public class LogisticsWorker implements Runnable {
 			System.err.println("Main Port has to be specified");
 			System.exit(1);
 		}
-		SbcConstants.MAINPORT=Integer.parseInt(args[0]);
-		
-		LogisticsWorker logistics = new LogisticsWorker();
-		Thread t = new Thread(logistics);
-		t.start();
-		System.out.println("Logistics Worker started");
+		try{
+			SbcConstants.MAINPORT=Integer.parseInt(args[0]);
+			LogisticsWorker logistics = new LogisticsWorker();
+			Thread t = new Thread(logistics);
+			t.start();
+			System.out.println("Logistics Worker started");
+		}catch(NumberFormatException ex){
+			System.err.println("Given port argument is no number! XVSM not started!");
+			ex.printStackTrace();
+		}
 	}
 
 	public LogisticsWorker() {
@@ -82,7 +86,7 @@ public class LogisticsWorker implements Runnable {
 	private void initXvsm() {
 		try {
 			LoggerContext context = (LoggerContext) LoggerFactory
-					.getILoggerFactory();
+			.getILoggerFactory();
 			JoranConfigurator configurator = new JoranConfigurator();
 			configurator.setContext(context);
 			context.reset();
@@ -101,26 +105,26 @@ public class LogisticsWorker implements Runnable {
 						new FifoCoordinator());
 			} catch (MzsCoreRuntimeException e) {
 				System.err
-						.println("Default port for LogisticsWorker is already taken, using arbitrary port");
+				.println("Default port for LogisticsWorker is already taken, using arbitrary port");
 				core = DefaultMzsCore.newInstance(0);
 				capi = new Capi(core);
 				salesContainer = capi.lookupContainer(
 						SbcConstants.SALESCONTAINER, new URI(
 								"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGISTICPORTOFFSET)),
-						MzsConstants.RequestTimeout.INFINITE, null);
+								MzsConstants.RequestTimeout.INFINITE, null);
 				recyclingContainer = capi.lookupContainer(
 						SbcConstants.RECYCLINGCONTAINER, new URI(
 								"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGISTICPORTOFFSET)),
-						MzsConstants.RequestTimeout.INFINITE, null);
+								MzsConstants.RequestTimeout.INFINITE, null);
 			}
 			logisticContainer = capi.lookupContainer(
 					SbcConstants.LOGISTICCONTAINER, new URI(
 							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.TESTERPORTOFFSET)),
-					MzsConstants.RequestTimeout.INFINITE, null);
+							MzsConstants.RequestTimeout.INFINITE, null);
 			notficationContainer = capi.lookupContainer(
 					SbcConstants.NOTIFICATIONCONTAINER, new URI(
 							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)),
-					MzsConstants.RequestTimeout.INFINITE, null);
+							MzsConstants.RequestTimeout.INFINITE, null);
 		} catch (Exception e) {
 			System.err.println("Could not inintialize Xvsm");
 		}

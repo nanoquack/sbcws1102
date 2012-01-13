@@ -42,12 +42,16 @@ public class TesterWorker implements Runnable {
 			System.err.println("Main Port has to be specified");
 			System.exit(1);
 		}
-		SbcConstants.MAINPORT=Integer.parseInt(args[0]);
-		
-		TesterWorker tester = new TesterWorker();
-		Thread t = new Thread(tester);
-		t.start();
-		System.out.println("Test worker started");
+		try{
+			SbcConstants.MAINPORT=Integer.parseInt(args[0]);
+			TesterWorker tester = new TesterWorker();
+			Thread t = new Thread(tester);
+			t.start();
+			System.out.println("Test worker started");
+		}catch(NumberFormatException ex){
+			System.err.println("Given port argument is no number! XVSM not started!");
+			ex.printStackTrace();
+		}
 	}
 
 	public void run() {
@@ -57,7 +61,7 @@ public class TesterWorker implements Runnable {
 		try {
 			// Set up local mozart space
 			LoggerContext context = (LoggerContext) LoggerFactory
-					.getILoggerFactory();
+			.getILoggerFactory();
 			JoranConfigurator configurator = new JoranConfigurator();
 			configurator.setContext(context);
 			context.reset();
@@ -79,22 +83,22 @@ public class TesterWorker implements Runnable {
 				capi = new Capi(core);
 				this.logisticContainer = capi.lookupContainer(
 						SbcConstants.LOGISTICCONTAINER, new URI(
-								SbcConstants.LogisticContainerUrl),
-						MzsConstants.RequestTimeout.INFINITE, null);
+								"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.TESTERPORTOFFSET)),
+								MzsConstants.RequestTimeout.INFINITE, null);
 			}
 
 			this.notficationContainer = capi.lookupContainer(
 					SbcConstants.NOTIFICATIONCONTAINER, new URI(
 							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)),
-					MzsConstants.RequestTimeout.INFINITE, null);
+							MzsConstants.RequestTimeout.INFINITE, null);
 			this.testContainer = capi.lookupContainer(
 					SbcConstants.TESTERCONTAINER, new URI(
 							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET)),
-					MzsConstants.RequestTimeout.INFINITE, null);
+							MzsConstants.RequestTimeout.INFINITE, null);
 			this.productionContainer = capi.lookupContainer(
 					SbcConstants.PRODUCERCONTAINER, new URI(
 							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)),
-					MzsConstants.RequestTimeout.INFINITE, null);
+							MzsConstants.RequestTimeout.INFINITE, null);
 			// <Testdaten>
 			// this.testContainer = capi.createContainer(null, null,
 			// MzsConstants.Container.UNBOUNDED,
@@ -174,16 +178,16 @@ public class TesterWorker implements Runnable {
 			Entry e = new Entry(computer);
 			capi.write(testContainer, e);
 			System.out
-					.println("Computer complete, put it back into test container");
+			.println("Computer complete, put it back into test container");
 		} else { // Else: set checkPassed=false and forward to
-					// logistic
+			// logistic
 			computer.setQualityCheckPassed(false);
 			Entry e = new Entry(computer);
 			capi.write(logisticContainer, e);
 			capi.write(notficationContainer,
 					new Entry("Computer is incomplete"));
 			System.out
-					.println("Computer incomplete. Quality check failed. Forward it to logistic");
+			.println("Computer incomplete. Quality check failed. Forward it to logistic");
 		}
 
 		return computer.getIsComplete();

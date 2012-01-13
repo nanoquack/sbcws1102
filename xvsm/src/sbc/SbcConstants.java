@@ -13,11 +13,11 @@ public class SbcConstants {
 	
 	public static final String ProducerUrl="xvsm://localhost:12345";
 	public static final String StorageContainerUrl="xvsm://localhost:12346"; //not used anymore
-	public static final String TesterContainerUrl="xvsm://localhost:12347";
-	public static final String LogisticContainerUrl="xvsm://localhost:12348";
-	public static final String SalesContainerUrl = "xvsm://localhost:12349";
-	public static final String RecyclingContainerUrl = "xvsm://localhost:12349";
-	public static final String NotificationUrl="xvsm://localhost:12350";
+//	public static final String TesterContainerUrl="xvsm://localhost:12347";
+//	public static final String LogisticContainerUrl="xvsm://localhost:12348";
+//	public static final String SalesContainerUrl = "xvsm://localhost:12349";
+//	public static final String RecyclingContainerUrl = "xvsm://localhost:12349";
+//	public static final String NotificationUrl="xvsm://localhost:12350";
 	
 	public static final int PRODUCERPORTOFFSET=0;
 	public static final int STORAGEPORTOFFSET=1;	//not used anymore
@@ -26,5 +26,5 @@ public class SbcConstants {
 	public static final int LOGISTICPORTOFFSET=4;
 	public static final int LOGGERPORTOFFSET=5;
 	
-	public static int MAINPORT=-1;
+	public static int MAINPORT=-1;	//overwritten at setup
 }
