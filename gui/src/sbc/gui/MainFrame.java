@@ -16,6 +16,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -33,6 +34,7 @@ import sbc.BackendFactory;
 import sbc.IBackend;
 import sbc.INotifyGui;
 import sbc.dto.ComponentEnum;
+import sbc.dto.CpuComponent;
 import sbc.dto.ProductionOrder;
 import sbc.dto.StorageState;
 
@@ -43,8 +45,10 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	protected JPanel configPanel;
 	protected JPanel contentPanel;
 	protected JPanel managementPanel;
+	protected JPanel jobPanel;
 	protected JPanel partInfoPanel;
 	protected JTable partInfoTable;
+	protected JSplitPane infoSplitPane;
 	protected JTextPane logPane;
 	protected DefaultStyledDocument logText;
 	protected JComboBox implChooser;
@@ -54,6 +58,10 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	protected JTextField producerProductCount;
 	protected JTextField producerErrorRate;
 	protected String factoryInfo;
+	protected JComboBox jobCpuType;
+	protected JComboBox jobRamCount;
+	protected JCheckBox jobGraphicsCard;
+	protected JButton jobCreateButton;
 
 	public MainFrame() {
 		initMainFrame();
@@ -96,10 +104,25 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		JScrollPane scrollPane = new JScrollPane();
 		contentPanel = new JPanel();
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+		initManagementPanel();
+		initPartInfoPanel();
+		initLogPanel();
+		initJobPanel();
+		configPanel = new JPanel();
+		contentPanel.add(managementPanel);
+		contentPanel.add(jobPanel);
+		contentPanel.add(configPanel);
+		contentPanel.add(infoSplitPane);
+		scrollPane.setViewportView(contentPanel);
+		add(scrollPane, BorderLayout.CENTER);
+		initJobPanel();
+	}
+	
+	protected void initManagementPanel(){
 		managementPanel = new JPanel();
 		managementPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		managementPanel.setBorder(BorderFactory
-				.createTitledBorder(Constants.LABEL_MANAGEMENT_PANEL));
+				.createTitledBorder(Constants.LABEL_PRODUCTION_PANEL));
 		JLabel producerProductTypeLabel = new JLabel(
 				Constants.LABEL_PRODUCER_PRODUCT_TYPE);
 		producerProductType = new JComboBox();
@@ -126,6 +149,50 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		managementPanel.add(producerErrorRateLabel);
 		managementPanel.add(producerErrorRate);
 		managementPanel.add(createProducerButton);
+	}
+	
+	protected void initJobPanel(){
+		jobPanel = new JPanel();
+		jobPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		jobPanel.setBorder(BorderFactory
+				.createTitledBorder(Constants.LABEL_JOB_PANEL));
+		JLabel cpuTypeLabel = new JLabel(Constants.LABEL_JOB_CPU_TYPE);
+		JLabel ramCountLabel = new JLabel(Constants.LABEL_JOB_RAM_MODULE_COUNT);
+		JLabel graphicsCardLabel = new JLabel(Constants.LABEL_JOB_GRAPHICS_CARD);
+
+		jobCpuType = new JComboBox();
+		jobRamCount = new JComboBox();
+		jobGraphicsCard = new JCheckBox();
+		jobCreateButton = new JButton(Constants.LABEL_JOB_CREATE_BUTTON);
+		jobCpuType.setPreferredSize(new Dimension(Constants.JOB_CPU_TYPE_WIDTH, Constants.JOB_CPU_TYPE_HEIGHT));
+		jobRamCount.setPreferredSize(new Dimension(Constants.JOB_RAM_COUNT_WIDTH, Constants.JOB_RAM_COUNT_HEIGHT));
+		jobGraphicsCard.setPreferredSize(new Dimension(Constants.JOB_GRAPHICS_CARD_WIDTH, Constants.JOB_GRAPHICS_CARD_HEIGHT));
+		fillJobCpuType();
+		fillJobRamCount();
+		jobCreateButton.addActionListener(this);
+		
+		jobPanel.add(cpuTypeLabel);
+		jobPanel.add(jobCpuType);
+		jobPanel.add(ramCountLabel);
+		jobPanel.add(jobRamCount);
+		jobPanel.add(graphicsCardLabel);
+		jobPanel.add(jobGraphicsCard);
+		jobPanel.add(jobCreateButton);
+	}
+	
+	private void fillJobCpuType(){
+		for (CpuComponent.CpuType val : CpuComponent.CpuType.values()) {
+			jobCpuType.addItem(val.toString());
+		}
+	}
+	
+	private void fillJobRamCount(){
+		jobRamCount.addItem(Constants.LABEL_JOB_RAM_MODULE_COUNT_1);
+		jobRamCount.addItem(Constants.LABEL_JOB_RAM_MODULE_COUNT_2);
+		jobRamCount.addItem(Constants.LABEL_JOB_RAM_MODULE_COUNT_4);
+	}
+	
+	protected void initPartInfoPanel(){
 		partInfoPanel = new JPanel();
 		partInfoPanel.setLayout(new BorderLayout());
 		partInfoPanel.setBorder(BorderFactory
@@ -138,6 +205,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 				Constants.PART_INFO_TABLE_HEIGHT));
 		partInfoTable.setFillsViewportHeight(true);
 		partInfoPanel.add(partInfoTableScrollPane, BorderLayout.CENTER);
+	}
+	
+	protected void initLogPanel(){
 		StyleContext sc = new StyleContext();
 		logText = new DefaultStyledDocument(sc);
 		logPane = new JTextPane(logText);
@@ -155,15 +225,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		logScrollPane.setPreferredSize(new Dimension(250, 250));
 		logScrollPane.setMinimumSize(new Dimension(10, 10));
-		JSplitPane infoSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, partInfoPanel, logScrollPane);
+		infoSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, partInfoPanel, logScrollPane);
 		infoSplitPane.setMinimumSize(new Dimension(800, 400));
 		infoSplitPane.setAlignmentX(Component.CENTER_ALIGNMENT);
-		configPanel = new JPanel();
-		contentPanel.add(managementPanel);
-		contentPanel.add(configPanel);
-		contentPanel.add(infoSplitPane);
-		scrollPane.setViewportView(contentPanel);
-		add(scrollPane, BorderLayout.CENTER);
 	}
 
 	private void fillProducerProductType() {
@@ -229,6 +293,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 			int errorRate = Integer.parseInt(producerErrorRate.getText());
 			createNewProducer(productType, productCount, errorRate);
 		}
+		if(evt.getSource() == clearLogBtn){
+			createNewJob();
+		}
 		if(evt.getSource()== clearLogBtn){
 			logPane.setStyledDocument(new DefaultStyledDocument());
 		}
@@ -240,6 +307,10 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		ProductionOrder order1 = new ProductionOrder(productType, productCount);
 		orderList.add(order1);
 		backend.createProducer(orderList, errorRate);
+	}
+	
+	private void createNewJob(){
+		//TODO implement
 	}
 
 	public String getFactoryInfo() {

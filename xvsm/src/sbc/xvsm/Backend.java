@@ -14,6 +14,8 @@ import sbc.IBackend;
 import sbc.INotifyGui;
 import sbc.SbcConstants;
 import sbc.dto.ProductionOrder;
+import sbc.job.Configuration;
+import sbc.job.Job;
 import sbc.xvsm.thread.LogThread;
 import sbc.xvsm.thread.ProducerThread;
 import sbc.xvsm.thread.StorageThread;
@@ -47,6 +49,9 @@ public class Backend implements IBackend {
 			container = capi.createContainer(
 					SbcConstants.PRODUCERCONTAINER, null, MzsConstants.Container.UNBOUNDED,
 					null, new LindaCoordinator(), new FifoCoordinator());
+//			jobsContainer = capi.createContainer(
+//					SbcConstants.JOBSCONTAINER, null, MzsConstants.Container.UNBOUNDED,
+//					null, new LindaCoordinator(), new FifoCoordinator());
 			System.out.println(container.getSpace());
 		}
 		catch(Exception e){
@@ -65,7 +70,7 @@ public class Backend implements IBackend {
 		st = new StorageThread(notifyGui);
 		Thread storageThread = new Thread(st);
 		storageThread.setDaemon(true);
-		storageThread.start();
+//		storageThread.start();
 	}
 
 	/**
@@ -116,4 +121,8 @@ public class Backend implements IBackend {
 		}
 	}
 
+	@Override
+	public void createJob(Job job, Configuration configuration){
+		//TODO implement
+	}
 }
