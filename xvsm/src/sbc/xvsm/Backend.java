@@ -67,7 +67,7 @@ public class Backend implements IBackend {
 		logThread = new LogThread(notifyGui);
 		Thread lt = new Thread(logThread);
 		lt.start();
-		st = new StorageThread(notifyGui);
+		st = new StorageThread(notifyGui);	//TODO: einkommentieren
 		Thread storageThread = new Thread(st);
 		storageThread.setDaemon(true);
 //		storageThread.start();

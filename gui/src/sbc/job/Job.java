@@ -1,8 +1,9 @@
 package sbc.job;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Job {
+public class Job implements Serializable {
 	private UUID uuid;
 	private int quantity;
 	private Configuration configuration;
