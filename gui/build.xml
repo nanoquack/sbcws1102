@@ -7,7 +7,7 @@
 	<property name="jms.lib.dir" value="../jms/lib" />
 	<property name="xvsm.lib.dir" value="../xvsm/lib" />
 	<property name="fork.java" value="true" />
-	<property name="factory.port" value="3000" />
+	<property name="factory.port" value="12345" />
 
 	<path id="master-src">
 		<pathelement path="${gui.src.dir}" />
