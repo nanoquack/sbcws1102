@@ -37,6 +37,8 @@ import sbc.dto.ComponentEnum;
 import sbc.dto.CpuComponent;
 import sbc.dto.ProductionOrder;
 import sbc.dto.StorageState;
+import sbc.job.Configuration;
+import sbc.job.Job;
 
 public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		ActionListener {
@@ -61,6 +63,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	protected JComboBox jobCpuType;
 	protected JComboBox jobRamCount;
 	protected JCheckBox jobGraphicsCard;
+	protected JTextField jobPcCount;
 	protected JButton jobCreateButton;
 
 	public MainFrame() {
@@ -159,14 +162,17 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		JLabel cpuTypeLabel = new JLabel(Constants.LABEL_JOB_CPU_TYPE);
 		JLabel ramCountLabel = new JLabel(Constants.LABEL_JOB_RAM_MODULE_COUNT);
 		JLabel graphicsCardLabel = new JLabel(Constants.LABEL_JOB_GRAPHICS_CARD);
+		JLabel pcCountLabel = new JLabel(Constants.LABEL_JOB_PC_COUNT);
 
 		jobCpuType = new JComboBox();
 		jobRamCount = new JComboBox();
 		jobGraphicsCard = new JCheckBox();
+		jobPcCount = new JTextField();
 		jobCreateButton = new JButton(Constants.LABEL_JOB_CREATE_BUTTON);
 		jobCpuType.setPreferredSize(new Dimension(Constants.JOB_CPU_TYPE_WIDTH, Constants.JOB_CPU_TYPE_HEIGHT));
 		jobRamCount.setPreferredSize(new Dimension(Constants.JOB_RAM_COUNT_WIDTH, Constants.JOB_RAM_COUNT_HEIGHT));
 		jobGraphicsCard.setPreferredSize(new Dimension(Constants.JOB_GRAPHICS_CARD_WIDTH, Constants.JOB_GRAPHICS_CARD_HEIGHT));
+		jobPcCount.setPreferredSize(new Dimension(Constants.JOB_PC_COUNT_WIDTH, Constants.JOB_PC_COUNT_HEIGHT));
 		fillJobCpuType();
 		fillJobRamCount();
 		jobCreateButton.addActionListener(this);
@@ -177,6 +183,8 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		jobPanel.add(jobRamCount);
 		jobPanel.add(graphicsCardLabel);
 		jobPanel.add(jobGraphicsCard);
+		jobPanel.add(pcCountLabel);
+		jobPanel.add(jobPcCount);
 		jobPanel.add(jobCreateButton);
 	}
 	
@@ -294,7 +302,12 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 			createNewProducer(productType, productCount, errorRate);
 		}
 		if(evt.getSource() == clearLogBtn){
-			createNewJob();
+			Configuration config = new Configuration();
+			config.setCpuType(CpuComponent.CpuType.valueOf(jobCpuType.getSelectedItem().toString()));
+			config.setRamModuleCount(Integer.parseInt(jobRamCount.getSelectedItem().toString()));
+			config.setGraphicsCard(jobGraphicsCard.isSelected());
+			int pcCount = Integer.parseInt(jobPcCount.getText());
+			createNewJob(config, pcCount);
 		}
 		if(evt.getSource()== clearLogBtn){
 			logPane.setStyledDocument(new DefaultStyledDocument());
@@ -309,8 +322,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		backend.createProducer(orderList, errorRate);
 	}
 	
-	private void createNewJob(){
-		//TODO implement
+	private void createNewJob(Configuration config, int pcCount){
+		Job job = new Job(config, pcCount);
+		backend.createJob(job);
 	}
 
 	public String getFactoryInfo() {

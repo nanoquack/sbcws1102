@@ -69,7 +69,7 @@ public class Backend implements IBackend {
 	}
 	
 	@Override
-	public void createJob(Job job, Configuration configuration){
+	public void createJob(Job job){
 		//TODO implement
 	}
 

@@ -28,6 +28,6 @@ public interface IBackend {
 	 */
 	public void createProducer(List<ProductionOrder> productionList, int errorRate);
 	
-	public void createJob(Job job, Configuration configuration);
+	public void createJob(Job job);
 
 }

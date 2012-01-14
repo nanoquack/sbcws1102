@@ -12,8 +12,9 @@ public class Job implements Serializable {
 		this.uuid = UUID.randomUUID();
 	}
 	
-	public Job(Configuration configuration) {
+	public Job(Configuration configuration, int quantity) {
 		this.configuration = configuration;
+		this.quantity = quantity;
 	}
 	
 	public UUID getUuid() {

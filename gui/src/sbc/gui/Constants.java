@@ -16,6 +16,8 @@ public class Constants {
 	public static final int JOB_RAM_COUNT_HEIGHT = 20;
 	public static final int JOB_GRAPHICS_CARD_WIDTH = 50;
 	public static final int JOB_GRAPHICS_CARD_HEIGHT = 20;
+	public static final int JOB_PC_COUNT_WIDTH = 100;
+	public static final int JOB_PC_COUNT_HEIGHT = 20;
 	
 	//gui string constants
 	public static final String LABEL_IMPL_CHOOSER = "Implementation:";
@@ -39,5 +41,6 @@ public class Constants {
 	public static final String LABEL_JOB_RAM_MODULE_COUNT_2 = "2";
 	public static final String LABEL_JOB_RAM_MODULE_COUNT_4 = "4";
 	public static final String LABEL_JOB_GRAPHICS_CARD = "Grafikkarte:";
+	public static final String LABEL_JOB_PC_COUNT = "PC-Anzahl:";
 	public static final String LABEL_JOB_CREATE_BUTTON = "Create";
 }
