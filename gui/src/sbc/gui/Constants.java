@@ -10,6 +10,12 @@ public class Constants {
 	public static final int PRODUCER_ERROR_RATE_HEIGHT = 20;
 	public static final int PART_INFO_TABLE_WIDTH = 50;
 	public static final int PART_INFO_TABLE_HEIGHT = 100;
+	public static final int JOB_CPU_TYPE_WIDTH = 150;
+	public static final int JOB_CPU_TYPE_HEIGHT = 20;
+	public static final int JOB_RAM_COUNT_WIDTH = 70;
+	public static final int JOB_RAM_COUNT_HEIGHT = 20;
+	public static final int JOB_GRAPHICS_CARD_WIDTH = 50;
+	public static final int JOB_GRAPHICS_CARD_HEIGHT = 20;
 	
 	//gui string constants
 	public static final String LABEL_IMPL_CHOOSER = "Implementation:";
@@ -27,4 +33,10 @@ public class Constants {
 	public static final String LABEL_PART_INFO_TABLE = "parts";
 	public static final String LABEL_PART_INFO_TABLE_PART = "Part";
 	public static final String LABEL_PART_INFO_TABLE_COUNT = "Count";
+	public static final String LABEL_JOB_CPU_TYPE = "Cpu:";
+	public static final String LABEL_JOB_RAM_MODULE_COUNT = "Ram Module:";
+	public static final String LABEL_JOB_RAM_MODULE_COUNT_1 = "1";
+	public static final String LABEL_JOB_RAM_MODULE_COUNT_2 = "2";
+	public static final String LABEL_JOB_RAM_MODULE_COUNT_4 = "4";
+	public static final String LABEL_JOB_GRAPHICS_CARD = "Grafikkarte:";
 }

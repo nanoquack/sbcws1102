@@ -16,6 +16,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -33,6 +34,7 @@ import sbc.BackendFactory;
 import sbc.IBackend;
 import sbc.INotifyGui;
 import sbc.dto.ComponentEnum;
+import sbc.dto.CpuComponent;
 import sbc.dto.ProductionOrder;
 import sbc.dto.StorageState;
 
@@ -56,6 +58,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	protected JTextField producerProductCount;
 	protected JTextField producerErrorRate;
 	protected String factoryInfo;
+	protected JComboBox jobCpuType;
+	protected JComboBox jobRamCount;
+	protected JCheckBox jobGraphicsCard;
 
 	public MainFrame() {
 		initMainFrame();
@@ -149,7 +154,38 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		jobPanel = new JPanel();
 		jobPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		jobPanel.setBorder(BorderFactory
-				.createTitledBorder(Constants.LABEL_JOB_PANEL));		
+				.createTitledBorder(Constants.LABEL_JOB_PANEL));
+		JLabel cpuTypeLabel = new JLabel(Constants.LABEL_JOB_CPU_TYPE);
+		JLabel ramCountLabel = new JLabel(Constants.LABEL_JOB_RAM_MODULE_COUNT);
+		JLabel graphicsCardLabel = new JLabel(Constants.LABEL_JOB_GRAPHICS_CARD);
+
+		jobCpuType = new JComboBox();
+		jobRamCount = new JComboBox();
+		jobGraphicsCard = new JCheckBox();
+		jobCpuType.setPreferredSize(new Dimension(Constants.JOB_CPU_TYPE_WIDTH, Constants.JOB_CPU_TYPE_HEIGHT));
+		jobRamCount.setPreferredSize(new Dimension(Constants.JOB_RAM_COUNT_WIDTH, Constants.JOB_RAM_COUNT_HEIGHT));
+		jobGraphicsCard.setPreferredSize(new Dimension(Constants.JOB_GRAPHICS_CARD_WIDTH, Constants.JOB_GRAPHICS_CARD_HEIGHT));
+		fillJobCpuType();
+		fillJobRamCount();
+		
+		jobPanel.add(cpuTypeLabel);
+		jobPanel.add(jobCpuType);
+		jobPanel.add(ramCountLabel);
+		jobPanel.add(jobRamCount);
+		jobPanel.add(graphicsCardLabel);
+		jobPanel.add(jobGraphicsCard);
+	}
+	
+	private void fillJobCpuType(){
+		for (CpuComponent.CpuType val : CpuComponent.CpuType.values()) {
+			jobCpuType.addItem(val.toString());
+		}
+	}
+	
+	private void fillJobRamCount(){
+		jobRamCount.addItem(Constants.LABEL_JOB_RAM_MODULE_COUNT_1);
+		jobRamCount.addItem(Constants.LABEL_JOB_RAM_MODULE_COUNT_2);
+		jobRamCount.addItem(Constants.LABEL_JOB_RAM_MODULE_COUNT_4);
 	}
 	
 	protected void initPartInfoPanel(){
