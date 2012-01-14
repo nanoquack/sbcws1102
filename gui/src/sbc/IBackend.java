@@ -22,12 +22,16 @@ public interface IBackend {
 	public void shutdownSystem();
 	
 	/**
-	 * 
+	 * Creates a producer that produces the given type and amount of pc components. 
 	 * @param list of production units to produce
 	 * @param errorRate of producers
 	 */
 	public void createProducer(List<ProductionOrder> productionList, int errorRate);
 	
+	/**
+	 * Commits the job to the factory 
+	 * @param job
+	 */
 	public void createJob(Job job);
 
 }

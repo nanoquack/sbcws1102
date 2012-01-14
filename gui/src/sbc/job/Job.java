@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 public class Job implements Serializable {
+	private static final long serialVersionUID = -4128559480849344740L;
 	private UUID uuid;
 	private int quantity;
 	private Configuration configuration;

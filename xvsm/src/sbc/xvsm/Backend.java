@@ -7,14 +7,15 @@ import org.mozartspaces.capi3.LindaCoordinator;
 import org.mozartspaces.core.Capi;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.DefaultMzsCore;
+import org.mozartspaces.core.Entry;
 import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
+import org.mozartspaces.core.MzsCoreException;
 
 import sbc.IBackend;
 import sbc.INotifyGui;
 import sbc.SbcConstants;
 import sbc.dto.ProductionOrder;
-import sbc.job.Configuration;
 import sbc.job.Job;
 import sbc.xvsm.thread.LogThread;
 import sbc.xvsm.thread.ProducerThread;
@@ -31,6 +32,7 @@ public class Backend implements IBackend {
 	private Capi capi;
 	private MzsCore core;
 	private ContainerReference container;
+	private ContainerReference jobsContainer;
 
 	public Backend() {
 		//gui does startSystem which initializes xvsm
@@ -49,9 +51,9 @@ public class Backend implements IBackend {
 			container = capi.createContainer(
 					SbcConstants.PRODUCERCONTAINER, null, MzsConstants.Container.UNBOUNDED,
 					null, new LindaCoordinator(), new FifoCoordinator());
-//			jobsContainer = capi.createContainer(
-//					SbcConstants.JOBSCONTAINER, null, MzsConstants.Container.UNBOUNDED,
-//					null, new LindaCoordinator(), new FifoCoordinator());
+			jobsContainer = capi.createContainer(
+					SbcConstants.JOBSCONTAINER, null, MzsConstants.Container.UNBOUNDED,
+					null, new LindaCoordinator(), new FifoCoordinator());
 			System.out.println(container.getSpace());
 		}
 		catch(Exception e){
@@ -66,6 +68,7 @@ public class Backend implements IBackend {
 	public void initializeFactory(INotifyGui notifyGui) {
 		logThread = new LogThread(notifyGui);
 		Thread lt = new Thread(logThread);
+		lt.setDaemon(true);
 		lt.start();
 		st = new StorageThread(notifyGui);	//TODO: einkommentieren
 		Thread storageThread = new Thread(st);
@@ -123,6 +126,12 @@ public class Backend implements IBackend {
 
 	@Override
 	public void createJob(Job job){
-		//TODO implement
+		try{
+			capi.write(jobsContainer, new Entry(job));
+		}
+		catch(MzsCoreException ex){
+			System.err.println("Could not write job into job container");
+			ex.printStackTrace();
+		}
 	}
 }

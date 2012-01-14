@@ -1,8 +1,11 @@
 package sbc.job;
 
+import java.io.Serializable;
+
 import sbc.dto.CpuComponent;
 
-public class Configuration {
+public class Configuration implements Serializable{
+	private static final long serialVersionUID = 450870850397910067L;
 	private CpuComponent.CpuType cpuType;
 	private int ramModuleCount;
 	private boolean graphicsCard;

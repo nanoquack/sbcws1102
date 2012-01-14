@@ -41,8 +41,6 @@ public class LogThread implements Runnable, NotificationListener {
 		initXvsm();
 		try{
 			capi.write(notificationContainer, new Entry("Xvsm LogThread started"));
-			while(running){
-			}
 		}
 		catch(Exception e){
 			notifyGui.addLogMessage("Could not start Xvsm LogThread");
