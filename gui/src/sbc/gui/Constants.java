@@ -39,4 +39,5 @@ public class Constants {
 	public static final String LABEL_JOB_RAM_MODULE_COUNT_2 = "2";
 	public static final String LABEL_JOB_RAM_MODULE_COUNT_4 = "4";
 	public static final String LABEL_JOB_GRAPHICS_CARD = "Grafikkarte:";
+	public static final String LABEL_JOB_CREATE_BUTTON = "Create";
 }

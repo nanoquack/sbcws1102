@@ -11,6 +11,8 @@ import sbc.jms.thread.LogisticWorker;
 import sbc.jms.thread.ProducerThread;
 import sbc.jms.thread.StorageThread;
 import sbc.jms.thread.TesterWorker;
+import sbc.job.Configuration;
+import sbc.job.Job;
 
 public class Backend implements IBackend {
 
@@ -64,6 +66,11 @@ public class Backend implements IBackend {
 	public void shutdownSystem() {
 		shutDownFactory();
 
+	}
+	
+	@Override
+	public void createJob(Job job, Configuration configuration){
+		//TODO implement
 	}
 
 }

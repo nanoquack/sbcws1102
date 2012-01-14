@@ -61,6 +61,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	protected JComboBox jobCpuType;
 	protected JComboBox jobRamCount;
 	protected JCheckBox jobGraphicsCard;
+	protected JButton jobCreateButton;
 
 	public MainFrame() {
 		initMainFrame();
@@ -162,11 +163,13 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		jobCpuType = new JComboBox();
 		jobRamCount = new JComboBox();
 		jobGraphicsCard = new JCheckBox();
+		jobCreateButton = new JButton(Constants.LABEL_JOB_CREATE_BUTTON);
 		jobCpuType.setPreferredSize(new Dimension(Constants.JOB_CPU_TYPE_WIDTH, Constants.JOB_CPU_TYPE_HEIGHT));
 		jobRamCount.setPreferredSize(new Dimension(Constants.JOB_RAM_COUNT_WIDTH, Constants.JOB_RAM_COUNT_HEIGHT));
 		jobGraphicsCard.setPreferredSize(new Dimension(Constants.JOB_GRAPHICS_CARD_WIDTH, Constants.JOB_GRAPHICS_CARD_HEIGHT));
 		fillJobCpuType();
 		fillJobRamCount();
+		jobCreateButton.addActionListener(this);
 		
 		jobPanel.add(cpuTypeLabel);
 		jobPanel.add(jobCpuType);
@@ -174,6 +177,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		jobPanel.add(jobRamCount);
 		jobPanel.add(graphicsCardLabel);
 		jobPanel.add(jobGraphicsCard);
+		jobPanel.add(jobCreateButton);
 	}
 	
 	private void fillJobCpuType(){
@@ -289,6 +293,9 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 			int errorRate = Integer.parseInt(producerErrorRate.getText());
 			createNewProducer(productType, productCount, errorRate);
 		}
+		if(evt.getSource() == clearLogBtn){
+			createNewJob();
+		}
 		if(evt.getSource()== clearLogBtn){
 			logPane.setStyledDocument(new DefaultStyledDocument());
 		}
@@ -300,6 +307,10 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		ProductionOrder order1 = new ProductionOrder(productType, productCount);
 		orderList.add(order1);
 		backend.createProducer(orderList, errorRate);
+	}
+	
+	private void createNewJob(){
+		//TODO implement
 	}
 
 	public String getFactoryInfo() {

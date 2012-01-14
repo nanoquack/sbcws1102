@@ -10,6 +10,7 @@ public class SbcConstants {
 	public static final String NOTIFICATIONCONTAINER="sbc_notification";
 	public static final String SALESCONTAINER = "sbc_sales";
 	public static final String RECYCLINGCONTAINER = "sbc_recycling";
+	public static final String JOBSCONTAINER = "sbc_jobs";
 	
 	public static final String ProducerUrl="xvsm://localhost:12345";
 	public static final String StorageContainerUrl="xvsm://localhost:12346"; //not used anymore
@@ -25,6 +26,7 @@ public class SbcConstants {
 	public static final int TESTERPORTOFFSET=3;
 	public static final int LOGISTICPORTOFFSET=4;
 	public static final int LOGGERPORTOFFSET=5;
+	public static final int JOBPORTOFFSET=6;
 	
 	public static int MAINPORT=-1;	//overwritten at setup
 }
