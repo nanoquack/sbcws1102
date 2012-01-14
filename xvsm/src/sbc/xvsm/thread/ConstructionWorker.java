@@ -71,7 +71,6 @@ public class ConstructionWorker implements Runnable {
 
 			try{
 				core = DefaultMzsCore.newInstance(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET);
-				System.out.println(core.getConfig().getSpaceUri());
 				capi = new Capi(core);
 
 				testContainer = capi.createContainer(

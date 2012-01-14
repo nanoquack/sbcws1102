@@ -24,6 +24,7 @@ import sbc.dto.ComponentEnum;
 import sbc.dto.ProductComponent;
 import sbc.xvsm.storage.Storage;
 
+@Deprecated
 public class StorageThread implements Runnable {
 
 	private boolean running=false;    //Running=false, storage thread is deactivated
