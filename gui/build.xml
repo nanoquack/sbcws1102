@@ -41,7 +41,7 @@
 	<target name="gui-run-gui" depends="compile">
 		<java classname="sbc.gui.Main" dir="${build.dir}" fork="${fork.java}">
 			<classpath refid="master-classpath" />
-			<arg value="${factory.path}"/>
+			<arg value="${factory.port}"/>
 		</java>
 	</target>
 
