@@ -245,7 +245,6 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 
 	@Override
 	public void updateStorage(StorageState state) {
-		// TODO Auto-generated method stub
 		PartInfoTableModel model = (PartInfoTableModel) partInfoTable
 				.getModel();
 		model.updateState(state);
