@@ -2,6 +2,7 @@ package sbc.dto;
 
 import java.util.Random;
 
+import org.mozartspaces.capi3.Index;
 import org.mozartspaces.capi3.Queryable;
 
 @Queryable
@@ -21,11 +22,18 @@ public class CpuComponent extends ProductComponent {
 	}
 
 	private static final long serialVersionUID = 272383977851493309L;
+	
+	@Index
 	private CpuType cpuType;
 
 	public CpuComponent(Integer id, String worker, Boolean faulty) {
 		super(id, worker, faulty);
 		setCpuType(CpuType.generateRandom());
+	}
+	
+	public CpuComponent(Integer id, String worker, Boolean faulty, CpuType type) {
+		super(id, worker, faulty);
+		setCpuType(type);
 	}
 	
 	public CpuType getCpuType() {

@@ -30,6 +30,7 @@ import org.mozartspaces.capi3.AnyCoordinator;
 import sbc.SbcConstants;
 import sbc.dto.ComponentEnum;
 import sbc.dto.CpuComponent;
+import sbc.dto.CpuComponent.CpuType;
 import sbc.dto.GpuComponent;
 import sbc.dto.MainboardComponent;
 import sbc.dto.ProductComponent;
@@ -47,10 +48,17 @@ public class LoadBalancer implements Runnable, NotificationListener {
 	private MzsCore core;
 
 	//TODO: Obtain reference of other fabrics
-	private HashMap<Integer,FactoryReference> factories;
+	private HashMap<Integer,FactoryReference> factories=new HashMap<Integer,FactoryReference>();
 
 	private boolean running=true;
 
+	public static void main(String args[]){
+		LoadBalancer l=new LoadBalancer();
+		Thread lb=new Thread(l);
+		lb.start();
+		System.out.println("Loadbalancer started");
+	}
+	
 
 	/**
 	 * Check regularly if components should be transfered
@@ -71,16 +79,17 @@ public class LoadBalancer implements Runnable, NotificationListener {
 			notifManager.createNotification(registrationContainer, this, Operation.WRITE);
 
 			while(running){
-				Thread.sleep(1000);
+				Thread.sleep(5000);
 				checkOverallProductionStatus();
 			}
 		}catch (Exception e) {
-			System.err.println("Error in LoadBalancer-Thread occured");
+			System.err.println("Error: Loadbalancer already running.");
 			e.printStackTrace();
 		}
 	}
 
 	private void checkOverallProductionStatus() {
+		System.out.println("Checking overall status");
 
 		LindaSelector cpuSelector=LindaCoordinator.newSelector(new CpuComponent(null,null,null),MzsConstants.Selecting.COUNT_MAX);
 		LindaSelector mainboardSelector=LindaCoordinator.newSelector(new MainboardComponent(null,null,null),MzsConstants.Selecting.COUNT_MAX);
@@ -103,21 +112,24 @@ public class LoadBalancer implements Runnable, NotificationListener {
 				factoryReference.setRamComponents(ramComponents);
 				factoryReference.setGpuComponents(gpuComponents);
 				factoryReference.setJobs(jobs);
-				
-				compareNeededAndStoreComponents();
 
 			}catch(Exception ex){
 				System.out.println("Can not interact with factory "+factoryReference.getPort()+". Removing Factory");
 				factories.remove(factoryReference.getPort());
 			}
-			//TODO: Check status: 3x CPU, Ram, Mainboard, Gpu
+			try{
+				compareNeededAndStoreComponents();
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
 		}
 	}
 
 	private void compareNeededAndStoreComponents() throws MzsCoreException{
-		
+
+		System.out.println("Factories: "+factories.values().size());
 		for(FactoryReference factory:factories.values()){
-			
+
 			int ramsNeeded=factory.getNumberOfRamsNeeded()-factory.getNumberOfRams();
 			int mainboardsNeeded=factory.getNumberOfMainboardsNeeded()-factory.getNumberOfMainboards();
 			int gpusNeeded=factory.getNumberOfGpusNeeded()-factory.getNumberOfGpus();
@@ -125,6 +137,9 @@ public class LoadBalancer implements Runnable, NotificationListener {
 			int dualCore02sNeeded=factory.getNumberOfDualCore02sNeeded()-factory.getNumberOfDualCore02CPU();
 			int dualCore24sNeeded=factory.getNumberOfDualCore24sNeeded()-factory.getNumberOfDualCore24CPU();
 			
+			System.out.println("RamsNeeded"+ramsNeeded);
+			
+
 			for(FactoryReference factory2:factories.values()){
 				int countAll=0;
 				int ramsStored=factory2.getNumberOfRams();
@@ -171,14 +186,28 @@ public class LoadBalancer implements Runnable, NotificationListener {
 				}
 
 				if(countAll>=10){
-
+					System.out.println("Transfering components");
 					TransactionReference tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
 					try{
-					if(ramsStored>0){
-						transferComponents(factory.getProductionContainer(), factory2.getProductionContainer(), new RamComponent(null,null,null),ramsStored);
-					}
-					//TODO: Transfer
-					//TODO: xxxNeeded-transfered
+						if(ramsStored>0){
+							transferComponents(factory.getProductionContainer(), factory2.getProductionContainer(), new RamComponent(null,null,null),ramsStored);
+						}if(mainboardsStored>0){
+							transferComponents(factory.getProductionContainer(), factory2.getProductionContainer(), new MainboardComponent(null,null,null),mainboardsStored);
+						}if(gpusStored>0){
+							transferComponents(factory.getProductionContainer(), factory2.getProductionContainer(), new GpuComponent(null,null,null),gpusStored);
+						}if(singleCore16sStored>0){
+							transferComponents(factory.getProductionContainer(), factory2.getProductionContainer(), new CpuComponent(null,null,null,CpuType.SINGLE_CORE_16),singleCore16sStored);
+						}if(dualCore02sStored>0){
+							transferComponents(factory.getProductionContainer(), factory2.getProductionContainer(), new CpuComponent(null,null,null,CpuType.DUAL_CORE_2),dualCore02sStored);
+						}if(dualCore24sStored>0){
+							transferComponents(factory.getProductionContainer(), factory2.getProductionContainer(), new CpuComponent(null,null,null,CpuType.DUAL_CORE_24),dualCore24sStored);
+						}
+						ramsNeeded-=ramsStored;
+						gpusNeeded-=gpusStored;
+						mainboardsNeeded-=mainboardsStored;
+						singleCore16sNeeded-=singleCore16sStored;
+						dualCore02sNeeded-=dualCore02sStored;
+						dualCore24sNeeded-=dualCore24sStored;
 					}catch(Exception ex){
 						capi.rollbackTransaction(tx);
 						System.err.println("Error while transfering component. Transaction rolled back");
@@ -192,14 +221,14 @@ public class LoadBalancer implements Runnable, NotificationListener {
 	private void transferComponents(ContainerReference factoryTo, ContainerReference factoryFrom,
 			ProductComponent componentType, int amount) throws MzsCoreException{
 
-			LindaSelector selector=LindaCoordinator.newSelector(componentType,amount);
-			ArrayList<ProductComponent> resultEntries = capi.take(factoryFrom, selector, MzsConstants.RequestTimeout.TRY_ONCE, null);
+		LindaSelector selector=LindaCoordinator.newSelector(componentType,amount);
+		ArrayList<ProductComponent> resultEntries = capi.take(factoryFrom, selector, MzsConstants.RequestTimeout.TRY_ONCE, null);
 
-			for(ProductComponent comp:resultEntries){
-				capi.write(factoryTo, new Entry(comp));
-			}
+		for(ProductComponent comp:resultEntries){
+			capi.write(factoryTo, new Entry(comp));
+		}
 
-		
+
 	}
 
 	public void stop(){
@@ -226,6 +255,7 @@ public class LoadBalancer implements Runnable, NotificationListener {
 	 * @param value: Main port of the fabric
 	 */
 	private void changeFactoryStatus(Integer value) {
+		System.out.println("Changing factory status with port "+value);
 		if(factories.containsKey(value)){
 			factories.remove(value);
 		}else{
@@ -233,13 +263,14 @@ public class LoadBalancer implements Runnable, NotificationListener {
 				FactoryReference reference=new FactoryReference();
 				reference.setPort(value);
 				ContainerReference productionContainer=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER, 
-						new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)), 
-						MzsConstants.RequestTimeout.INFINITE, null);
+						new URI("xvsm://localhost:"+(value+SbcConstants.PRODUCERPORTOFFSET)), 
+						MzsConstants.RequestTimeout.TRY_ONCE, null);
 				reference.setProductionContainer(productionContainer);
 				ContainerReference orderContainer=capi.lookupContainer(SbcConstants.JOBSCONTAINER, 
-						new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.JOBPORTOFFSET)), 
-						MzsConstants.RequestTimeout.INFINITE, null);
+						new URI("xvsm://localhost:"+(value)), 
+						MzsConstants.RequestTimeout.TRY_ONCE, null);
 				reference.setJobsContainer(orderContainer);
+				factories.put(value, reference);
 			}catch(Exception ex){
 				System.err.println("Fabric with port "+value+" could not be added!");
 				ex.printStackTrace();

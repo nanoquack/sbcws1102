@@ -18,6 +18,7 @@ import sbc.INotifyGui;
 import sbc.SbcConstants;
 import sbc.dto.ProductionOrder;
 import sbc.job.Job;
+import sbc.loadbalancing.LoadBalancer;
 import sbc.xvsm.thread.LogThread;
 import sbc.xvsm.thread.ProducerThread;
 import sbc.xvsm.thread.StorageThread;
@@ -33,6 +34,7 @@ public class Backend implements IBackend {
 	private ContainerReference container;
 	private ContainerReference jobsContainer;
 	private ContainerReference notificationContainer;
+	private ContainerReference loadbalancerContainer;
 
 	public Backend() {
 		// gui does startSystem() which initializes xvsm
@@ -55,6 +57,12 @@ public class Backend implements IBackend {
 					null, MzsConstants.Container.UNBOUNDED, null,
 					new FifoCoordinator());
 			System.out.println(container.getSpace());
+			
+			loadbalancerContainer=capi.lookupContainer(
+					SbcConstants.LOADBALANCERCONTAINER, new URI(SbcConstants.LoadBalancerUrl), MzsConstants.RequestTimeout.TRY_ONCE,null);
+			Entry e=new Entry(SbcConstants.MAINPORT);
+			capi.write(loadbalancerContainer,e);
+			
 		} catch (Exception e) {
 			throw new RuntimeException("Could not initialize xvsm", e);
 		}
@@ -92,6 +100,12 @@ public class Backend implements IBackend {
 	}
 
 	public void shutDownFactory() {
+		try{
+		Entry e=new Entry(SbcConstants.MAINPORT);
+		capi.write(loadbalancerContainer,e);	//Log off from loadbalancer
+		}catch(Exception ex){
+			System.err.println("Could not log off from loadbalancer");
+		}
 	}
 
 	@Override
