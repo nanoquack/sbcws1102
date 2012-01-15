@@ -120,8 +120,11 @@ public class ConstructionWorker implements Runnable {
 				try{
 					//First: Obtain obligatory parts (1 GPU, 1 Mainboard, 1 RAM)
 					ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.INFINITE, null);
+					System.out.println("Got CPU of type "+cpuResultEntries.get(0).getCpuType().name());
 					ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.INFINITE, null);
+					System.out.println("Got Mainboard");
 					ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.INFINITE, null);
+					System.out.println("Got RAM");
 					cpuComponent=cpuResultEntries.get(0);
 					mainboardComponent=mainboardResultEntries.get(0);
 					ramComponents.add(ramResultEntries.get(0));

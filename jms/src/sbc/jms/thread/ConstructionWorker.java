@@ -21,6 +21,7 @@ import sbc.dto.GpuComponent;
 import sbc.dto.MainboardComponent;
 import sbc.dto.ProductComponent;
 import sbc.dto.RamComponent;
+import sbc.jms.JmsConstants;
 import sbc.jms.JmsLogging;
 
 public class ConstructionWorker implements Runnable, ExceptionListener {
@@ -28,6 +29,11 @@ public class ConstructionWorker implements Runnable, ExceptionListener {
 	private boolean running=true;
 
 	public static void main(String[] args){
+		if(args.length!=1){
+			System.err.println("Factorya id has to be specified");
+			System.exit(1);
+		}
+		JmsConstants.factoryId=args[0];
 		ConstructionWorker constructor = new ConstructionWorker();
 		Thread t = new Thread(constructor);
 		t.start();
@@ -50,7 +56,7 @@ public class ConstructionWorker implements Runnable, ExceptionListener {
 			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
 			// Create the destination (Topic or Queue)
-			Destination destination = session.createQueue("SbcConstruction");
+			Destination destination = session.createQueue("SbcConstruction"+JmsConstants.factoryId);
 
 			// Create a MessageConsumer from the Session to the Topic or Queue
 			MessageConsumer consumer = session.createConsumer(destination);
@@ -105,7 +111,7 @@ public class ConstructionWorker implements Runnable, ExceptionListener {
 		// Create a Session
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		// Create the destination
-		Destination destination = session.createQueue("SbcTesting");
+		Destination destination = session.createQueue("SbcTesting"+JmsConstants.factoryId);
 		// Create a MessageProducer from the Session to the Topic
 		MessageProducer producer = session.createProducer(destination);
 		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);

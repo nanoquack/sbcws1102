@@ -15,6 +15,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.dto.Computer;
 import sbc.dto.RamComponent;
+import sbc.jms.JmsConstants;
 import sbc.jms.JmsLogging;
 
 public class TesterWorker  implements Runnable, ExceptionListener {
@@ -28,12 +29,19 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 	 * If args[0] contains "2" ==> Start Tester that checks faultiness of pc parts
 	 */
 	public static void main(String[] args){
+		
+		if(args.length!=2){
+			System.err.println("Tester id and Factory id have to be specified");
+			System.exit(1);
+		}
+		JmsConstants.factoryId=args[1];
+		
 		TesterWorker tester=null;
 		if(args[0].equals("1")){
-			tester = new TesterWorker("SbcTesting");
+			tester = new TesterWorker("SbcTesting"+JmsConstants.factoryId);
 		}
 		if(args[0].equals("2")){
-			tester = new TesterWorker("SbcTesting2");
+			tester = new TesterWorker("SbcTesting2"+JmsConstants.factoryId);
 		}
 		JmsLogging.getInstance().log(args[0]);
 		if((!args[0].equals("1")) && (!args[0].equals("2"))){
@@ -140,7 +148,7 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 		// Create a Session
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		// Create the destination
-		Destination destination = session.createQueue("SbcTesting2");
+		Destination destination = session.createQueue("SbcTesting2"+JmsConstants.factoryId);
 		// Create a MessageProducer from the Session to the Topic
 		MessageProducer producer = session.createProducer(destination);
 		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
@@ -170,7 +178,7 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 		// Create a Session
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		// Create the destination
-		Destination destination = session.createQueue("SbcLogistic");
+		Destination destination = session.createQueue("SbcLogistic"+JmsConstants.factoryId);
 		// Create a MessageProducer from the Session to the Topic
 		MessageProducer producer = session.createProducer(destination);
 		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);

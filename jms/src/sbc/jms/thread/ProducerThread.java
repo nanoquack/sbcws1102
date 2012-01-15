@@ -20,6 +20,7 @@ import sbc.dto.MainboardComponent;
 import sbc.dto.ProductComponent;
 import sbc.dto.ProductionOrder;
 import sbc.dto.RamComponent;
+import sbc.jms.JmsConstants;
 
 public class ProducerThread implements Runnable {
 
@@ -46,7 +47,7 @@ public class ProducerThread implements Runnable {
 			// Create a Session
 			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			// Create the destination
-			Destination destination = session.createQueue("SbcProducer");
+			Destination destination = session.createQueue("SbcProducer"+JmsConstants.factoryId);
 			// Create a MessageProducer from the Session to the Topic
 			MessageProducer producer = session.createProducer(destination);
 			producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);

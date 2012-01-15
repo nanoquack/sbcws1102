@@ -41,7 +41,7 @@ public class JmsLogging {
 					"tcp://localhost:61616");
 			connection = connectionFactory.createConnection();
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			destination = session.createTopic("SbcLogging");
+			destination = session.createTopic("SbcLogging"+JmsConstants.factoryId);
 			producer = session.createProducer(destination);
 			connection.start();
 		} catch (JMSException e) {

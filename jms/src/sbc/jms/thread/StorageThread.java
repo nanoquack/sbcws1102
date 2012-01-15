@@ -17,6 +17,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.INotifyGui;
 import sbc.dto.ProductComponent;
+import sbc.jms.JmsConstants;
 import sbc.jms.JmsLogging;
 import sbc.jms.storage.Storage;
 
@@ -48,7 +49,7 @@ public class StorageThread implements Runnable, ExceptionListener {
 					Session.AUTO_ACKNOWLEDGE);
 
 			// Create the destination (Topic or Queue)
-			Destination destination = session.createQueue("SbcProducer");
+			Destination destination = session.createQueue("SbcProducer"+JmsConstants.factoryId);
 
 			// Create a MessageConsumer from the Session to the Topic or Queue
 			MessageConsumer consumer = session.createConsumer(destination);
@@ -111,7 +112,7 @@ public class StorageThread implements Runnable, ExceptionListener {
 		Session session = connection.createSession(false,
 				Session.AUTO_ACKNOWLEDGE);
 		// Create the destination
-		Destination destination = session.createQueue("SbcConstruction");
+		Destination destination = session.createQueue("SbcConstruction"+JmsConstants.factoryId);
 		// Create a MessageProducer from the Session to the Topic
 		MessageProducer producer = session.createProducer(destination);
 		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);

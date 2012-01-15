@@ -6,6 +6,7 @@ import sbc.IBackend;
 import sbc.INotifyGui;
 import sbc.dto.ProductionOrder;
 import sbc.jms.thread.ConstructionWorker;
+import sbc.jms.thread.JobsThread;
 import sbc.jms.thread.LogThread;
 import sbc.jms.thread.LogisticWorker;
 import sbc.jms.thread.ProducerThread;
@@ -18,9 +19,7 @@ public class Backend implements IBackend {
 
 	private StorageThread st;
 	private Thread logThread;
-	private ConstructionWorker ct;
-	private TesterWorker tt;
-	private LogisticWorker lt;
+	private JobsThread jt;
 	private int workerSequencer = 1;
 
 	/**
@@ -31,11 +30,16 @@ public class Backend implements IBackend {
 		st = new StorageThread(notifyGui);
 		Thread storageThread = new Thread(st);
 		storageThread.start();
+		
 		logThread = new Thread(new LogThread(notifyGui));
 		// set log thread as daemon thread, so process will be terminated if
 		// backend thread is stopped
 		logThread.setDaemon(true);
 		logThread.start();
+		
+		jt=new JobsThread();
+		Thread jobThread=new Thread(jt);
+		jobThread.start();
 	}
 
 	/**
@@ -53,12 +57,12 @@ public class Backend implements IBackend {
 
 	public void shutDownFactory() {
 		st.stop();
+		jt.stop();
 	}
 
 	@Override
-	public void startSystem(INotifyGui notifyGui, String factoryInfo) {
-		//TODO: Use Factory Info to make Queues unique
-		//sbc-queue ==> sbc-queue12345
+	public void startSystem(INotifyGui notifyGui, String factoryId) {
+		JmsConstants.factoryId=factoryId;
 		initializeFactory(notifyGui);
 	}
 
@@ -70,7 +74,7 @@ public class Backend implements IBackend {
 	
 	@Override
 	public void createJob(Job job){
-		//TODO implement
+		jt.addJob(job);
 	}
 
 }

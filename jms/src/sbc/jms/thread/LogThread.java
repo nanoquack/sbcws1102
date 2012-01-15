@@ -13,6 +13,7 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.INotifyGui;
+import sbc.jms.JmsConstants;
 import sbc.jms.JmsLogging;
 
 /**
@@ -58,7 +59,7 @@ public class LogThread implements Runnable, MessageListener, ExceptionListener {
 			connection.setExceptionListener(this);
 			Session session = connection.createSession(false,
 					Session.AUTO_ACKNOWLEDGE);
-			Destination destination = session.createTopic("SbcLogging");
+			Destination destination = session.createTopic("SbcLogging"+JmsConstants.factoryId);
 			MessageConsumer consumer = session.createConsumer(destination);
 			consumer.setMessageListener(this);
 			connection.start();
