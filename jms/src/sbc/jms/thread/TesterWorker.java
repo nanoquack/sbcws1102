@@ -14,6 +14,7 @@ import javax.jms.Session;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.dto.Computer;
+import sbc.dto.ProductComponent;
 import sbc.dto.RamComponent;
 import sbc.jms.JmsConstants;
 import sbc.jms.JmsLogging;
@@ -118,7 +119,12 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 								if(ram.isFaulty()){computer.setQualityCheckPassed(false);}
 							}
 							JmsLogging.getInstance().log(computer.getQualityCheckPassed()?"Computer ok":"Computer faulty");
-							forwardPcToLogistic(computer);
+							if(computer.getQualityCheckPassed()){
+								forwardPcToLogistic(computer);
+							}
+							else{
+								disassemble(computer);
+							}
 						}
 					} else {
 						JmsLogging.getInstance().log("Dropped message "+m.getJMSMessageID());
@@ -201,5 +207,53 @@ public class TesterWorker  implements Runnable, ExceptionListener {
 	public synchronized void stop(){
 		running=false;
 	}
-
+	
+	/**
+	 * Disassembles a computer and rewrite the components into the queue.
+	 * 
+	 * @param computer
+	 */
+	private void disassemble(Computer computer) throws JMSException {
+		ProductComponent component = null;
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+		Connection connection = connectionFactory.createConnection();
+		connection.start();
+		connection.setExceptionListener(this);
+		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		Destination producerDestination = session.createQueue("SbcProducer"+JmsConstants.factoryId);
+		MessageProducer producerMsgProducer = session.createProducer(producerDestination); 
+		producerMsgProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+		
+		try{
+			JmsLogging.getInstance().log("Disassembling Computer");
+			if (!computer.getCpu().isFaulty()) {
+				ObjectMessage message=session.createObjectMessage(computer.getCpu());
+				producerMsgProducer.send(message);
+				JmsLogging.getInstance().log("Functioning Cpu added to production, id: " + computer.getCpu().getId());
+			}
+			if ((computer.getGpu() != null) && (!computer.getGpu().isFaulty())) {
+				ObjectMessage message=session.createObjectMessage(computer.getMainboard());
+				producerMsgProducer.send(message);
+				JmsLogging.getInstance().log("Functioning Gpu added to production, id: " + computer.getGpu().getId());
+			}
+			if (!computer.getMainboard().isFaulty()) {
+				ObjectMessage message=session.createObjectMessage(computer.getMainboard());
+				producerMsgProducer.send(message);
+				JmsLogging.getInstance().log("Functioning Mainboard added to production, id: " + computer.getMainboard().getId());
+			}
+	
+			for (ProductComponent ram : computer.getRam()) {
+				if(!ram.isFaulty()){
+					ObjectMessage message=session.createObjectMessage(ram);
+					producerMsgProducer.send(message);
+					JmsLogging.getInstance().log("Functioning Ram added to production, id: " + ram.getId());
+				}
+			}
+		}
+		finally{
+			producerMsgProducer.close();
+			session.close();
+			connection.close();
+		}
+	}
 }
