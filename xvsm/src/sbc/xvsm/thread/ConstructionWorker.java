@@ -64,51 +64,11 @@ public class ConstructionWorker implements Runnable {
 		try{
 			initXvsm();
 			while(running){
-<<<<<<< HEAD
-
-				CpuComponent cpuComponent=null;
-				MainboardComponent mainboardComponent=null;
-				ArrayList<RamComponent> ramComponents=new ArrayList<RamComponent>();
-				GpuComponent gpuComponent=null;
-
-				TransactionReference tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
-				try{
-					//First: Obtain obligatory parts (1 GPU, 1 Mainboard, 1 RAM)
-					ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.INFINITE, null);
-					System.out.println("Got CPU of type "+cpuResultEntries.get(0).getCpuType().name());
-					ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.INFINITE, null);
-					System.out.println("Got Mainboard");
-					ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.INFINITE, null);
-					System.out.println("Got RAM");
-					cpuComponent=cpuResultEntries.get(0);
-					mainboardComponent=mainboardResultEntries.get(0);
-					ramComponents.add(ramResultEntries.get(0));
-					capi.commitTransaction(tx);
-					System.out.print("transaction committed");
-				}catch(Exception ex){
-					capi.rollbackTransaction(tx);
-					System.out.println("Transaction rolled back");
-					continue;	//restart loop
-				}
-
-				System.out.println("Got all obligatory components");
-
-				tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
-				try{	
-					//Try to obtain optional part: GPU
-					ArrayList<GpuComponent> gpuResultEntries = capi.take(productionContainer, gpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
-					gpuComponent=gpuResultEntries.get(0);
-					capi.commitTransaction(tx);
-				}catch(Exception ex){
-					capi.rollbackTransaction(tx);
-					System.out.println("GPU-Transaction rolled back");
-=======
 				Job currentJob = nextJob();
 				
 				//if no job is available or fulfillable, build other computers
 				if(currentJob == null){
 					buildDefault();
->>>>>>> 906a9a04243031be19562a9fec6e64935abdce41
 				}
 			}
 		} catch (Exception e) {
