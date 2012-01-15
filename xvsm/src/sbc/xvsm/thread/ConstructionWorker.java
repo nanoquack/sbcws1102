@@ -216,18 +216,18 @@ public class ConstructionWorker implements Runnable {
 		try{
 			tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, new URI("xvsm://localhost:" + (SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)));
 			//First: Obtain obligatory parts (1 GPU, 1 Mainboard, 1 RAM)
-			ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
-			ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
-			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
+			ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, SbcConstants.CONSTRUCTION_TAKE_TIMEOUT, tx);
+			ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, SbcConstants.CONSTRUCTION_TAKE_TIMEOUT, tx);
+			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, SbcConstants.CONSTRUCTION_TAKE_TIMEOUT, tx);
 			cpuComponent=cpuResultEntries.get(0);
 			mainboardComponent=mainboardResultEntries.get(0);
 			ramComponents.add(ramResultEntries.get(0));
 			capi.commitTransaction(tx);
-			System.out.print("transaction committed");
+			System.out.print("Got all obligatory parts");
 		}catch(Exception ex){
 			if(tx!=null){
 				capi.rollbackTransaction(tx);
-				System.out.println("Transaction rolled back");
+				System.out.println("Got not all parts, rolling back transaction");
 				//computer cannot be constructed because basic parts are not available, so stopping
 				return;
 			}
@@ -238,7 +238,7 @@ public class ConstructionWorker implements Runnable {
 		tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
 		try{	
 			//Try to obtain optional part: GPU
-			ArrayList<GpuComponent> gpuResultEntries = capi.take(productionContainer, gpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+			ArrayList<GpuComponent> gpuResultEntries = capi.take(productionContainer, gpuSelectors, SbcConstants.CONSTRUCTION_TAKE_TIMEOUT, null);
 			gpuComponent=gpuResultEntries.get(0);
 			capi.commitTransaction(tx);
 		}catch(Exception ex){
@@ -248,7 +248,7 @@ public class ConstructionWorker implements Runnable {
 		tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
 		try{	
 			//Try to obtain optional part: second RAM	
-			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, SbcConstants.CONSTRUCTION_TAKE_TIMEOUT, null);
 			ramComponents.add(ramResultEntries.get(0));
 			capi.commitTransaction(tx);
 		}catch(Exception ex){
@@ -258,7 +258,7 @@ public class ConstructionWorker implements Runnable {
 		tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
 		try{	
 			//Try to obtain optional part: 2 more RAM modules
-			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectorsGetTwoRams, MzsConstants.RequestTimeout.TRY_ONCE, null);
+			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectorsGetTwoRams, SbcConstants.CONSTRUCTION_TAKE_TIMEOUT, null);
 			ramComponents.add(ramResultEntries.get(0));
 			ramComponents.add(ramResultEntries.get(1));
 			capi.commitTransaction(tx);
@@ -301,14 +301,14 @@ public class ConstructionWorker implements Runnable {
 		GpuComponent gpuComponent = null;
 		
 		try{
-			ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
-			ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
-			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+			ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, SbcConstants.CONSTRUCTION_TAKE_TIMEOUT, null);
+			ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, SbcConstants.CONSTRUCTION_TAKE_TIMEOUT, null);
+			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, SbcConstants.CONSTRUCTION_TAKE_TIMEOUT, null);
 			cpuComponent = cpuResultEntries.get(0);
 			mainboardComponent = mainboardResultEntries.get(0);
 			
 			if(config.isGraphicsCard()){
-				ArrayList<GpuComponent> gpuResultEntries = capi.take(productionContainer, gpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+				ArrayList<GpuComponent> gpuResultEntries = capi.take(productionContainer, gpuSelectors, SbcConstants.CONSTRUCTION_TAKE_TIMEOUT, null);
 				gpuComponent = gpuResultEntries.get(0);
 			}
 			capi.commitTransaction(tx);
