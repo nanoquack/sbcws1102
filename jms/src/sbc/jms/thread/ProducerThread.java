@@ -21,6 +21,7 @@ import sbc.dto.ProductComponent;
 import sbc.dto.ProductionOrder;
 import sbc.dto.RamComponent;
 import sbc.jms.JmsConstants;
+import sbc.jms.JmsLogging;
 
 public class ProducerThread implements Runnable {
 
@@ -61,26 +62,29 @@ public class ProducerThread implements Runnable {
 					double randomFaulty=rand.nextDouble();
 					boolean faulty=randomFaulty<=(errorRate/100.0);
 					ObjectMessage message=null;
+					ProductComponent product=null;
 					// Create a messages
 					switch(order.getComponent()){
 						case CPU:
-							message=session.createObjectMessage(new CpuComponent(productSequencer++,workername,faulty));
+							product = new CpuComponent(productSequencer++,workername,faulty);
 							break;
 						case RAM:
-							message=session.createObjectMessage(new RamComponent(productSequencer++,workername,faulty));
+							product = new RamComponent(productSequencer++,workername,faulty);
 							break;
 						case MAINBOARD:
-							message=session.createObjectMessage(new MainboardComponent(productSequencer++,workername,faulty));
+							product = new MainboardComponent(productSequencer++,workername,faulty);
 							break;
 						case GPU:
-							message=session.createObjectMessage(new GpuComponent(productSequencer++,workername,faulty));
+							product = new GpuComponent(productSequencer++,workername,faulty);
 							break;
 						default:
 							throw new RuntimeException();
 					}
 
 					// Tell the producer to send the message
+					message=session.createObjectMessage(product);
 					producer.send(message);
+					JmsLogging.getInstance().producedComponent(product);
 //					System.out.println("Sending product of type "+message.getObject().getClass().toString());
 					amount--;
 				}

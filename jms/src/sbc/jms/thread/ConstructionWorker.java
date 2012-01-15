@@ -71,6 +71,7 @@ public class ConstructionWorker implements Runnable, ExceptionListener {
 						Computer computer=new Computer();
 						while(components.size()!=0){
 							ProductComponent comp=components.remove(0);
+							JmsLogging.getInstance().consumedComponent(comp);
 							if(comp instanceof CpuComponent){
 								computer.setCpu((CpuComponent)comp);
 							}if(comp instanceof MainboardComponent){

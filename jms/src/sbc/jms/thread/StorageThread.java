@@ -72,7 +72,7 @@ public class StorageThread implements Runnable, ExceptionListener {
 						if (components != null) {
 							forwardPcParts(components);
 						}
-						notifyGui.updateStorage(storage.getStorageState());
+//						notifyGui.updateStorage(storage.getStorageState());
 					} else {
 						JmsLogging.getInstance().log(
 								"Dropped message " + m.getJMSMessageID());

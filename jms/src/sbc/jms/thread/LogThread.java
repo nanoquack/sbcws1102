@@ -7,12 +7,19 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.INotifyGui;
+import sbc.dto.CpuComponent;
+import sbc.dto.GpuComponent;
+import sbc.dto.MainboardComponent;
+import sbc.dto.ProductComponent;
+import sbc.dto.RamComponent;
+import sbc.dto.StorageState;
 import sbc.jms.JmsConstants;
 import sbc.jms.JmsLogging;
 
@@ -24,18 +31,12 @@ import sbc.jms.JmsLogging;
  */
 public class LogThread implements Runnable, MessageListener, ExceptionListener {
 	private INotifyGui notify;
-//	private boolean running;
+	private StorageState storageState;
 
 	public LogThread(INotifyGui notify) {
 		this.notify = notify;
-//		this.running = true;
+		this.storageState = new StorageState();
 	}
-	
-//	@Override
-//	protected void finalize() throws Throwable{
-//		
-//		super.finalize();
-//	}
 
 	@Override
 	public void onMessage(Message msg) {
@@ -44,6 +45,27 @@ public class LogThread implements Runnable, MessageListener, ExceptionListener {
 			if(msg instanceof TextMessage){
 				logString = ((TextMessage)msg).getText();
 				notify.addLogMessage(logString);
+			}
+			else if(msg instanceof ObjectMessage){
+				ObjectMessage objMsg = (ObjectMessage)msg;
+				ProductComponent component = (ProductComponent)objMsg.getObject();
+				int productCount = objMsg.getIntProperty(JmsConstants.PROPERTY_COMPONENT_COUNT);
+				
+				synchronized(storageState){
+					if(component instanceof CpuComponent){
+						storageState.setCpu(storageState.getCpu()+productCount);
+					}
+					if(component instanceof MainboardComponent){
+						storageState.setMainboard(storageState.getMainboard()+productCount);
+					}
+					if(component instanceof RamComponent){
+						storageState.setRam(storageState.getRam()+productCount);
+					}
+					if(component instanceof GpuComponent){
+						storageState.setGpu(storageState.getGpu()+productCount);
+					}
+					notify.updateStorage(storageState);
+				}
 			}
 		} catch (JMSException e) {
 			notify.addLogMessage(e.getStackTrace().toString());
