@@ -109,6 +109,7 @@ public class ConstructionWorker implements Runnable {
 			gpuSelectors.add(FifoCoordinator.newSelector());
 
 			System.out.println("Setup complete");
+			capi.write(notficationContainer, new Entry("ConstructionWorker: Setup complete, port: "+(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET)));
 			while(running){
 
 				CpuComponent cpuComponent=null;

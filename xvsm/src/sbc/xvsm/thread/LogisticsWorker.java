@@ -125,6 +125,7 @@ public class LogisticsWorker implements Runnable {
 					SbcConstants.NOTIFICATIONCONTAINER, new URI(
 							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)),
 							MzsConstants.RequestTimeout.INFINITE, null);
+			capi.write(notficationContainer, new Entry("LogisticsWorker: Setup complete, port: "+(SbcConstants.MAINPORT+SbcConstants.LOGISTICPORTOFFSET)));
 		} catch (Exception e) {
 			System.err.println("Could not inintialize Xvsm");
 		}

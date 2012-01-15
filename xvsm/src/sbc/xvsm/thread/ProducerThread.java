@@ -47,7 +47,7 @@ public class ProducerThread implements Runnable {
 					SbcConstants.NOTIFICATIONCONTAINER, new URI(
 							"xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)),
 					MzsConstants.RequestTimeout.INFINITE, null);	
-			
+			capi.write(notificationContainer, new Entry("ProductionWorker: Setup complete, port: "+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)));
 			for (ProductionOrder order : productionList){
 				int amount=order.getAmount();
 				while(amount>0){
