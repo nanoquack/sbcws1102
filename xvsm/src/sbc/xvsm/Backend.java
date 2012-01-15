@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.LindaCoordinator;
+import org.mozartspaces.capi3.QueryCoordinator;
 import org.mozartspaces.core.Capi;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.DefaultMzsCore;
@@ -21,7 +22,6 @@ import sbc.job.Job;
 import sbc.loadbalancing.LoadBalancer;
 import sbc.xvsm.thread.LogThread;
 import sbc.xvsm.thread.ProducerThread;
-import sbc.xvsm.thread.StorageThread;
 
 public class Backend implements IBackend {
 	private LogThread logThread;
@@ -55,7 +55,7 @@ public class Backend implements IBackend {
 					new LindaCoordinator(), new FifoCoordinator());
 			jobsContainer = capi.createContainer(SbcConstants.JOBSCONTAINER,
 					null, MzsConstants.Container.UNBOUNDED, null,
-					new FifoCoordinator());
+					new QueryCoordinator(), new FifoCoordinator());
 			System.out.println(container.getSpace());
 			
 			loadbalancerContainer=capi.lookupContainer(
