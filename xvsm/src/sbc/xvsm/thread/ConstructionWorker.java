@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.LindaCoordinator;
+import org.mozartspaces.capi3.Matchmaker;
+import org.mozartspaces.capi3.Query;
 import org.mozartspaces.capi3.QueryCoordinator;
 import org.mozartspaces.capi3.Selector;
 import org.mozartspaces.core.Capi;
@@ -18,6 +20,7 @@ import org.mozartspaces.core.MzsCoreException;
 import org.mozartspaces.core.MzsCoreRuntimeException;
 import org.mozartspaces.core.TransactionReference;
 import org.slf4j.LoggerFactory;
+import org.xvsm.protocol.MatchmakerFilter;
 
 import sbc.SbcConstants;
 import sbc.dto.Computer;
@@ -62,12 +65,13 @@ public class ConstructionWorker implements Runnable {
 	public void run() {
 		try{
 			initXvsm();
-			System.out.println("Setup complete");
-			capi.write(notficationContainer, new Entry("ConstructionWorker: Setup complete, port: "+(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET)));
 			while(running){
-				Job currentJob = checkForJobs();
+				Job currentJob = nextJob();
 				
-				buildDefault();
+				//if no job is available or fulfillable, build other computers
+				if(currentJob == null){
+					buildDefault();
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -101,22 +105,61 @@ public class ConstructionWorker implements Runnable {
 		this.notficationContainer=capi.lookupContainer(SbcConstants.NOTIFICATIONCONTAINER, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
 		this.productionContainer=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
 		this.jobContainer = capi.lookupContainer(SbcConstants.JOBSCONTAINER, new URI("xvsm://localhost:" + (SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
-
+		System.out.println("Setup complete");
+		capi.write(notficationContainer, new Entry("ConstructionWorker: Setup complete, port: "+(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET)));
 	}
 	
-	private Job checkForJobs() throws MzsCoreException{
+	private Job nextJob() throws MzsCoreException{
+		Job job = null;
+		
 		List<Job> jobList = new ArrayList<Job>();
-//		TransactionReference tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
+		
 		try{
-			ArrayList<Entry> entryList = capi.take(this.jobContainer, FifoCoordinator.newSelector(), MzsConstants.RequestTimeout.TRY_ONCE, null);
-			Entry jobEntry = entryList.get(0);
-			return (Job)jobEntry.getValue();
+			while(!canFulfillJob(job)){
+				ArrayList<Entry> entryList = capi.take(this.jobContainer, FifoCoordinator.newSelector(), MzsConstants.RequestTimeout.TRY_ONCE, null);
+				Entry jobEntry = entryList.get(0);
+				job = (Job)jobEntry.getValue();
+				
+				if(canFulfillJob(job)){
+					return job;
+				}
+			}
 		}
 		catch(Exception e){
 			//could not get a job, therefore returning
-			return null;
 		}
-//		capi.commitTransaction(tx);
+		//if no job is fulfillable at the moment, return null
+		return null;
+	}
+	
+	private boolean canFulfillJob(Job job) throws MzsCoreException{
+		List<Selector> cpuSelectors=new ArrayList<Selector>();
+		cpuSelectors.add(LindaCoordinator.newSelector(new CpuComponent(null,null,null)));
+		cpuSelectors.add(FifoCoordinator.newSelector());
+
+		List<Selector> mainboardSelectors=new ArrayList<Selector>();
+		mainboardSelectors.add(LindaCoordinator.newSelector(new MainboardComponent(null,null,null)));
+		mainboardSelectors.add(FifoCoordinator.newSelector());
+
+		List<Selector> ramSelectors=new ArrayList<Selector>();
+		ramSelectors.add(LindaCoordinator.newSelector(new RamComponent(null,null,null)));
+		ramSelectors.add(FifoCoordinator.newSelector());
+
+		List<Selector> ramSelectorsGetTwoRams=new ArrayList<Selector>();
+		ramSelectorsGetTwoRams.add(LindaCoordinator.newSelector(new RamComponent(null,null,null),2));
+		ramSelectorsGetTwoRams.add(FifoCoordinator.newSelector(2));
+
+		List<Selector> gpuSelectors=new ArrayList<Selector>();
+		gpuSelectors.add(LindaCoordinator.newSelector(new GpuComponent(null,null,null)));
+		gpuSelectors.add(FifoCoordinator.newSelector());
+		
+		ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.INFINITE, null);
+		ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.INFINITE, null);
+		ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.INFINITE, null);
+		
+		
+		
+		return false;
 	}
 	
 	private void buildDefault() throws MzsCoreException{
