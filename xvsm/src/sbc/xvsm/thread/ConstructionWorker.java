@@ -60,41 +60,8 @@ public class ConstructionWorker implements Runnable {
 	}
 
 	public void run() {
-
-		//		workername="tester"+new SecureRandom().nextLong();
-		
 		try{
-			//Set up local mozart space
-			LoggerContext context = (LoggerContext) LoggerFactory
-			.getILoggerFactory();
-			JoranConfigurator configurator = new JoranConfigurator();
-			configurator.setContext(context);
-			context.reset();
-			configurator.doConfigure("logback.xml");
-
-			try{
-				core = DefaultMzsCore.newInstance(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET);
-				capi = new Capi(core);
-
-				testContainer = capi.createContainer(
-						SbcConstants.TESTERCONTAINER, null, MzsConstants.Container.UNBOUNDED,
-						null, new QueryCoordinator());
-				
-			}catch(MzsCoreRuntimeException ex){
-				//There exits yet another tester, logisticContainer is already created
-				core = DefaultMzsCore.newInstance(0);
-				capi = new Capi(core);
-				this.testContainer=capi.lookupContainer(SbcConstants.TESTERCONTAINER, new URI("xvsm://localhost:+"+(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
-			}
-			System.out.println("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET));
-			this.notficationContainer=capi.lookupContainer(SbcConstants.NOTIFICATIONCONTAINER, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
-			this.productionContainer=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
-			this.jobContainer = capi.lookupContainer(SbcConstants.JOBSCONTAINER, new URI("xvsm://localhost:" + (SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
-
-			//			FifoSelector fifoSelect=FifoCoordinator.newSelector();
-
-
-
+			initXvsm();
 			System.out.println("Setup complete");
 			capi.write(notficationContainer, new Entry("ConstructionWorker: Setup complete, port: "+(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET)));
 			while(running){
@@ -105,6 +72,36 @@ public class ConstructionWorker implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void initXvsm() throws Exception{
+		//Set up local mozart space
+		LoggerContext context = (LoggerContext) LoggerFactory
+		.getILoggerFactory();
+		JoranConfigurator configurator = new JoranConfigurator();
+		configurator.setContext(context);
+		context.reset();
+		configurator.doConfigure("logback.xml");
+
+		try{
+			core = DefaultMzsCore.newInstance(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET);
+			capi = new Capi(core);
+
+			testContainer = capi.createContainer(
+					SbcConstants.TESTERCONTAINER, null, MzsConstants.Container.UNBOUNDED,
+					null, new QueryCoordinator());
+			
+		}catch(MzsCoreRuntimeException ex){
+			//There exits yet another tester, logisticContainer is already created
+			core = DefaultMzsCore.newInstance(0);
+			capi = new Capi(core);
+			this.testContainer=capi.lookupContainer(SbcConstants.TESTERCONTAINER, new URI("xvsm://localhost:+"+(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
+		}
+		System.out.println("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET));
+		this.notficationContainer=capi.lookupContainer(SbcConstants.NOTIFICATIONCONTAINER, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
+		this.productionContainer=capi.lookupContainer(SbcConstants.PRODUCERCONTAINER, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
+		this.jobContainer = capi.lookupContainer(SbcConstants.JOBSCONTAINER, new URI("xvsm://localhost:" + (SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
+
 	}
 	
 	private Job checkForJobs() throws MzsCoreException{
