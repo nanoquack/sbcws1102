@@ -26,6 +26,7 @@ import sbc.dto.CpuComponent;
 import sbc.dto.GpuComponent;
 import sbc.dto.MainboardComponent;
 import sbc.dto.RamComponent;
+import sbc.job.Configuration;
 import sbc.job.Job;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -70,6 +71,9 @@ public class ConstructionWorker implements Runnable {
 				if(currentJob == null){
 					buildDefault();
 				}
+				else{
+					buildForJob(currentJob);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -113,9 +117,8 @@ public class ConstructionWorker implements Runnable {
 		
 		TransactionReference tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)));
 		try{
-			ArrayList<Entry> entryList = capi.read(this.jobContainer, FifoCoordinator.newSelector(SbcConstants.READ_AT_ONCE), MzsConstants.RequestTimeout.TRY_ONCE, null);
-			for(Entry jobEntry: entryList){
-				Job job = (Job)jobEntry.getValue();
+			ArrayList<Job> entryList = capi.read(this.jobContainer, FifoCoordinator.newSelector(MzsConstants.Selecting.COUNT_MAX), MzsConstants.RequestTimeout.TRY_ONCE, null);
+			for(Job job: entryList){
 				
 				if(canFulfillJob(job)){
 					return job;
@@ -130,9 +133,13 @@ public class ConstructionWorker implements Runnable {
 		return null;
 	}
 	
-	private boolean canFulfillJob(Job job) throws MzsCoreException{
+	private boolean canFulfillJob(Job job) throws MzsCoreException, URISyntaxException{
+		TransactionReference tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)));
+
+		Configuration config = job.getConfiguration();
+		
 		List<Selector> cpuSelectors=new ArrayList<Selector>();
-		cpuSelectors.add(LindaCoordinator.newSelector(new CpuComponent(null,null,null)));
+		cpuSelectors.add(LindaCoordinator.newSelector(new CpuComponent(null,null,null, config.getCpuType())));
 		cpuSelectors.add(FifoCoordinator.newSelector());
 
 		List<Selector> mainboardSelectors=new ArrayList<Selector>();
@@ -141,23 +148,26 @@ public class ConstructionWorker implements Runnable {
 
 		List<Selector> ramSelectors=new ArrayList<Selector>();
 		ramSelectors.add(LindaCoordinator.newSelector(new RamComponent(null,null,null)));
-		ramSelectors.add(FifoCoordinator.newSelector());
-
-		List<Selector> ramSelectorsGetTwoRams=new ArrayList<Selector>();
-		ramSelectorsGetTwoRams.add(LindaCoordinator.newSelector(new RamComponent(null,null,null),2));
-		ramSelectorsGetTwoRams.add(FifoCoordinator.newSelector(2));
+		ramSelectors.add(FifoCoordinator.newSelector(config.getRamModuleCount()));
 
 		List<Selector> gpuSelectors=new ArrayList<Selector>();
 		gpuSelectors.add(LindaCoordinator.newSelector(new GpuComponent(null,null,null)));
 		gpuSelectors.add(FifoCoordinator.newSelector());
 		
-		ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.INFINITE, null);
-		ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.INFINITE, null);
-		ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.INFINITE, null);
-		
-		
-		
-		return false;
+		try{
+			ArrayList<CpuComponent> cpuResultEntries = capi.read(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
+			ArrayList<MainboardComponent> mainboardResultEntries = capi.read(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
+			ArrayList<RamComponent> ramResultEntries = capi.read(productionContainer, ramSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
+			
+			if(config.isGraphicsCard()){
+				ArrayList<GpuComponent> gpuResultEntries = capi.read(productionContainer, gpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
+			}
+			//if we could read all components, job can be started
+			return true;
+		}
+		catch(Exception e){
+			return false;
+		}
 	}
 	
 	private void buildDefault() throws MzsCoreException{
@@ -189,9 +199,9 @@ public class ConstructionWorker implements Runnable {
 		TransactionReference tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
 		try{
 			//First: Obtain obligatory parts (1 GPU, 1 Mainboard, 1 RAM)
-			ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.INFINITE, null);
-			ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.INFINITE, null);
-			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.INFINITE, null);
+			ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+			ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
 			cpuComponent=cpuResultEntries.get(0);
 			mainboardComponent=mainboardResultEntries.get(0);
 			ramComponents.add(ramResultEntries.get(0));
@@ -248,6 +258,56 @@ public class ConstructionWorker implements Runnable {
 		capi.write(testContainer, e);
 		capi.write(notficationContainer, new Entry("New computer constructed"));
 		System.out.println("New computer constructed");
+	}
+	
+	private void buildForJob(Job job) throws MzsCoreException, URISyntaxException{
+		TransactionReference tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)));
 
+		Configuration config = job.getConfiguration();
+		
+		List<Selector> cpuSelectors=new ArrayList<Selector>();
+		cpuSelectors.add(LindaCoordinator.newSelector(new CpuComponent(null,null,null, config.getCpuType())));
+		cpuSelectors.add(FifoCoordinator.newSelector());
+
+		List<Selector> mainboardSelectors=new ArrayList<Selector>();
+		mainboardSelectors.add(LindaCoordinator.newSelector(new MainboardComponent(null,null,null)));
+		mainboardSelectors.add(FifoCoordinator.newSelector());
+
+		List<Selector> ramSelectors=new ArrayList<Selector>();
+		ramSelectors.add(LindaCoordinator.newSelector(new RamComponent(null,null,null)));
+		ramSelectors.add(FifoCoordinator.newSelector(config.getRamModuleCount()));
+
+		List<Selector> gpuSelectors=new ArrayList<Selector>();
+		gpuSelectors.add(LindaCoordinator.newSelector(new GpuComponent(null,null,null)));
+		gpuSelectors.add(FifoCoordinator.newSelector());
+		
+		CpuComponent cpuComponent = null;
+		MainboardComponent mainboardComponent = null;
+		List<RamComponent> ramComponents = new ArrayList<RamComponent>();
+		GpuComponent gpuComponent = null;
+		
+		try{
+			ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+			ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+			cpuComponent = cpuResultEntries.get(0);
+			mainboardComponent = mainboardResultEntries.get(0);
+			
+			if(config.isGraphicsCard()){
+				ArrayList<GpuComponent> gpuResultEntries = capi.take(productionContainer, gpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+				gpuComponent = gpuResultEntries.get(0);
+			}
+			
+			capi.commitTransaction(tx);
+			Computer computer=new Computer(cpuComponent, mainboardComponent,gpuComponent,ramResultEntries);
+			Entry e=new Entry(computer);
+			capi.write(testContainer, e);
+			capi.write(notficationContainer, new Entry("New computer constructed, job uuid: " + job.getUuid()));
+			System.out.println("New computer constructed");
+		}
+		catch(Exception e){
+			capi.rollbackTransaction(tx);
+			e.printStackTrace();
+		}
 	}
 }
