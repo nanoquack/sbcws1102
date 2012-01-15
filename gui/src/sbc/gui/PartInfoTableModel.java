@@ -1,18 +1,22 @@
 package sbc.gui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 import sbc.dto.StorageState;
+import sbc.job.Job;
 
 public class PartInfoTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = -3006673063717839407L;
 	protected StorageState state;
+	protected List<Job> jobs;
 	protected List<String> partNames;
 
 	public PartInfoTableModel(){
 		state = new StorageState();
+		jobs = new ArrayList<Job>();
 	}
 	
 	/**

@@ -10,6 +10,8 @@ public class Constants {
 	public static final int PRODUCER_ERROR_RATE_HEIGHT = 20;
 	public static final int PART_INFO_TABLE_WIDTH = 50;
 	public static final int PART_INFO_TABLE_HEIGHT = 100;
+	public static final int JOB_INFO_TABLE_WIDTH = 50;
+	public static final int JOB_INFO_TABLE_HEIGHT = 100;
 	public static final int JOB_CPU_TYPE_WIDTH = 150;
 	public static final int JOB_CPU_TYPE_HEIGHT = 20;
 	public static final int JOB_RAM_COUNT_WIDTH = 70;
@@ -43,4 +45,8 @@ public class Constants {
 	public static final String LABEL_JOB_GRAPHICS_CARD = "Grafikkarte:";
 	public static final String LABEL_JOB_PC_COUNT = "PC-Anzahl:";
 	public static final String LABEL_JOB_CREATE_BUTTON = "Create";
+	public static final String LABEL_JOB_INFO_TABLE = "jobs";
+	public static final String LABEL_JOB_INFO_TABLE_UUID = "UUID";
+	public static final String LABEL_JOB_INFO_TABLE_QUANTITY = "Quantity";
+	public static final String LABEL_JOB_INFO_TABLE_CONFIGURATION = "Configuration";
 }
