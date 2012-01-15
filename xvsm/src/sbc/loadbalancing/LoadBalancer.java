@@ -26,6 +26,10 @@ import org.mozartspaces.notifications.NotificationListener;
 import org.mozartspaces.notifications.NotificationManager;
 import org.mozartspaces.notifications.Operation;
 import org.mozartspaces.capi3.AnyCoordinator;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import sbc.SbcConstants;
 import sbc.dto.ComponentEnum;
@@ -69,6 +73,13 @@ public class LoadBalancer implements Runnable, NotificationListener {
 	@Override
 	public void run() {
 		try{
+			LoggerContext context = (LoggerContext) LoggerFactory
+			.getILoggerFactory();
+			JoranConfigurator configurator = new JoranConfigurator();
+			configurator.setContext(context);
+			context.reset();
+			configurator.doConfigure("logback.xml");
+			
 			core = DefaultMzsCore.newInstance(SbcConstants.LoadBalancerPort);
 			capi = new Capi(core);
 
@@ -79,7 +90,7 @@ public class LoadBalancer implements Runnable, NotificationListener {
 			notifManager.createNotification(registrationContainer, this, Operation.WRITE);
 
 			while(running){
-				Thread.sleep(5000);
+				Thread.sleep(10000);
 				checkOverallProductionStatus();
 			}
 		}catch (Exception e) {
@@ -127,7 +138,6 @@ public class LoadBalancer implements Runnable, NotificationListener {
 
 	private void compareNeededAndStoreComponents() throws MzsCoreException{
 
-		System.out.println("Factories: "+factories.values().size());
 		for(FactoryReference factory:factories.values()){
 
 			int ramsNeeded=factory.getNumberOfRamsNeeded()-factory.getNumberOfRams();
@@ -137,7 +147,11 @@ public class LoadBalancer implements Runnable, NotificationListener {
 			int dualCore02sNeeded=factory.getNumberOfDualCore02sNeeded()-factory.getNumberOfDualCore02CPU();
 			int dualCore24sNeeded=factory.getNumberOfDualCore24sNeeded()-factory.getNumberOfDualCore24CPU();
 			
-			System.out.println("RamsNeeded"+ramsNeeded);
+			System.out.println("--------------Factory: "+factory.getPort()+"-------");
+			System.out.println("SingleCoreNeeded"+singleCore16sNeeded);
+			System.out.println("RamsNeeded"+singleCore16sNeeded);
+			System.out.println("MainboardsNeeded"+singleCore16sNeeded);
+			System.out.println("GpusNeeded"+singleCore16sNeeded);
 			
 
 			for(FactoryReference factory2:factories.values()){
@@ -164,6 +178,7 @@ public class LoadBalancer implements Runnable, NotificationListener {
 					countAll+=gpusStored;
 				}
 				int singleCore16sStored=factory2.getNumberOfSingleCore16CPU();
+				System.out.println("Stored-cpus: "+singleCore16sStored);
 				if(singleCore16sStored>0){
 					if(singleCore16sStored>singleCore16sNeeded){
 						singleCore16sStored=singleCore16sNeeded;
@@ -223,7 +238,11 @@ public class LoadBalancer implements Runnable, NotificationListener {
 
 		LindaSelector selector=LindaCoordinator.newSelector(componentType,amount);
 		ArrayList<ProductComponent> resultEntries = capi.take(factoryFrom, selector, MzsConstants.RequestTimeout.TRY_ONCE, null);
-
+		System.out.print("Transfered: "+resultEntries.size()+" "+componentType.getClass());
+		if(componentType instanceof CpuComponent){
+			System.out.println(((CpuComponent)componentType).getCpuType().name());
+		}
+		
 		for(ProductComponent comp:resultEntries){
 			capi.write(factoryTo, new Entry(comp));
 		}
