@@ -74,7 +74,10 @@ public class ConstructionWorker implements Runnable {
 				else{
 					while(currentJob.getQuantity()>0){
 						boolean computerBuildt = buildForJob(currentJob);
-						if(!computerBuildt){
+						if(computerBuildt){
+							currentJob.setQuantity(currentJob.getQuantity()-1);
+						}
+						else{
 							suspendJob(currentJob);
 							break;
 						}
@@ -185,7 +188,7 @@ public class ConstructionWorker implements Runnable {
 	
 	private void buildDefault() throws MzsCoreException{
 		List<Selector> cpuSelectors=new ArrayList<Selector>();
-		cpuSelectors.add(LindaCoordinator.newSelector(new CpuComponent(null,null,null)));
+		cpuSelectors.add(LindaCoordinator.newSelector(new CpuComponent(null,null,null,null)));
 		cpuSelectors.add(FifoCoordinator.newSelector());
 
 		List<Selector> mainboardSelectors=new ArrayList<Selector>();
@@ -209,20 +212,25 @@ public class ConstructionWorker implements Runnable {
 		ArrayList<RamComponent> ramComponents=new ArrayList<RamComponent>();
 		GpuComponent gpuComponent=null;
 
-		TransactionReference tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
+		TransactionReference tx = null;
 		try{
+			tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, new URI("xvsm://localhost:" + (SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)));
 			//First: Obtain obligatory parts (1 GPU, 1 Mainboard, 1 RAM)
-			ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
-			ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
-			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
+			ArrayList<CpuComponent> cpuResultEntries = capi.take(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
+			ArrayList<MainboardComponent> mainboardResultEntries = capi.take(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
+			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
 			cpuComponent=cpuResultEntries.get(0);
 			mainboardComponent=mainboardResultEntries.get(0);
 			ramComponents.add(ramResultEntries.get(0));
 			capi.commitTransaction(tx);
 			System.out.print("transaction committed");
 		}catch(Exception ex){
-			capi.rollbackTransaction(tx);
-			System.out.println("Transaction rolled back");
+			if(tx!=null){
+				capi.rollbackTransaction(tx);
+				System.out.println("Transaction rolled back");
+				//computer cannot be constructed because basic parts are not available, so stopping
+				return;
+			}
 		}
 
 		System.out.println("Got all obligatory components");
@@ -258,19 +266,12 @@ public class ConstructionWorker implements Runnable {
 			capi.rollbackTransaction(tx);
 			System.out.println("2-RAM-Transaction rolled back");
 		}
-
-		//				System.out.println(cpuComponent.getClass());
-		//				System.out.println(mainboardComponent.getClass());
-		//				System.out.println(ramComponents.get(0).getClass() +" "+ ramComponents.size());
-		//				if(gpuComponent!=null){
-		//					System.out.println(gpuComponent.getClass());
-		//				}
-
+		
 		Computer computer=new Computer(cpuComponent, mainboardComponent,gpuComponent,ramComponents);
 		Entry e=new Entry(computer);
 		capi.write(testContainer, e);
-		capi.write(notficationContainer, new Entry("New computer constructed"));
-		System.out.println("New computer constructed");
+		capi.write(notficationContainer, new Entry("New computer constructed, no job"));
+		System.out.println("New computer constructed, no job");
 	}
 	
 	private boolean buildForJob(Job job) throws MzsCoreException, URISyntaxException{
@@ -310,13 +311,12 @@ public class ConstructionWorker implements Runnable {
 				ArrayList<GpuComponent> gpuResultEntries = capi.take(productionContainer, gpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
 				gpuComponent = gpuResultEntries.get(0);
 			}
-			job.setQuantity(job.getQuantity()-1);
 			capi.commitTransaction(tx);
 			Computer computer=new Computer(cpuComponent, mainboardComponent,gpuComponent,ramResultEntries);
 			Entry e=new Entry(computer);
 			capi.write(testContainer, e);
 			capi.write(notficationContainer, new Entry("New computer constructed, job uuid: " + job.getUuid()));
-			System.out.println("New computer constructed");
+			System.out.println("New computer constructed, job uuid: " + job.getUuid());
 			return true;
 		}
 		catch(Exception e){
