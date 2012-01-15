@@ -1,13 +1,12 @@
 package sbc.xvsm.thread;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.LindaCoordinator;
-import org.mozartspaces.capi3.Matchmaker;
-import org.mozartspaces.capi3.Query;
 import org.mozartspaces.capi3.QueryCoordinator;
 import org.mozartspaces.capi3.Selector;
 import org.mozartspaces.core.Capi;
@@ -20,7 +19,6 @@ import org.mozartspaces.core.MzsCoreException;
 import org.mozartspaces.core.MzsCoreRuntimeException;
 import org.mozartspaces.core.TransactionReference;
 import org.slf4j.LoggerFactory;
-import org.xvsm.protocol.MatchmakerFilter;
 
 import sbc.SbcConstants;
 import sbc.dto.Computer;
@@ -109,26 +107,26 @@ public class ConstructionWorker implements Runnable {
 		capi.write(notficationContainer, new Entry("ConstructionWorker: Setup complete, port: "+(SbcConstants.MAINPORT+SbcConstants.CONSTRUCTIONPORTOFFSET)));
 	}
 	
-	private Job nextJob() throws MzsCoreException{
-		Job job = null;
+	private Job nextJob() throws MzsCoreException, URISyntaxException{
 		
 		List<Job> jobList = new ArrayList<Job>();
 		
+		TransactionReference tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)));
 		try{
-			while(!canFulfillJob(job)){
-				ArrayList<Entry> entryList = capi.take(this.jobContainer, FifoCoordinator.newSelector(), MzsConstants.RequestTimeout.TRY_ONCE, null);
-				Entry jobEntry = entryList.get(0);
-				job = (Job)jobEntry.getValue();
+			ArrayList<Entry> entryList = capi.read(this.jobContainer, FifoCoordinator.newSelector(SbcConstants.READ_AT_ONCE), MzsConstants.RequestTimeout.TRY_ONCE, null);
+			for(Entry jobEntry: entryList){
+				Job job = (Job)jobEntry.getValue();
 				
 				if(canFulfillJob(job)){
 					return job;
 				}
 			}
+			
+			capi.commitTransaction(tx);
 		}
 		catch(Exception e){
-			//could not get a job, therefore returning
+			capi.rollbackTransaction(tx);
 		}
-		//if no job is fulfillable at the moment, return null
 		return null;
 	}
 	
@@ -218,7 +216,7 @@ public class ConstructionWorker implements Runnable {
 		}
 		tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, null);
 		try{	
-			//Try to obtain optional part: second RAM
+			//Try to obtain optional part: second RAM	
 			ArrayList<RamComponent> ramResultEntries = capi.take(productionContainer, ramSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
 			ramComponents.add(ramResultEntries.get(0));
 			capi.commitTransaction(tx);
