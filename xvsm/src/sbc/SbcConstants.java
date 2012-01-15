@@ -1,7 +1,7 @@
 package sbc;
 
 public class SbcConstants {
-
+	
 	public static final String PRODUCERCONTAINER="sbc_producer";
 	public static final String STORAGECONTAINER="sbc_storage"; //not used anymore
 	public static final String CONSTRUCTIONCONTAINER="sbc_construction";
@@ -32,4 +32,5 @@ public class SbcConstants {
 	public static final int JOBPORTOFFSET=6;
 	
 	public static int MAINPORT=-1;	//overwritten at setup
+	public static int READ_AT_ONCE = 20;	//count of jobs to read at once from job container
 }

@@ -120,6 +120,7 @@ public class TesterWorker implements Runnable {
 			// System.out.println("--------------------");
 			// </Testdaten>
 
+			capi.write(notficationContainer, new Entry("TesterWorker: Setup complete, port: "+(SbcConstants.MAINPORT+SbcConstants.TESTERPORTOFFSET)));
 			Property title = Property.forName("*", "completenessTester");
 			Query query = new Query().filter(title.notEqualTo(workername));
 
