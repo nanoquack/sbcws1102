@@ -23,22 +23,21 @@ import sbc.INotifyGui;
 import sbc.SbcConstants;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
 
 public class LogThread implements Runnable, NotificationListener {
 	private INotifyGui notifyGui;
-	private boolean running;
 	private Capi capi;
 	private MzsCore core;
 	private ContainerReference notificationContainer;
 
 	public LogThread(INotifyGui notifyGui) {
 		this.notifyGui = notifyGui;
-		this.running = true;
+		initXvsm();
 	}
 
 	@Override
 	public void run() {
-		initXvsm();
 		try{
 			capi.write(notificationContainer, new Entry("Xvsm LogThread started"));
 		}
@@ -49,14 +48,9 @@ public class LogThread implements Runnable, NotificationListener {
 
 	private void initXvsm() {
 		try {
-			LoggerContext context = (LoggerContext) LoggerFactory
-					.getILoggerFactory();
-			JoranConfigurator configurator = new JoranConfigurator();
-			configurator.setContext(context);
-			context.reset();
-			configurator.doConfigure("logback.xml");
-
 			try {
+				configureXvsmLogging();
+				
 				core = DefaultMzsCore.newInstance(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET);
 				capi = new Capi(core);
 				notificationContainer = capi.createContainer(
@@ -79,8 +73,13 @@ public class LogThread implements Runnable, NotificationListener {
 		}
 	}
 	
-	public synchronized void stop(){
-		this.running = false;
+	private void configureXvsmLogging() throws JoranException{
+		LoggerContext context = (LoggerContext) LoggerFactory
+				.getILoggerFactory();
+		JoranConfigurator configurator = new JoranConfigurator();
+		configurator.setContext(context);
+		context.reset();
+		configurator.doConfigure("logback.xml");
 	}
 
 	@Override

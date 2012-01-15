@@ -1,5 +1,6 @@
 package sbc.xvsm;
 
+import java.net.URI;
 import java.util.List;
 
 import org.mozartspaces.capi3.FifoCoordinator;
@@ -22,8 +23,6 @@ import sbc.xvsm.thread.ProducerThread;
 import sbc.xvsm.thread.StorageThread;
 
 public class Backend implements IBackend {
-
-	private StorageThread st;
 	private LogThread logThread;
 	// private ConstructionThread ct;
 	// private TesterThread tt;
@@ -33,30 +32,30 @@ public class Backend implements IBackend {
 	private MzsCore core;
 	private ContainerReference container;
 	private ContainerReference jobsContainer;
+	private ContainerReference notificationContainer;
 
 	public Backend() {
-		//gui does startSystem which initializes xvsm
-//		initXvsm();
-//		initializeFactory(null);
+		// gui does startSystem() which initializes xvsm
 	}
 
 	/**
 	 * Initializes XVSM and creates a container named SbcConstants.CONTAINER.
 	 */
 	protected void initXvsm() {
-		try{
-			core = DefaultMzsCore.newInstance(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET);
-			System.out.println("construction "+core.getConfig().getSpaceUri());
+		try {
+			core = DefaultMzsCore.newInstance(SbcConstants.MAINPORT
+					+ SbcConstants.PRODUCERPORTOFFSET);
+			System.out
+					.println("construction " + core.getConfig().getSpaceUri());
 			capi = new Capi(core);
-			container = capi.createContainer(
-					SbcConstants.PRODUCERCONTAINER, null, MzsConstants.Container.UNBOUNDED,
-					null, new LindaCoordinator(), new FifoCoordinator());
-			jobsContainer = capi.createContainer(
-					SbcConstants.JOBSCONTAINER, null, MzsConstants.Container.UNBOUNDED,
-					null, new LindaCoordinator(), new FifoCoordinator());
+			container = capi.createContainer(SbcConstants.PRODUCERCONTAINER,
+					null, MzsConstants.Container.UNBOUNDED, null,
+					new LindaCoordinator(), new FifoCoordinator());
+			jobsContainer = capi.createContainer(SbcConstants.JOBSCONTAINER,
+					null, MzsConstants.Container.UNBOUNDED, null,
+					new FifoCoordinator());
 			System.out.println(container.getSpace());
-		}
-		catch(Exception e){
+		} catch (Exception e) {
 			throw new RuntimeException("Could not initialize xvsm", e);
 		}
 	}
@@ -70,10 +69,13 @@ public class Backend implements IBackend {
 		Thread lt = new Thread(logThread);
 		lt.setDaemon(true);
 		lt.start();
-		st = new StorageThread(notifyGui);	//TODO: einkommentieren
-		Thread storageThread = new Thread(st);
-		storageThread.setDaemon(true);
-//		storageThread.start();
+		
+		try{
+			notificationContainer=capi.lookupContainer(SbcConstants.NOTIFICATIONCONTAINER, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.LOGGERPORTOFFSET)), MzsConstants.RequestTimeout.INFINITE, null);
+		}
+		catch(Exception e){
+			System.err.println("Xvsm Backend: Could not lookup notification container");
+		}
 	}
 
 	/**
@@ -90,21 +92,17 @@ public class Backend implements IBackend {
 	}
 
 	public void shutDownFactory() {
-		st.stop();
-		logThread.stop();
-		// ct.stop();
-		// tt.stop();
-		// lt.stop();
 	}
 
 	@Override
 	public void startSystem(INotifyGui notifyGui, String mainPort) {
-		try{
-			SbcConstants.MAINPORT=Integer.parseInt(mainPort);
+		try {
+			SbcConstants.MAINPORT = Integer.parseInt(mainPort);
 			initXvsm();
 			initializeFactory(notifyGui);
-		}catch(NumberFormatException ex){
-			System.err.println("Given port argument is no number! XVSM not started!");
+		} catch (NumberFormatException ex) {
+			System.err
+					.println("Given port argument is no number! XVSM not started!");
 			ex.printStackTrace();
 		}
 	}
@@ -112,24 +110,25 @@ public class Backend implements IBackend {
 	@Override
 	public void shutdownSystem() {
 		shutDownFactory();
-		try{
-			Thread.sleep(1010);	//Capi erst abdrehen, wenn take(1000) abgelaufen ist
+		try {
+			Thread.sleep(1010); // Capi erst abdrehen, wenn take(1000)
+								// abgelaufen ist
 			System.out.println("Shutting down Xvsm...");
-//			capi.destroyContainer(container, null);
+			// capi.destroyContainer(container, null);
 			core.shutdown(true);
 			System.out.println("Xvsm shutted down");
-		}
-		catch(Exception e){
+		} catch (Exception e) {
 			throw new RuntimeException("Could not shutdown xvsm", e);
 		}
 	}
 
 	@Override
-	public void createJob(Job job){
-		try{
+	public void createJob(Job job) {
+		try {
 			capi.write(jobsContainer, new Entry(job));
-		}
-		catch(MzsCoreException ex){
+			capi.write(notificationContainer,
+					new Entry("Created job: " + job.toString()));
+		} catch (MzsCoreException ex) {
 			System.err.println("Could not write job into job container");
 			ex.printStackTrace();
 		}

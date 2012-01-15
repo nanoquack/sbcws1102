@@ -118,7 +118,6 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		contentPanel.add(infoSplitPane);
 		scrollPane.setViewportView(contentPanel);
 		add(scrollPane, BorderLayout.CENTER);
-		initJobPanel();
 	}
 	
 	protected void initManagementPanel(){
@@ -301,7 +300,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 			int errorRate = Integer.parseInt(producerErrorRate.getText());
 			createNewProducer(productType, productCount, errorRate);
 		}
-		if(evt.getSource() == clearLogBtn){
+		if(evt.getSource() == jobCreateButton){
 			Configuration config = new Configuration();
 			config.setCpuType(CpuComponent.CpuType.valueOf(jobCpuType.getSelectedItem().toString()));
 			config.setRamModuleCount(Integer.parseInt(jobRamCount.getSelectedItem().toString()));
@@ -309,7 +308,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 			int pcCount = Integer.parseInt(jobPcCount.getText());
 			createNewJob(config, pcCount);
 		}
-		if(evt.getSource()== clearLogBtn){
+		if(evt.getSource() == clearLogBtn){
 			logPane.setStyledDocument(new DefaultStyledDocument());
 		}
 	}

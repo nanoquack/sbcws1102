@@ -8,6 +8,7 @@ public class Job implements Serializable {
 	private UUID uuid;
 	private int quantity;
 	private Configuration configuration;
+	private boolean started;
 
 	public Job(){
 		this.uuid = UUID.randomUUID();
@@ -36,5 +37,22 @@ public class Job implements Serializable {
 
 	public void setConfiguration(Configuration configuration) {
 		this.configuration = configuration;
+	}
+
+	public boolean isStarted() {
+		return started;
+	}
+
+	public void setStarted(boolean started) {
+		this.started = started;
+	}
+	
+	@Override
+	public String toString(){
+		String s = "uuid: " + getUuid();
+		s = s + "\nquantity: " + getQuantity();
+		s = s + "\nstarted: " + isStarted();
+		s = s + "\nconfiguration: \n" + getConfiguration().toString();
+		return s;
 	}
 }

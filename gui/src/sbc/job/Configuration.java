@@ -33,4 +33,12 @@ public class Configuration implements Serializable{
 	public void setGraphicsCard(boolean graphicsCard) {
 		this.graphicsCard = graphicsCard;
 	}
+	
+	@Override
+	public String toString(){
+		String s = "cpu type: " + getCpuType();
+		s = s + "\nram mod count: " + getRamModuleCount();
+		s = s + "\ngraphics card: " + isGraphicsCard();
+		return s;
+	}
 }
