@@ -11,10 +11,19 @@ import sbc.job.Job;
 public class JobInfoTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = -7201123564499432628L;
 	protected List<Job> jobs;
-	protected List<String> partNames;
 
 	public JobInfoTableModel(){
 		jobs = new ArrayList<Job>();
+	}
+	
+	public synchronized void addJob(Job job){
+		jobs.add(job);
+		this.fireTableDataChanged();
+	}
+	
+	public synchronized void removeJob(Job job){
+		jobs.remove(job);
+		this.fireTableDataChanged();
 	}
 	
 	public synchronized void updateJobs(List<Job> update){
@@ -29,7 +38,7 @@ public class JobInfoTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return 2;
+		return 3;
 	}
 
 	@Override

@@ -278,13 +278,6 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 				.getModel();
 		model.updateState(state);
 	}
-
-	@Override
-	public void updateJobs(List<Job> jobs) {
-		JobInfoTableModel model = (JobInfoTableModel) jobInfoTable
-				.getModel();
-		model.updateJobs(jobs);
-	}
 	
 	@Override
 	public void addLogMessage(String message) {
@@ -359,6 +352,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	private void createNewJob(Configuration config, int pcCount){
 		Job job = new Job(config, pcCount);
 		backend.createJob(job);
+		this.addJob(job);
 	}
 
 	public String getFactoryInfo() {
@@ -367,5 +361,19 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 
 	public void setFactoryInfo(String factoryInfo) {
 		this.factoryInfo = factoryInfo;
+	}
+
+	@Override
+	public void addJob(Job job) {
+		JobInfoTableModel model = (JobInfoTableModel) jobInfoTable
+				.getModel();
+		model.addJob(job);
+	}
+
+	@Override
+	public void removeJob(Job job) {
+		JobInfoTableModel model = (JobInfoTableModel) jobInfoTable
+				.getModel();
+		model.removeJob(job);
 	}
 }

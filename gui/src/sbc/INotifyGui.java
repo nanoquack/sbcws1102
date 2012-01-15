@@ -1,7 +1,5 @@
 package sbc;
 
-import java.util.List;
-
 import sbc.dto.StorageState;
 import sbc.job.Job;
 
@@ -12,8 +10,9 @@ public interface INotifyGui {
 	
 	public void updateStorage(StorageState state);
 	
-	public void updateJobs(List<Job> jobs);
-	
 	public void addLogMessage(String message);
 
+	public void addJob(Job job);
+	
+	public void removeJob(Job job);
 }
