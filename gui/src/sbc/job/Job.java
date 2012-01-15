@@ -15,6 +15,7 @@ public class Job implements Serializable {
 	}
 	
 	public Job(Configuration configuration, int quantity) {
+		this();
 		this.configuration = configuration;
 		this.quantity = quantity;
 	}

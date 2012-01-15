@@ -72,7 +72,13 @@ public class ConstructionWorker implements Runnable {
 					buildDefault();
 				}
 				else{
-					buildForJob(currentJob);
+					while(currentJob.getQuantity()>0){
+						boolean computerBuildt = buildForJob(currentJob);
+						if(!computerBuildt){
+							suspendJob(currentJob);
+							break;
+						}
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -133,6 +139,10 @@ public class ConstructionWorker implements Runnable {
 		return null;
 	}
 	
+	private void suspendJob(Job job) throws MzsCoreException, URISyntaxException{
+		capi.write(this.jobContainer, new Entry(job)); 
+	}
+	
 	private boolean canFulfillJob(Job job) throws MzsCoreException, URISyntaxException{
 		TransactionReference tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)));
 
@@ -158,14 +168,17 @@ public class ConstructionWorker implements Runnable {
 			ArrayList<CpuComponent> cpuResultEntries = capi.read(productionContainer, cpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
 			ArrayList<MainboardComponent> mainboardResultEntries = capi.read(productionContainer, mainboardSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
 			ArrayList<RamComponent> ramResultEntries = capi.read(productionContainer, ramSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
+			ArrayList<GpuComponent> gpuResultEntries = null;
 			
 			if(config.isGraphicsCard()){
-				ArrayList<GpuComponent> gpuResultEntries = capi.read(productionContainer, gpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
+				gpuResultEntries = capi.read(productionContainer, gpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, tx);
 			}
 			//if we could read all components, job can be started
+			capi.commitTransaction(tx);
 			return true;
 		}
 		catch(Exception e){
+			capi.rollbackTransaction(tx);
 			return false;
 		}
 	}
@@ -260,7 +273,7 @@ public class ConstructionWorker implements Runnable {
 		System.out.println("New computer constructed");
 	}
 	
-	private void buildForJob(Job job) throws MzsCoreException, URISyntaxException{
+	private boolean buildForJob(Job job) throws MzsCoreException, URISyntaxException{
 		TransactionReference tx = capi.createTransaction(MzsConstants.TransactionTimeout.INFINITE, new URI("xvsm://localhost:"+(SbcConstants.MAINPORT+SbcConstants.PRODUCERPORTOFFSET)));
 
 		Configuration config = job.getConfiguration();
@@ -297,17 +310,19 @@ public class ConstructionWorker implements Runnable {
 				ArrayList<GpuComponent> gpuResultEntries = capi.take(productionContainer, gpuSelectors, MzsConstants.RequestTimeout.TRY_ONCE, null);
 				gpuComponent = gpuResultEntries.get(0);
 			}
-			
+			job.setQuantity(job.getQuantity()-1);
 			capi.commitTransaction(tx);
 			Computer computer=new Computer(cpuComponent, mainboardComponent,gpuComponent,ramResultEntries);
 			Entry e=new Entry(computer);
 			capi.write(testContainer, e);
 			capi.write(notficationContainer, new Entry("New computer constructed, job uuid: " + job.getUuid()));
 			System.out.println("New computer constructed");
+			return true;
 		}
 		catch(Exception e){
 			capi.rollbackTransaction(tx);
 			e.printStackTrace();
+			return false;
 		}
 	}
 }
