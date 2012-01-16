@@ -62,4 +62,18 @@ public class Job implements Serializable {
 		s = s + "\nconfiguration: \n" + getConfiguration().toString();
 		return s;
 	}
+	
+	@Override
+	public boolean equals(Object obj){
+		if(obj!=null){
+			if(obj instanceof Job){
+				UUID objUuid = ((Job)obj).getUuid();
+				if(this.getUuid().equals(objUuid)){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
 }
