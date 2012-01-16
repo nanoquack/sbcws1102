@@ -297,6 +297,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 			try {
 				backend = BackendFactory.getBackend(evt.getItem().toString());
 				backend.startSystem(this, factoryInfo);
+				clearInfos();
 			} catch (RuntimeException e) {
 				System.err
 						.println("BackendFactory does not know backend implementation '"
@@ -375,5 +376,14 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		JobInfoTableModel model = (JobInfoTableModel) jobInfoTable
 				.getModel();
 		model.removeJob(job);
+	}
+	
+	public void clearInfos(){
+		JobInfoTableModel jobModel = (JobInfoTableModel) jobInfoTable
+				.getModel();
+		jobModel.clearJobs();
+		PartInfoTableModel model = (PartInfoTableModel) partInfoTable
+				.getModel();
+		model.clearStorage();
 	}
 }

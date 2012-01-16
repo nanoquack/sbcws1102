@@ -27,6 +27,10 @@ public class JobInfoTableModel extends AbstractTableModel {
 		this.fireTableDataChanged();
 	}
 	
+	public synchronized void clearJobs(){
+		jobs.clear();
+	}
+	
 //	public synchronized void updateJobs(List<Job> update){
 //		jobs = update;
 //		this.fireTableDataChanged();
