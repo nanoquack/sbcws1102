@@ -24,6 +24,7 @@ import sbc.dto.ProductComponent;
 import sbc.dto.RamComponent;
 import sbc.dto.CpuComponent.CpuType;
 import sbc.jms.JmsConstants;
+import sbc.jms.JmsLogging;
 import sbc.jms.storage.NeededComponents;
 import sbc.job.Job;
 
@@ -66,7 +67,7 @@ public class LoadBalancerThread implements Runnable, ExceptionListener {
 		}
 
 	}
-	
+
 	private void pushStatusToTopic(NeededComponents nc) throws Exception{
 		// Create a ConnectionFactory
 		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
@@ -124,10 +125,10 @@ public class LoadBalancerThread implements Runnable, ExceptionListener {
 							int singleCore16sNeeded=nc.getSingleCore16sNeeded();
 							int dualCore02sNeeded=nc.getDualCore02sNeeded();
 							int dualCore24sNeeded=nc.getDualCore24sNeeded();
-							
+
 							System.out.println("------------Factory "+JmsConstants.factoryId+"--------");
 							System.out.print("RamsNeeded: "+ramsNeeded);
-							
+
 							int countAll=0;
 							int ramsStored=storageThread.getNumberOfRams();
 							System.out.println(", RamsStored: "+ramsStored);
@@ -212,7 +213,7 @@ public class LoadBalancerThread implements Runnable, ExceptionListener {
 
 		connection.start();
 	}
-	
+
 	private void transferComponents(String factoryId, ProductComponent comp, int amount) throws Exception{
 		// Create a ConnectionFactory
 		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
@@ -236,8 +237,26 @@ public class LoadBalancerThread implements Runnable, ExceptionListener {
 			if(component!=null){
 				ObjectMessage message=session.createObjectMessage(component);
 				producer.send(message);
+				addLogsInFabrik(factoryId,component);
 			}
 		}
+		producer.close();
+		session.close();
+		connection.close();
+	}
+
+	private void addLogsInFabrik(String factoryId, ProductComponent component) throws Exception{
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
+		"tcp://localhost:61616");
+		Connection connection = connectionFactory.createConnection();
+		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		Destination destination = session.createTopic("SbcLogging"+ factoryId);
+		MessageProducer producer = session.createProducer(destination);
+		connection.start();
+		ObjectMessage jmsMsg = session.createObjectMessage();
+		jmsMsg.setObject(component);
+		jmsMsg.setIntProperty(JmsConstants.PROPERTY_COMPONENT_COUNT, 1);
+		producer.send(jmsMsg);
 		producer.close();
 		session.close();
 		connection.close();

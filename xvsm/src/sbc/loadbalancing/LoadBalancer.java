@@ -51,7 +51,6 @@ public class LoadBalancer implements Runnable, NotificationListener {
 	private Capi capi;
 	private MzsCore core;
 
-	//TODO: Obtain reference of other fabrics
 	private HashMap<Integer,FactoryReference> factories=new HashMap<Integer,FactoryReference>();
 
 	private boolean running=true;

@@ -300,8 +300,7 @@ public class ConstructionWorker implements Runnable {
 		} catch (Exception ex) {
 			if (tx != null) {
 				capi.rollbackTransaction(tx);
-				System.out
-						.println("Got not all parts, rolling back transaction");
+//				System.out.println("Got not all parts, rolling back transaction");
 				// computer cannot be constructed because basic parts are not
 				// available, so stopping
 				return;
