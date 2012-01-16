@@ -30,6 +30,11 @@ public class PartInfoTableModel extends AbstractTableModel {
 		state = update;
 		this.fireTableDataChanged();
 	}
+	
+	public void clearStorage(){
+		state = new StorageState();
+		this.fireTableDataChanged();
+	}
 
 	@Override
 	public int getRowCount() {
