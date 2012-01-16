@@ -1,5 +1,6 @@
 package sbc.xvsm;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
 
@@ -13,17 +14,24 @@ import org.mozartspaces.core.Entry;
 import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
+import org.mozartspaces.notifications.NotificationListener;
+import org.mozartspaces.notifications.NotificationManager;
+import org.mozartspaces.notifications.Operation;
 
 import sbc.IBackend;
 import sbc.INotifyGui;
 import sbc.SbcConstants;
+import sbc.dto.CpuComponent;
+import sbc.dto.GpuComponent;
+import sbc.dto.MainboardComponent;
 import sbc.dto.ProductionOrder;
+import sbc.dto.RamComponent;
+import sbc.dto.StorageState;
 import sbc.job.Job;
-import sbc.loadbalancing.LoadBalancer;
 import sbc.xvsm.thread.LogThread;
 import sbc.xvsm.thread.ProducerThread;
 
-public class Backend implements IBackend {
+public class Backend implements IBackend, NotificationListener {
 	private LogThread logThread;
 	// private ConstructionThread ct;
 	// private TesterThread tt;
@@ -35,6 +43,8 @@ public class Backend implements IBackend {
 	private ContainerReference jobsContainer;
 	private ContainerReference notificationContainer;
 	private ContainerReference loadbalancerContainer;
+	private INotifyGui notifyGui;
+	private StorageState storageState;
 
 	public Backend() {
 		// gui does startSystem() which initializes xvsm
@@ -56,6 +66,8 @@ public class Backend implements IBackend {
 			jobsContainer = capi.createContainer(SbcConstants.JOBSCONTAINER,
 					null, MzsConstants.Container.UNBOUNDED, null,
 					new QueryCoordinator(), new FifoCoordinator());
+			NotificationManager notifManager = new NotificationManager(core);
+			notifManager.createNotification(container, this, Operation.WRITE, Operation.DELETE);
 			System.out.println(container.getSpace());
 			
 			loadbalancerContainer=capi.lookupContainer(
@@ -111,6 +123,8 @@ public class Backend implements IBackend {
 	@Override
 	public void startSystem(INotifyGui notifyGui, String mainPort) {
 		try {
+			this.notifyGui = notifyGui;
+			this.storageState = new StorageState();
 			SbcConstants.MAINPORT = Integer.parseInt(mainPort);
 			initXvsm();
 			initializeFactory(notifyGui);
@@ -146,5 +160,44 @@ public class Backend implements IBackend {
 			System.err.println("Could not write job into job container");
 			ex.printStackTrace();
 		}
+	}
+
+	@Override
+	public void entryOperationFinished(
+			org.mozartspaces.notifications.Notification source, Operation operation,
+			List<? extends Serializable> entries) {
+		for(Serializable entry: entries){
+			Serializable component = ((Entry)entry).getValue();
+			if(operation==Operation.WRITE){
+				if(component instanceof CpuComponent){
+					storageState.setCpu(storageState.getCpu()+1);
+				}
+				else if(component instanceof MainboardComponent){
+					storageState.setMainboard(storageState.getMainboard()+1);
+				}
+				else if(component instanceof RamComponent){
+					storageState.setRam(storageState.getRam()+1);
+				}
+				else if(component instanceof GpuComponent){
+					storageState.setGpu(storageState.getGpu()+1);
+				}
+			}
+			else if(operation==Operation.DELETE){
+				if(component instanceof CpuComponent){
+					storageState.setCpu(storageState.getCpu()-1);
+				}
+				if(component instanceof MainboardComponent){
+					storageState.setMainboard(storageState.getMainboard()-1);
+				}
+				if(component instanceof RamComponent){
+					storageState.setRam(storageState.getRam()-1);
+				}
+				if(component instanceof GpuComponent){
+					storageState.setGpu(storageState.getGpu()-1);
+				}
+			}
+		}
+			
+		notifyGui.updateStorage(storageState);
 	}
 }

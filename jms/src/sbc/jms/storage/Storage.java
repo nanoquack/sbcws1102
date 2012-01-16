@@ -3,10 +3,7 @@ package sbc.jms.storage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
 
-import sbc.dto.ComponentEnum;
 import sbc.dto.CpuComponent;
 import sbc.dto.GpuComponent;
 import sbc.dto.MainboardComponent;

@@ -48,6 +48,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	protected JPanel contentPanel;
 	protected JPanel managementPanel;
 	protected JPanel jobPanel;
+	protected JPanel infoPanel;
 	protected JPanel partInfoPanel;
 	protected JTable partInfoTable;
 	protected JSplitPane infoSplitPane;
@@ -65,6 +66,8 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	protected JCheckBox jobGraphicsCard;
 	protected JTextField jobPcCount;
 	protected JButton jobCreateButton;
+	protected JPanel jobInfoPanel;
+	protected JTable jobInfoTable;
 
 	public MainFrame() {
 		initMainFrame();
@@ -108,7 +111,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		contentPanel = new JPanel();
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 		initManagementPanel();
-		initPartInfoPanel();
+		initInfoPanel();
 		initLogPanel();
 		initJobPanel();
 		configPanel = new JPanel();
@@ -199,6 +202,17 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		jobRamCount.addItem(Constants.LABEL_JOB_RAM_MODULE_COUNT_4);
 	}
 	
+	private void initInfoPanel(){
+		infoPanel = new JPanel();
+		infoPanel.setLayout(new BorderLayout());
+		
+		initPartInfoPanel();
+		initJobInfoPanel();
+		
+		infoPanel.add(partInfoPanel, BorderLayout.NORTH);
+		infoPanel.add(jobInfoPanel, BorderLayout.CENTER);
+	}
+	
 	protected void initPartInfoPanel(){
 		partInfoPanel = new JPanel();
 		partInfoPanel.setLayout(new BorderLayout());
@@ -212,6 +226,21 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 				Constants.PART_INFO_TABLE_HEIGHT));
 		partInfoTable.setFillsViewportHeight(true);
 		partInfoPanel.add(partInfoTableScrollPane, BorderLayout.CENTER);
+	}
+	
+	protected void initJobInfoPanel(){
+		jobInfoPanel = new JPanel();
+		jobInfoPanel.setLayout(new BorderLayout());
+		jobInfoPanel.setBorder(BorderFactory
+				.createTitledBorder(Constants.LABEL_JOB_INFO_TABLE));
+		jobInfoTable = new JTable();
+		jobInfoTable.setModel(new JobInfoTableModel());
+		JScrollPane jobInfoTableScrollPane = new JScrollPane(jobInfoTable);
+		jobInfoTableScrollPane.setPreferredSize(new Dimension(
+				Constants.JOB_INFO_TABLE_WIDTH,
+				Constants.JOB_INFO_TABLE_HEIGHT));
+		jobInfoTable.setFillsViewportHeight(true);
+		jobInfoPanel.add(jobInfoTableScrollPane, BorderLayout.CENTER);
 	}
 	
 	protected void initLogPanel(){
@@ -232,7 +261,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		logScrollPane.setPreferredSize(new Dimension(250, 250));
 		logScrollPane.setMinimumSize(new Dimension(10, 10));
-		infoSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, partInfoPanel, logScrollPane);
+		infoSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, infoPanel, logScrollPane);
 		infoSplitPane.setMinimumSize(new Dimension(800, 400));
 		infoSplitPane.setAlignmentX(Component.CENTER_ALIGNMENT);
 	}
@@ -245,12 +274,11 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 
 	@Override
 	public void updateStorage(StorageState state) {
-		// TODO Auto-generated method stub
 		PartInfoTableModel model = (PartInfoTableModel) partInfoTable
 				.getModel();
 		model.updateState(state);
 	}
-
+	
 	@Override
 	public void addLogMessage(String message) {
 		try {
@@ -324,6 +352,7 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 	private void createNewJob(Configuration config, int pcCount){
 		Job job = new Job(config, pcCount);
 		backend.createJob(job);
+		this.addJob(job);
 	}
 
 	public String getFactoryInfo() {
@@ -334,5 +363,17 @@ public class MainFrame extends JFrame implements INotifyGui, ItemListener,
 		this.factoryInfo = factoryInfo;
 	}
 
-	
+	@Override
+	public void addJob(Job job) {
+		JobInfoTableModel model = (JobInfoTableModel) jobInfoTable
+				.getModel();
+		model.addJob(job);
+	}
+
+	@Override
+	public void removeJob(Job job) {
+		JobInfoTableModel model = (JobInfoTableModel) jobInfoTable
+				.getModel();
+		model.removeJob(job);
+	}
 }

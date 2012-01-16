@@ -1,11 +1,13 @@
 package sbc.dto;
 
+import java.io.Serializable;
+
 /**
  * Container class for things that are kept in the storage
  * @author Sebastian Simon
  *
  */
-public class StorageState {
+public class StorageState implements Serializable{
 
 	private int cpu;
 	private int ram;

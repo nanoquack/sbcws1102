@@ -1,0 +1,6 @@
+Computer 1: 
+Intel Core i7 QuadCore Q820 1.73 GHz
+8 GB RAM
+Windows 7 64 Bit
+
+Computer 2: 

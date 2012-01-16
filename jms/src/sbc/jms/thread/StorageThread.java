@@ -68,13 +68,6 @@ public class StorageThread implements Runnable, ExceptionListener {
 						ObjectMessage message = (ObjectMessage) m;
 						ProductComponent component = (ProductComponent) message
 								.getObject();
-						// JmsLogging.getInstance().log("Worker "+component.getWorker()
-						// +
-						// " produced "+
-						// component.getClass().toString()+" with Id "
-						// +component.getId()+(component.isFaulty()?" (faulty!)":""));
-						// storage.storeItem(component.getClass().getName(),
-						// component);
 						JmsLogging.getInstance().log(
 								"Component Produced " + component.toString());
 						storage.storeItem(component.getClass().getName(),
@@ -85,7 +78,7 @@ public class StorageThread implements Runnable, ExceptionListener {
 						if (components != null) {
 							forwardPcParts(components);
 						}
-						notifyGui.updateStorage(storage.getStorageState());
+//						notifyGui.updateStorage(storage.getStorageState());
 					} else {
 						JmsLogging.getInstance().log(
 								"Dropped message " + m.getJMSMessageID());
