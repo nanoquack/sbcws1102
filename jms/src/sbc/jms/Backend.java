@@ -7,6 +7,7 @@ import sbc.INotifyGui;
 import sbc.dto.ProductionOrder;
 import sbc.jms.thread.ConstructionWorker;
 import sbc.jms.thread.JobsThread;
+import sbc.jms.thread.LoadBalancerThread;
 import sbc.jms.thread.LogThread;
 import sbc.jms.thread.LogisticWorker;
 import sbc.jms.thread.ProducerThread;
@@ -20,6 +21,7 @@ public class Backend implements IBackend {
 	private StorageThread st;
 	private Thread logThread;
 	private JobsThread jt;
+	private LoadBalancerThread lb;
 	private int workerSequencer = 1;
 
 	/**
@@ -40,6 +42,10 @@ public class Backend implements IBackend {
 		jt=new JobsThread();
 		Thread jobThread=new Thread(jt);
 		jobThread.start();
+		
+		lb=new LoadBalancerThread(jt,st);
+		Thread lbThread=new Thread(lb);
+		lbThread.start();
 	}
 
 	/**

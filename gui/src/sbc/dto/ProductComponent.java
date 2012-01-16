@@ -18,10 +18,10 @@ public abstract class ProductComponent implements Serializable {
 		this.faulty=faulty;
 	}
 	
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 	public String getWorker() {
@@ -30,10 +30,10 @@ public abstract class ProductComponent implements Serializable {
 	public void setWorker(String worker) {
 		this.worker = worker;
 	}
-	public boolean isFaulty() {
+	public Boolean isFaulty() {
 		return faulty;
 	}
-	public void setFaulty(boolean faulty) {
+	public void setFaulty(Boolean faulty) {
 		this.faulty = faulty;
 	}
 	

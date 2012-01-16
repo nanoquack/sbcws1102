@@ -1,6 +1,7 @@
 package sbc.jms.thread;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -28,6 +29,10 @@ public class JobsThread implements Runnable, ExceptionListener {
 	public synchronized void addJob(Job job){
 		jobs.add(job);
 	}
+	
+	public List<Job> getJobs(){
+		return jobs;
+	}
 
 	@Override
 	public void run() {
@@ -53,7 +58,7 @@ public class JobsThread implements Runnable, ExceptionListener {
 			MessageConsumer consumer = session.createConsumer(destination);
 			
 			while(running){
-				Message m = consumer.receive(1000);
+				Message m = consumer.receive(10000);
 				if(m!=null){
 					if (m instanceof ObjectMessage) {
 						ObjectMessage message = (ObjectMessage) m;

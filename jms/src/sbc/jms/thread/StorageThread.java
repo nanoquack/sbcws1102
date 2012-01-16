@@ -1,6 +1,7 @@
 package sbc.jms.thread;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -16,7 +17,12 @@ import javax.jms.Session;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import sbc.INotifyGui;
+import sbc.dto.CpuComponent;
+import sbc.dto.GpuComponent;
+import sbc.dto.MainboardComponent;
 import sbc.dto.ProductComponent;
+import sbc.dto.RamComponent;
+import sbc.dto.CpuComponent.CpuType;
 import sbc.jms.JmsConstants;
 import sbc.jms.JmsLogging;
 import sbc.jms.storage.Storage;
@@ -134,6 +140,36 @@ public class StorageThread implements Runnable, ExceptionListener {
 
 	public synchronized void stop() {
 		running = false;
+	}
+	
+	public synchronized int getNumberOfRams(){
+		return storage.getNumberOfRams();
+	}
+	
+	public synchronized int getNumberOfMainboards(){
+		return storage.getNumberOfMainboards();
+	}
+	
+	public synchronized int getNumberOfGpus(){
+		return storage.getNumberOfGpus();
+	}
+	
+	public synchronized int getNumberOfSingleCore16CPU(){
+		return storage.getNumberOfSingleCore16CPU();
+	}
+	public synchronized int getNumberOfDualCore02CPU(){
+		return storage.getNumberOfDualCore02CPU();
+	}
+	
+	public synchronized int getNumberOfDualCore24CPU(){
+		return storage.getNumberOfDualCore24CPU();
+	}
+	
+	public ProductComponent removeComponent(ProductComponent comp){
+		System.out.println("Removing Component of typ "+comp.getClass());
+		ProductComponent c=storage.removeComponent(comp);
+		notifyGui.updateStorage(storage.getStorageState());
+		return c;
 	}
 
 }
