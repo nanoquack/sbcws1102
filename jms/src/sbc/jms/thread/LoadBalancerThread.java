@@ -118,7 +118,7 @@ public class LoadBalancerThread implements Runnable, ExceptionListener {
 						if (msg instanceof ObjectMessage) {
 							ObjectMessage message = (ObjectMessage) msg;
 							NeededComponents nc=(NeededComponents)message.getObject();
-							int ramsNeeded=nc.getMainboardsNeeded();
+							int ramsNeeded=nc.getRamsNeeded();
 							int mainboardsNeeded=nc.getMainboardsNeeded();
 							int gpusNeeded=nc.getGpusNeeded();
 							int singleCore16sNeeded=nc.getSingleCore16sNeeded();
@@ -276,8 +276,8 @@ public class LoadBalancerThread implements Runnable, ExceptionListener {
 		int i=0;
 		for(Job job:jobs){
 			int rmc=job.getConfiguration().getRamModuleCount();
-			System.out.println("RMC: "+rmc);
-			i+=job.getQuantity()*rmc;
+			int j=rmc*job.getQuantity();
+			i=i+j;
 		}
 		return i;
 	}
