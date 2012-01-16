@@ -3,7 +3,7 @@ package sbc.gui;
 public class Constants {
 	//gui setting constants
 	public static final int MAIN_FRAME_WIDTH = 800;
-	public static final int MAIN_FRAME_HEIGHT = 600;
+	public static final int MAIN_FRAME_HEIGHT = 800;
 	public static final int PRODUCER_PRODUCT_COUNT_WIDTH = 50;
 	public static final int PRODUCER_PRODUCT_COUNT_HEIGHT = 20;
 	public static final int PRODUCER_ERROR_RATE_WIDTH = 50;
@@ -47,6 +47,6 @@ public class Constants {
 	public static final String LABEL_JOB_CREATE_BUTTON = "Create";
 	public static final String LABEL_JOB_INFO_TABLE = "jobs";
 	public static final String LABEL_JOB_INFO_TABLE_UUID = "UUID";
-	public static final String LABEL_JOB_INFO_TABLE_QUANTITY = "Quantity";
+	public static final String LABEL_JOB_INFO_TABLE_QUANTITY = "Overall Quantity";
 	public static final String LABEL_JOB_INFO_TABLE_CONFIGURATION = "Configuration";
 }
