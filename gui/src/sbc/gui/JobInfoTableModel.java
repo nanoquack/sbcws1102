@@ -16,8 +16,10 @@ public class JobInfoTableModel extends AbstractTableModel {
 	}
 	
 	public synchronized void addJob(Job job){
-		jobs.add(job);
-		this.fireTableDataChanged();
+		if(!jobs.contains(job)){
+			jobs.add(job);
+			this.fireTableDataChanged();
+		}
 	}
 	
 	public synchronized void removeJob(Job job){

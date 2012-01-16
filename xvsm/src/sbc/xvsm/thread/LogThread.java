@@ -93,7 +93,13 @@ public class LogThread implements Runnable, NotificationListener {
 				}
 				//a job was finished, so tell the gui
 				if(value instanceof Job){
-					notifyGui.removeJob((Job)value);
+					Job job = (Job)value;
+					if(job.getQuantity()>0){
+						notifyGui.addJob(job);
+					}
+					else{
+						notifyGui.removeJob(job);
+					}
 				}
 			}
 		}
