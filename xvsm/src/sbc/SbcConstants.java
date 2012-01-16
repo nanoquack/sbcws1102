@@ -36,5 +36,5 @@ public class SbcConstants {
 	public static int MAINPORT=-1;	//overwritten at setup
 	public static int READ_AT_ONCE = 20;	//count of jobs to read at once from job container
 //	public static long CONSTRUCTION_TAKE_TIMEOUT = MzsConstants.RequestTimeout.TRY_ONCE;
-	public static long CONSTRUCTION_TAKE_TIMEOUT = 500;
+	public static long CONSTRUCTION_TAKE_TIMEOUT = MzsConstants.RequestTimeout.TRY_ONCE;
 }

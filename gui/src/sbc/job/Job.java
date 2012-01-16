@@ -3,8 +3,14 @@ package sbc.job;
 import java.io.Serializable;
 import java.util.UUID;
 
+import org.mozartspaces.capi3.Index;
+import org.mozartspaces.capi3.Queryable;
+
+@Queryable
 public class Job implements Serializable {
 	private static final long serialVersionUID = -4128559480849344740L;
+	
+	@Index
 	private UUID uuid;
 	private int quantity;
 	private Configuration configuration;

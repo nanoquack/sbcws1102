@@ -2,7 +2,6 @@ package sbc.xvsm.thread;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
 import org.mozartspaces.capi3.FifoCoordinator;
@@ -21,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import sbc.INotifyGui;
 import sbc.SbcConstants;
+import sbc.job.Job;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
@@ -90,6 +90,10 @@ public class LogThread implements Runnable, NotificationListener {
 				Object value = ((Entry)logEntry).getValue();
 				if(value instanceof String){
 					notifyGui.addLogMessage((String)value);
+				}
+				//a job was finished, so tell the gui
+				if(value instanceof Job){
+					notifyGui.removeJob((Job)value);
 				}
 			}
 		}

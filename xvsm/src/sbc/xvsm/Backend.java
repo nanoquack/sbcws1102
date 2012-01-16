@@ -67,7 +67,7 @@ public class Backend implements IBackend, NotificationListener {
 					null, MzsConstants.Container.UNBOUNDED, null,
 					new QueryCoordinator(), new FifoCoordinator());
 			NotificationManager notifManager = new NotificationManager(core);
-			notifManager.createNotification(container, this, Operation.WRITE, Operation.DELETE);
+			notifManager.createNotification(container, this, Operation.WRITE, Operation.TAKE);
 			System.out.println(container.getSpace());
 			
 			loadbalancerContainer=capi.lookupContainer(
@@ -167,37 +167,44 @@ public class Backend implements IBackend, NotificationListener {
 			org.mozartspaces.notifications.Notification source, Operation operation,
 			List<? extends Serializable> entries) {
 		for(Serializable entry: entries){
-			Serializable component = ((Entry)entry).getValue();
-			if(operation==Operation.WRITE){
-				if(component instanceof CpuComponent){
-					storageState.setCpu(storageState.getCpu()+1);
-				}
-				else if(component instanceof MainboardComponent){
-					storageState.setMainboard(storageState.getMainboard()+1);
-				}
-				else if(component instanceof RamComponent){
-					storageState.setRam(storageState.getRam()+1);
-				}
-				else if(component instanceof GpuComponent){
-					storageState.setGpu(storageState.getGpu()+1);
-				}
+			Serializable component = null;
+			if(entry instanceof Entry){
+				component = ((Entry)entry).getValue();
 			}
-			else if(operation==Operation.DELETE){
-				if(component instanceof CpuComponent){
-					storageState.setCpu(storageState.getCpu()-1);
+			else{
+				component = entry;
+			}
+			synchronized(storageState){
+				if(operation==Operation.WRITE){
+					if(component instanceof CpuComponent){
+						storageState.setCpu(storageState.getCpu()+1);
+					}
+					else if(component instanceof MainboardComponent){
+						storageState.setMainboard(storageState.getMainboard()+1);
+					}
+					else if(component instanceof RamComponent){
+						storageState.setRam(storageState.getRam()+1);
+					}
+					else if(component instanceof GpuComponent){
+						storageState.setGpu(storageState.getGpu()+1);
+					}
 				}
-				if(component instanceof MainboardComponent){
-					storageState.setMainboard(storageState.getMainboard()-1);
-				}
-				if(component instanceof RamComponent){
-					storageState.setRam(storageState.getRam()-1);
-				}
-				if(component instanceof GpuComponent){
-					storageState.setGpu(storageState.getGpu()-1);
+				else if(operation==Operation.TAKE){
+					if(component instanceof CpuComponent){
+						storageState.setCpu(storageState.getCpu()-1);
+					}
+					else if(component instanceof MainboardComponent){
+						storageState.setMainboard(storageState.getMainboard()-1);
+					}
+					else if(component instanceof RamComponent){
+						storageState.setRam(storageState.getRam()-1);
+					}
+					else if(component instanceof GpuComponent){
+						storageState.setGpu(storageState.getGpu()-1);
+					}
 				}
 			}
 		}
-			
 		notifyGui.updateStorage(storageState);
-	}
+	}	
 }

@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import sbc.dto.StorageState;
 import sbc.job.Job;
 
 public class JobInfoTableModel extends AbstractTableModel {
@@ -26,10 +25,10 @@ public class JobInfoTableModel extends AbstractTableModel {
 		this.fireTableDataChanged();
 	}
 	
-	public synchronized void updateJobs(List<Job> update){
-		jobs = update;
-		this.fireTableDataChanged();
-	}
+//	public synchronized void updateJobs(List<Job> update){
+//		jobs = update;
+//		this.fireTableDataChanged();
+//	}
 
 	@Override
 	public int getRowCount() {
